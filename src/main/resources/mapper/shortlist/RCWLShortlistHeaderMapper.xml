@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RCWLShortlistHeaderMapper">
+    <insert id="insertShortlistHeader">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        INSERT INTO scux_rcwl_shortlist_header
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userDetails.organizationId !=null">
+                tenant_id,
+            </if>
+            <if test="shortlistNum !=null">
+                shortlist_num,
+            </if>
+            <if test="projectName !=null">
+                project_name,
+            </if>
+            <if test="companyName != null">
+                company_name,
+            </if>
+            <if test="businessEntity !=null">
+                business_entity,
+            </if>
+            <if test="sourceCategory !=null">
+                source_category,
+            </if>
+            <if test="shortlistCategory !=null">
+                shortlist_category,
+            </if>
+            <if test="startDate !=null">
+                start_date,
+            </if>
+            <if test="finishDate !=null">
+                finish_date,
+            </if>
+            <if test="capital !=null">
+                capital,
+            </if>
+            <if test="years !=null">
+                years,
+            </if>
+            <if test="oneProfit !=null">
+                one_profit,
+            </if>
+            <if test="twoProfit !=null">
+                two_profit
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="userDetails.organizationId !=null">
+                #{userDetails.organizationId},
+            </if>
+            <if test="shortlistNum !=null">
+                #{shortlistNum},
+            </if>
+            <if test="projectName !=null">
+                #{projectName},
+            </if>
+            <if test="companyName != null">
+                #{companyName},
+            </if>
+            <if test="businessEntity !=null">
+                #{businessEntity},
+            </if>
+            <if test="sourceCategory !=null">
+                #{sourceCategory},
+            </if>
+            <if test="shortlistCategory !=null">
+                #{shortlistCategory},
+            </if>
+            <if test="startDate !=null">
+                #{startDate},
+            </if>
+            <if test="finishDate !=null">
+                #{finishDate},
+            </if>
+            <if test="capital !=null">
+                #{capital},
+            </if>
+            <if test="years !=null">
+                #{years},
+            </if>
+            <if test="oneProfit !=null">
+                #{oneProfit},
+            </if>
+            <if test="twoProfit !=null">
+                #{twoProfit}
+            </if>
+        </trim>
+    </insert>
+    <insert id="insertSample">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        INSERT INTO scux_rcwl_sample
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userDetails.organizationId !=null">
+                tenant_id,
+            </if>
+            <if test="companyId !=null">
+                company_id,
+            </if>
+            <if test="companyName != null">
+                company_name,
+            </if>
+            <if test="sampleName !=null">
+                sample_name,
+            </if>
+            <if test="businessEntity !=null">
+                business_entity,
+            </if>
+            <if test="inventory !=null">
+                inventory,
+            </if>
+            <if test="supplierName !=null">
+                supplier_name,
+            </if>
+            <if test="supplierType !=null">
+                supplier_type,
+            </if>
+            <if test="originalFactory !=null">
+                original_factory,
+            </if>
+            <if test="sampleType !=null">
+                sample_type,
+            </if>
+            <if test="tension !=null">
+                tension,
+            </if>
+            <if test="sampledBy !=null">
+                sampled_by,
+            </if>
+            <if test="sampledPhone !=null">
+                sampled_phone,
+            </if>
+            <if test="sampledAddress !=null">
+                sampled_address,
+            </if>
+            <if test="receivedDepartment !=null">
+                received_department,
+            </if>
+            <if test="remarks !=null">
+                remarks,
+            </if>
+            <if test="charge !=null">
+                charge,
+            </if>
+            <if test="phone !=null">
+                phone
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="userDetails.organizationId !=null">
+                #{userDetails.organizationId},
+            </if>
+            <if test="companyId !=null">
+                #{companyId},
+            </if>
+            <if test="companyName != null">
+                #{companyName},
+            </if>
+            <if test="sampleName !=null">
+                #{sampleName},
+            </if>
+            <if test="businessEntity !=null">
+                #{businessEntity},
+            </if>
+            <if test="inventory !=null">
+                #{inventory},
+            </if>
+            <if test="supplierName !=null">
+                #{supplierName},
+            </if>
+            <if test="supplierType !=null">
+                #{supplierType},
+            </if>
+            <if test="originalFactory !=null">
+                #{originalFactory},
+            </if>
+            <if test="sampleType !=null">
+                #{sampleType},
+            </if>
+            <if test="tension !=null">
+                #{tension},
+            </if>
+            <if test="sampledBy !=null">
+                #{sampledBy},
+            </if>
+            <if test="sampledPhone !=null">
+                #{sampledPhone},
+            </if>
+            <if test="sampledAddress !=null">
+                #{sampledAddress},
+            </if>
+            <if test="receivedDepartment !=null">
+                #{receivedDepartment},
+            </if>
+            <if test="remarks !=null">
+                #{remarks},
+            </if>
+            <if test="charge !=null">
+                #{charge},
+            </if>
+            <if test="phone !=null">
+                #{phone}
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="updateShortlistHeader">
+        UPDATE
+        scux_rcwl_shortlist_header
+        <set>
+            <if test="projectName != null">
+                project_name=#{projectName},
+            </if>
+            <if test="companyName != null">
+                company_name=#{companyName},
+            </if>
+            <if test="businessEntity != null">
+                business_entity=#{businessEntity},
+            </if>
+            <if test="sourceCategory != null">
+                source_category=#{sourceCategory},
+            </if>
+            <if test="shortlistCategory != null">
+                shortlist_category=#{shortlistCategory},
+            </if>
+            <if test="startDate != null">
+                start_date=#{startDate},
+            </if>
+            <if test="finishDate != null">
+                finish_date=#{finishDate},
+            </if>
+            <if test="capital != null">
+                capital=#{capital},
+            </if>
+            <if test="years != null">
+                years=#{years},
+            </if>
+            <if test="oneProfit != null">
+                one_profit=#{oneProfit},
+            </if>
+            <if test="twoProfit != null">
+                two_profit=#{twoProfit},
+            </if>
+            <if test="state != null">
+                state=#{state},
+            </if>
+            <if test="publish != null">
+                publish=#{publish},
+            </if>
+            <if test="employ != null">
+                employ=#{employ},
+            </if>
+            <if test="examine != null">
+                examine=#{examine},
+            </if>
+            <if test="sample != null">
+                sample=#{sample}
+            </if>
+        </set>
+        WHERE shortlist_header_id = #{shortlistHeaderId}
+    </update>
+    <update id="updateSample">
+        UPDATE
+        scux_rcwl_sample
+        <set>
+            <if test="companyName !=null">
+                company_name=#{companyName},
+            </if>
+            <if test="sampleName !=null">
+                sample_name=#{sampleName},
+            </if>
+            <if test="businessEntity !=null">
+                business_entity=#{businessEntity},
+            </if>
+            <if test="inventory !=null">
+                inventory=#{inventory},
+            </if>
+            <if test="supplierName !=null">
+                supplier_name=#{supplierName},
+            </if>
+            <if test="supplierType !=null">
+                supplier_type=#{supplierType},
+            </if>
+            <if test="originalFactory !=null">
+                original_factory=#{originalFactory},
+            </if>
+            <if test="sampleType !=null">
+                sample_type=#{sampleType},
+            </if>
+            <if test="tension !=null">
+                tension=#{tension},
+            </if>
+            <if test="sampledBy !=null">
+                sampled_by=#{sampledBy},
+            </if>
+            <if test="sampledPhone !=null">
+                sampled_phone=#{sampledPhone},
+            </if>
+            <if test="sampledAddress !=null">
+                sampled_address=#{sampledAddress},
+            </if>
+            <if test="receivedDepartment !=null">
+                received_department=#{receivedDepartment},
+            </if>
+            <if test="remarks !=null">
+                remarks=#{remarks},
+            </if>
+            <if test="charge !=null">
+                charge=#{charge},
+            </if>
+            <if test="phone !=null">
+                phone=#{phone}
+            </if>
+        </set>
+        WHERE sample_id = #{sampleId}
+    </update>
+    <update id="updatePrline">
+        UPDATE
+        scux_rcwl_sample
+        <set>
+            <if test="attributeVarchar2 !=null">
+                attribute_varchar2={attributeVarchar2}
+            </if>
+        </set>
+        WHERE pr_line_id = #{prLineId}
+    </update>
+
+    <delete id="deleteShortlistHeader">
+        DELETE
+        FROM scux_rcwl_shortlist_header srsh
+        WHERE srsh.shortlist_header_id = #{shortlistHeaderId}
+    </delete>
+
+
+    <select id="listShortlistHeader" resultType="org.srm.source.cux.domain.entity.RCWLShortlistHeader">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.pr_line_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        hc.company_name,
+        srsh.business_entity,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.created_by,
+        srsh.creation_date,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.accessoryName,
+        srsh.files,
+        srsh.accessory_info,
+        srsh.uploader,
+        srsh.upload_date,
+        srsh.pr_header_id,
+        srsh.line_num,
+        srsh.category_name,
+        srsh.item_code,
+        srsh.item_name,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.last_updated_by,
+        srsh.last_update_date
+        FROM
+        scux_rcwl_shortlist_header srsh
+        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        WHERE
+        srsh.tenant_id = #{userDetails.organizationId}
+        <if test="shortlistNum != null and shortlistNum != ''">
+            <bind name="shortlistNumLike" value="'%'+shortlistNum+'%'"/>
+            AND srsh.shortlist_num LIKE #{shortlistNumLike}
+        </if>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%'+projectName+'%'"/>
+            AND srsh.project_name LIKE #{projectNameLike}
+        </if>
+        <if test="company != null and company != ''">
+            <bind name="companyLike" value="'%'+company+'%'"/>
+            AND srsh.company LIKE #{companyLike}
+        </if>
+        <if test="state != null and state != ''">
+            <bind name="stateLike" value="'%'+state+'%'"/>
+            AND srsh.state LIKE #{stateLike}
+        </if>
+        <if test="sourceCategory != null and sourceCategory != ''">
+            <bind name="sourceCategoryLike" value="'%'+sourceCategory+'%'"/>
+            AND srsh.source_category LIKE #{sourceCategoryLike}
+        </if>
+        <if test="shortlistCategory != null and shortlistCategory != ''">
+            <bind name="shortlistCategoryLike" value="'%'+shortlistCategory+'%'"/>
+            AND srsh.shortlist_category LIKE #{shortlistCategoryLike}
+        </if>
+        <if test="finishDate != null">
+            AND srsh.finish_date >= #{finishDate}
+        </if>
+        <if test="finishDate != null">
+            AND srsh.finish_date &lt; #{finishDate}
+        </if>
+    </select>
+    <select id="listShortlistHeaderSupplier"
+            resultType="org.srm.source.cux.domain.entity.RCWLShortlistHeader">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.pr_line_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        hc.company_name,
+        srsh.business_entity,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.created_by,
+        srsh.creation_date,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.accessoryName,
+        srsh.files,
+        srsh.accessory_info,
+        srsh.uploader,
+        srsh.upload_date,
+        srsh.pr_header_id,
+        srsh.line_num,
+        srsh.category_name,
+        srsh.item_code,
+        srsh.item_name,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.last_updated_by,
+        srsh.last_update_date
+        FROM
+        scux_rcwl_shortlist_header srsh
+        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        WHERE
+        srsh.tenant_id = #{userDetails.organizationId}
+        AND srsh.sample=1
+        <if test="shortlistNum != null and shortlistNum != ''">
+            <bind name="shortlistNumLike" value="'%'+shortlistNum+'%'"/>
+            AND srsh.shortlist_num LIKE #{shortlistNumLike}
+        </if>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%'+projectName+'%'"/>
+            AND srsh.project_name LIKE #{projectNameLike}
+        </if>
+        <if test="company != null and company != ''">
+            <bind name="companyLike" value="'%'+company+'%'"/>
+            AND srsh.company LIKE #{companyLike}
+        </if>
+        <if test="state != null and state != ''">
+            <bind name="stateLike" value="'%'+state+'%'"/>
+            AND srsh.state LIKE #{stateLike}
+        </if>
+        <if test="sourceCategory != null and sourceCategory != ''">
+            <bind name="sourceCategoryLike" value="'%'+sourceCategory+'%'"/>
+            AND srsh.source_category LIKE #{sourceCategoryLike}
+        </if>
+        <if test="shortlistCategory != null and shortlistCategory != ''">
+            <bind name="shortlistCategoryLike" value="'%'+shortlistCategory+'%'"/>
+            AND srsh.shortlist_category LIKE #{shortlistCategoryLike}
+        </if>
+        <if test="finishDate != null">
+            AND srsh.finish_date >= #{finishDate}
+        </if>
+        <if test="finishDate != null">
+            AND srsh.finish_date &lt; #{finishDate}
+        </if>
+    </select>
+    <select id="selectOneShortlistHeader"
+            resultType="org.srm.source.cux.domain.entity.RCWLShortlistHeader">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.pr_line_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        hc.company_name,
+        srsh.business_entity,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.created_by,
+        srsh.creation_date,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.accessoryName,
+        srsh.files,
+        srsh.accessory_info,
+        srsh.uploader,
+        srsh.upload_date,
+        srsh.pr_header_id,
+        srsh.line_num,
+        srsh.category_name,
+        srsh.item_code,
+        srsh.item_name,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.last_updated_by,
+        srsh.last_update_date
+        FROM
+        scux_rcwl_shortlist_header srsh
+        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        WHERE
+        srsh.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+    <select id="listShortlistSupplier" resultType="org.srm.source.cux.domain.entity.RCWLSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        srsh.supplier_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.shortlist_header_id,
+        srsh.sample_id,
+        srsh.supplier_name,
+        srsh.selected,
+        srsh.enroll,
+        srsh.enroll_date,
+        srsh.contacts,
+        srsh.phone,
+        srsh.qualification,
+        srsh.qualification_info,
+        srsh.annex,
+        srsh.announcement,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.creation_date,
+        srsh.created_by,
+        srsh.last_updated_by,
+        srsh.last_update_date,
+        srsh.shortlist_header_id,
+        hc.company_num,
+        slcs.stage_code,
+        scrs.sample_num
+        FROM
+        scux_rcwl_supplier_header srsh
+        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        JOIN sslm_life_cycle slc ON hc.company_id = slc.company_id
+        JOIN spfm_partner sp ON hc.company_id = sp.company_id
+        JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+        JOIN scux_rcwl_shortlist_header srs ON srs.shortlist_header_id=srsh.shortlist_header_id
+        JOIN scux_rcwl_sample scrs ON scrs.sample_id=srsh.sample_id
+    </select>
+    <select id="listSample" resultType="org.srm.source.cux.domain.entity.RCWLSample">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srs.sample_id,
+        srs.tenant_id,
+        srs.company_id,
+        srs.shortlist_header_id,
+        srs.supplier_id,
+        srs.company,
+        srs.sample_ame,
+        srs.business_entity,
+        srs.inventory,
+        srs.supplier_name,
+        srs.created_by,
+        srs.creation_date,
+        srs.supplier_type,
+        srs.original_factory,
+        srs.sample_type,
+        srs.tension,
+        srs.sampled_by,
+        srs.sampled_phone,
+        srs.sampled_address,
+        srs.received_department,
+        srs.remarks,
+        srs.charge,
+        srs.enabled_flag,
+        srs.object_version_number,
+        srs.phone,
+        srs.company_name,
+        srs.last_updated_by,
+        srs.last_update_date
+        FROM
+        scux_rcwl_sample srs
+        WHERE
+        srs.tenant_id = #{userDetails.organizationId}
+    </select>
+    <select id="selectOneSample" resultType="org.srm.source.cux.domain.entity.RCWLSample">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srs.sample_id,
+        srs.tenant_id,
+        srs.company_id,
+        srs.shortlist_header_id,
+        srs.supplier_id,
+        srs.company,
+        srs.sample_ame,
+        srs.business_entity,
+        srs.inventory,
+        srs.supplier_name,
+        srs.created_by,
+        srs.creation_date,
+        srs.supplier_type,
+        srs.original_factory,
+        srs.sample_type,
+        srs.tension,
+        srs.sampled_by,
+        srs.sampled_phone,
+        srs.sampled_address,
+        srs.received_department,
+        srs.remarks,
+        srs.charge,
+        srs.enabled_flag,
+        srs.object_version_number,
+        srs.phone,
+        srs.company_name,
+        srs.last_updated_by,
+        srs.last_update_date
+        FROM
+        scux_rcwl_sample srs
+        WHERE
+        srs.sample_id = #{sampleId}
+    </select>
+    <select id="selectOnePrline" resultType="org.srm.source.share.domain.vo.PrLineVO">
+        SELECT spl.pr_header_id,
+               spl.line_num,
+               sic.category_name,
+               spl.item_code,
+               spl.item_name,
+               spl.attribute_varchar2
+        FROM sprm_pr_line spl
+                 JOIN smdm_item_category sic ON spl.category_id = sic.category_id
+        WHERE spl.pr_line_id = #{prLineId}
+    </select>
+    <select id="listPrline" resultType="org.srm.source.share.domain.vo.PrLineVO">
+        SELECT spl.pr_header_id,
+               spl.line_num,
+               sic.category_name,
+               spl.item_code,
+               spl.item_name,
+               spl.attribute_varchar2
+        FROM sprm_pr_line spl
+                 JOIN smdm_item_category sic ON spl.category_id = sic.category_id
+        WHERE spl.attribute_varchar2 = #{shortlistHeaderId}
+    </select>
+
+
+</mapper>
