@@ -663,7 +663,7 @@
                spl.attribute_varchar2
         FROM sprm_pr_line spl
                  JOIN smdm_item_category sic ON spl.category_id = sic.category_id
-        WHERE spl.pr_line_id = #{prLineId}
+        WHERE spl.tenant_id = #{tenantId} and spl.pr_line_id = #{prLineId}
     </select>
     <select id="listPrline" resultType="org.srm.source.share.domain.vo.PrLineVO">
         SELECT spl.pr_header_id,
@@ -674,7 +674,7 @@
                spl.attribute_varchar2
         FROM sprm_pr_line spl
                  JOIN smdm_item_category sic ON spl.category_id = sic.category_id
-        WHERE spl.attribute_varchar2 = #{shortlistHeaderId}
+        WHERE spl.tenant_id = #{tenantId} and spl.attribute_varchar2 = #{shortlistHeaderId}
     </select>
 
 
