@@ -9,6 +9,7 @@ import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.srm.source.cux.rfx.api.controller.config.TransactionSwaggerApiConfig;
 import org.srm.source.cux.rfx.api.controller.dto.RcwlRfxSupplierQueryDTO;
 import org.srm.source.cux.rfx.app.service.RcwlRfxSupplierQueryService;
 import org.srm.source.cux.rfx.infra.constant.RcwlSourceConstant;
@@ -21,7 +22,7 @@ import java.util.List;
  * @Date 2021/3/24
  * @Version V1.0
  */
-@Api(tags = {"Rfx SupplierQuery"})
+@Api(TransactionSwaggerApiConfig.RFX_SUPPLIER_QUERY)
 @RestController("rcwlRfxSupplierQueryController.v1")
 @RequestMapping({"/v1/{organizationId}/rfx/supplier"})
 @Tenant(RcwlSourceConstant.TENANT_CODE)

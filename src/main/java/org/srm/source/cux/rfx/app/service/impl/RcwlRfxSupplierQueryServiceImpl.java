@@ -32,6 +32,12 @@ public class RcwlRfxSupplierQueryServiceImpl implements RcwlRfxSupplierQueryServ
     @Autowired
     private RfxQuotationLineService rfxQuotationLineService;
 
+    /**
+     * 根据条件查询询价信息
+     * @param organizationId
+     * @param supplierCompanyId
+     * @return
+     */
     @Override
     public List<RcwlRfxSupplierQueryDTO> queryRfxSupplierQueryDTO(Long organizationId, Long supplierCompanyId) {
         // 根据供应商公司id查询询价单信息
