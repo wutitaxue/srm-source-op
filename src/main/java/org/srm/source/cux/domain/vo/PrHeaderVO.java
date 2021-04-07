@@ -1,14 +1,19 @@
 package org.srm.source.cux.domain.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.srm.common.mybatis.domain.ExpandDomain;
 
 /**
- * @author 15640
+ * @author bin.zhang
  */
 public class PrHeaderVO extends ExpandDomain {
+    @ApiModelProperty(value = "采购申请头id")
     private Long prHeaderId;
+    @ApiModelProperty(value = "采购申请编号")
     private String prNum;
+    @ApiModelProperty(value = "行号")
     private String lineNum;
+    @ApiModelProperty(value = "采购申请行id")
     private Long prLineId;
 
     public Long getPrHeaderId() {

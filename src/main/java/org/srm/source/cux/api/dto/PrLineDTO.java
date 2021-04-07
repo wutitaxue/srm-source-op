@@ -1,12 +1,18 @@
 package org.srm.source.cux.api.dto;
 
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * @author bin.zhang
+ */
 public class PrLineDTO {
+    @ApiModelProperty(value = "采购申请行id")
     private Long prLineId;
+    @ApiModelProperty(value = "采购申请头id")
     private Long prHeaderId;
+    @ApiModelProperty(value = "租户id")
     private Long tenantId;
-    /**
-     * 采购计划id
-     */
+    @ApiModelProperty(value = "采购计划id")
     private Long attributeBigint1;
 
     public Long getPrLineId() {
@@ -39,5 +45,15 @@ public class PrLineDTO {
 
     public void setAttributeBigint1(Long attributeBigint1) {
         this.attributeBigint1 = attributeBigint1;
+    }
+
+    @Override
+    public String toString() {
+        return "PrLineDTO{" +
+                "prLineId=" + prLineId +
+                ", prHeaderId=" + prHeaderId +
+                ", tenantId=" + tenantId +
+                ", attributeBigint1=" + attributeBigint1 +
+                '}';
     }
 }

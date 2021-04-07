@@ -1,6 +1,8 @@
 package org.srm.source.cux.api.dto;
 
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 
@@ -8,18 +10,31 @@ import java.util.Date;
  * @author bin.zhang
  */
 public class HeaderQueryDTO {
+    @ApiModelProperty(value = "采购计划id")
     private Long planId;
+    @ApiModelProperty(value = "租户id")
     private Long tenantId;
+    @ApiModelProperty(value = "计划编号")
     private String planNum;
+    @ApiModelProperty(value = "状态")
     private String state;
+    @ApiModelProperty(value = "业态")
     private String format;
+    @ApiModelProperty(value = "公司")
     private String companyName;
+    @ApiModelProperty(value = "采购类别")
     private String prCategory;
+    @ApiModelProperty(value = "采购方式")
     private String prWay;
+    @ApiModelProperty(value = "招采模式")
     private String bidMethod;
+    @ApiModelProperty(value = "需求人")
     private String demanders;
+    @ApiModelProperty(value = "创建日期从")
     private Date creationDateFrom;
+    @ApiModelProperty(value = "创建日期至")
     private Date creationDateTo;
+    @ApiModelProperty(value = "公司id")
     private Long companyId;
     public Long getPlanId() {
         return planId;
