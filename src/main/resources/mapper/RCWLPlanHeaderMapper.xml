@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.infra.mapper.RCWLPlanHeaderMapper">
+<mapper namespace="org.srm.source.cux.infra.mapper.RCWLPlanHeaderMapper">
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap id="BaseResultMap" type="org.srm.source.domain.entity.PlanHeader">
+    <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.PlanHeader">
         <result column="plan_id" property="planId" jdbcType="DECIMAL"/>
         <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
         <result column="plan_num" property="planNum" jdbcType="VARCHAR"/>
@@ -83,8 +83,8 @@
 
     </sql>
 
-    <select id="listPlanHeader" parameterType="org.srm.source.api.dto.HeaderQueryDTO"
-            resultType="org.srm.source.domain.vo.PlanHeaderVO">
+    <select id="listPlanHeader" parameterType="org.srm.source.cux.api.dto.HeaderQueryDTO"
+            resultType="org.srm.source.cux.domain.vo.PlanHeaderVO">
         select
         <include refid="Base_Column_List"/>,
          l.attribute_varchar1,
@@ -136,8 +136,8 @@
     </if>
 </where>
     </select>
-    <select id="exportAllPlanHeader" parameterType="org.srm.source.domain.entity.PlanHeader"
-            resultType="org.srm.source.api.dto.PlanHeaderExportDTO">
+    <select id="exportAllPlanHeader" parameterType="org.srm.source.cux.domain.entity.PlanHeader"
+            resultType="org.srm.source.cux.api.dto.PlanHeaderExportDTO">
         select
         <include refid="Base_Column_List"/>
         l.attribute_varchar1,
@@ -154,8 +154,8 @@
         left join sprm_pr_line l on h.plan_id = l.attribute_bigint1
 
     </select>
-    <select id="selectPrHeaderExport"  parameterType="org.srm.source.api.dto.PlanHeaderExportDTO"
-            resultType="org.srm.source.domain.vo.PlanHeaderExportVO">
+    <select id="selectPrHeaderExport"  parameterType="org.srm.source.cux.api.dto.PlanHeaderExportDTO"
+            resultType="org.srm.source.cux.domain.vo.PlanHeaderExportVO">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
             select
         <include refid="Base_Column_List"/>,

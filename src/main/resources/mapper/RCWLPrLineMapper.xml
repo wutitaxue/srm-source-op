@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.infra.mapper.RCWLPrLineMapper">
+<mapper namespace="org.srm.source.cux.infra.mapper.RCWLPrLineMapper">
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap id="BaseResultMap" type="org.srm.source.domain.entity.PrLine">
+    <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.PrLine">
         <result column="pr_line_id" property="prLineId" jdbcType="DECIMAL"/>
         <result column="pr_header_id" property="prHeaderId" jdbcType="DECIMAL"/>
         <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
@@ -335,7 +335,7 @@
         update sprm_pr_line h set h.attribute_bigint1 = null
         where h.attribute_bigint1 = #{planId} and  h.tenant_id = #{tenantId}
     </update>
-    <select id="selectPrLine" resultType="org.srm.source.api.dto.PrLineDTO">
+    <select id="selectPrLine" resultType="org.srm.source.cux.api.dto.PrLineDTO">
               select h.pr_line_id,
                   h.pr_header_id,
                    h.attribute_bigint1
@@ -345,7 +345,7 @@
           select  h.pr_line_id  from sprm_pr_line h
           where h.pr_header_id = #{prHeaderId}  and h.line_num = #{lineNum} and h.tenant_id = #{tenantId}
     </select>
-    <select id="selectByNum" resultType="org.srm.source.domain.vo.PrHeaderVO">
+    <select id="selectByNum" resultType="org.srm.source.cux.domain.vo.PrHeaderVO">
         select h.pr_header_id,
               h.pr_num,
             l.pr_line_id,
