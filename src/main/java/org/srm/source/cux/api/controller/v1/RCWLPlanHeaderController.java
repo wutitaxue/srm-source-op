@@ -50,6 +50,7 @@ public class RCWLPlanHeaderController extends BaseController {
     private RCWLPrLineService prLineService;
     @ApiOperation(value = "采购计划查询")
     @Permission(level = ResourceLevel.ORGANIZATION)
+    //@Permission(permissionPublic = true)
     @GetMapping("/list")
     @ProcessLovValue(targetField = BaseConstants.FIELD_BODY)
     public ResponseEntity<Page<PlanHeaderVO>> listRfxHeader(@PathVariable Long organizationId,
@@ -66,6 +67,7 @@ public class RCWLPlanHeaderController extends BaseController {
     @Permission(
             level = ResourceLevel.ORGANIZATION
     )
+    //@Permission(permissionPublic = true)
     @GetMapping({"/all/export"})
     @ExcelExport(
             value = PlanHeaderExportVO.class
@@ -80,6 +82,8 @@ public class RCWLPlanHeaderController extends BaseController {
 
     @ApiOperation(value = "采购计划附件保存")
     @Permission(level = ResourceLevel.ORGANIZATION)
+
+   // @Permission(permissionPublic = true)
     @PostMapping("/header/attachment")
     public ResponseEntity saveAttachment(@PathVariable("organizationId") Long tenantId, @RequestBody PlanHeader planHeader) {
         RCWLPlanHeaderService.saveAttachment(tenantId, planHeader);
@@ -88,6 +92,8 @@ public class RCWLPlanHeaderController extends BaseController {
 
     @ApiOperation(value = "批量取消采购计划")
     @Permission(level = ResourceLevel.ORGANIZATION)
+//   @Permission(permissionPublic = true)
+
     @PostMapping("/cancel")
     public ResponseEntity<List<PlanHeader>> batchCancelPlanHeader(@ApiParam(value = "租户id", required = true) @PathVariable(value = "organizationId") Long organizationId,
                                                                   @ApiParam(value = "采购计划表list") @RequestBody List<PlanHeader> planHeaderList) {
@@ -97,6 +103,7 @@ public class RCWLPlanHeaderController extends BaseController {
 
     @ApiOperation(value = "创建保存采购计划")
     @Permission(level = ResourceLevel.ORGANIZATION)
+    //@Permission(permissionPublic = true)
     @PostMapping("/save")
     public ResponseEntity batchCreateAndUpdate(@PathVariable Long organizationId,@RequestBody PlanHeader planHeaderParam) {
         planHeaderParam.setTenantId(organizationId);
