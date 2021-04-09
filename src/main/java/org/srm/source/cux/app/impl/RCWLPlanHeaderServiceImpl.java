@@ -107,8 +107,7 @@ public class RCWLPlanHeaderServiceImpl implements RCWLPlanHeaderService {
                 logger.info("计划id:{}" + planHeaderParam.getPlanId());
             } else {
                 planHeaderParam.setState(Constants.PlanHeaderState.ALREADY);
-                planHeaderParam.setPlanNum(this.codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), "SSRC.RFX_NUM", "GLOBAL", "GLOBAL", (Map) null));
-                String str = "PL" + planHeaderParam.getPlanNum().substring(3);
+                String str = this.codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), "SSRC.RCWL.PLAN_HEADER", "GLOBAL", "GLOBAL", (Map) null);
                 planHeaderParam.setPlanNum(str);
                 logger.info("plan_num:{}" + str);
                 RCWLPlanHeaderRepository.insertSelective(planHeaderParam);
