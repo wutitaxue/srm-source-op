@@ -17,7 +17,7 @@ public class RCWLSample {
     private Long createdBy;
     private Date creationDate;
     private String phone;
-    private String companyName;
+    private String company;
     private String businessEntity;
     private String inventory;
     private String supplierName;
@@ -110,11 +110,11 @@ public class RCWLSample {
     }
 
     public String getCompanyName() {
-        return companyName;
+        return company;
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.company = companyName;
     }
 
     public String getBusinessEntity() {
