@@ -113,7 +113,10 @@
         and h.format = #{format}
     </if>
     <if test="companyId != null">
-        and h.company_name = #{companyId}
+        and h.company_id = #{companyId}
+    </if>
+    <if test="companyName != null">
+        and h.company_name = #{companyName}
     </if>
     <if test="prCategory != null">
         and h.pr_category = #{prCategory}
