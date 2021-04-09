@@ -88,6 +88,12 @@ public interface RCWLShortlistHeaderRepository {
      */
     PrLineVO selectOnePrline(Long prLineId);
 
+
+    /**
+     * 更新采购申请单行入围单编码
+     *
+     * @param prLine
+     */
     void updatePrline(PrLineVO prLine);
 
     /**
