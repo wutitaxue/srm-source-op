@@ -1,12 +1,15 @@
 package org.srm.source.cux.domain.entity;
 
 
-import lombok.Data;
 
+
+import org.srm.common.mybatis.domain.ExpandDomain;
+
+import javax.persistence.Table;
 import java.util.Date;
 
-@Data
-public class RCWLShortlistHeader {
+@Table(name = "scux_rcwl_shortlist_header")
+public class RCWLShortlistHeader extends ExpandDomain {
 
     private Long shortlistHeaderId;
     private Long tenantId;
@@ -21,8 +24,6 @@ public class RCWLShortlistHeader {
     private String businessEntity;
     private String sourceCategory;
     private String shortlistCategory;
-    private String createdBy;
-    private Date creationDate;
     private Date startDate;
     private Date finishDate;
     private Long capital;
@@ -124,22 +125,6 @@ public class RCWLShortlistHeader {
 
     public void setShortlistCategory(String shortlistCategory) {
         this.shortlistCategory = shortlistCategory;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
     }
 
     public Date getStartDate() {
