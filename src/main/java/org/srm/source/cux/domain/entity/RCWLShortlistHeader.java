@@ -17,7 +17,7 @@ public class RCWLShortlistHeader {
     //基础信息
     private String shortlistNum;
     private String projectName;
-    private String companyName;
+    private String company;
     private String businessEntity;
     private String sourceCategory;
     private String shortlistCategory;
@@ -95,11 +95,11 @@ public class RCWLShortlistHeader {
     }
 
     public String getCompanyName() {
-        return companyName;
+        return company;
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.company = companyName;
     }
 
     public String getBusinessEntity() {
