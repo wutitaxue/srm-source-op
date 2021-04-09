@@ -79,7 +79,7 @@ public interface RCWLShortlistHeaderService {
      *
      * @param prLineIds
      */
-    void purchaseRequisitionToBeShortlisted(List<Long> prLineIds);
+    RCWLShortlistHeader purchaseRequisitionToBeShortlisted(List<Long> prLineIds);
 
     /**
      * 删除入围单

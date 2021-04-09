@@ -1,10 +1,12 @@
 package org.srm.source.cux.app.service.impl;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +102,7 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     @Override
     @Transactional(rollbackFor = Exception.class)
     public RCWLShortlistHeader createOrUpdateShortlistHeader(RCWLShortlistHeader rcwLShortlistHeader) {
-        rcwLShortlistHeader.setCreatedBy(DetailsHelper.getUserDetails().getRealName());
+        rcwLShortlistHeader.setCreatedBy(DetailsHelper.getUserDetails().getUserId());
         if (rcwlShortlistHeaderRepository.selectOneShortlistHeader(rcwLShortlistHeader.getShortlistHeaderId()) == null) {
             rcwLShortlistHeader.setShortlistNum(codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), SourceConstants.CodeRule.RFX_NUM, "GLOBAL", "GLOBAL", null));
             rcwLShortlistHeader.setShortlistNum("RW" + rcwLShortlistHeader.getShortlistNum().substring(3));
@@ -112,14 +114,24 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     }
 
     @Override
-    public void purchaseRequisitionToBeShortlisted(List<Long> prLineIds) {
+    public RCWLShortlistHeader purchaseRequisitionToBeShortlisted(List<Long> prLineIds) {
         String str = codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), SourceConstants.CodeRule.RFX_NUM, "GLOBAL", "GLOBAL", null);
         String shortlistNum = "RW" + str.substring(3);
+        RCWLShortlistHeader rcwlShortlistHeader = new RCWLShortlistHeader();
         for (Long prLineId : prLineIds) {
             PrLineVO prLine = rcwlShortlistHeaderRepository.selectOnePrline(prLineId);
+            if (prLine == null) {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+            }
             prLine.setAttributeVarchar2(shortlistNum);
+            //更新采购申请行的入围单号
             rcwlShortlistHeaderRepository.updatePrline(prLine);
         }
+        //创建入围单
+        rcwlShortlistHeader.setShortlistNum(shortlistNum);
+        rcwlShortlistHeaderRepository.insertShortlistHeader(rcwlShortlistHeader);
+        //返回入围id
+        return rcwlShortlistHeader;
     }
 
     @Override
