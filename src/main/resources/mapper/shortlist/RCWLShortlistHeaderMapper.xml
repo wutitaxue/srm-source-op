@@ -15,8 +15,8 @@
             <if test="projectName !=null">
                 project_name,
             </if>
-            <if test="companyName != null">
-                company_name,
+            <if test="company != null">
+                company,
             </if>
             <if test="businessEntity !=null">
                 business_entity,
@@ -99,8 +99,8 @@
             <if test="companyId !=null">
                 company_id,
             </if>
-            <if test="companyName != null">
-                company_name,
+            <if test="company != null">
+                company,
             </if>
             <if test="sampleName !=null">
                 sample_name,
@@ -214,8 +214,8 @@
             <if test="projectName != null">
                 project_name=#{projectName},
             </if>
-            <if test="companyName != null">
-                company_name=#{companyName},
+            <if test="company != null">
+                company=#{company},
             </if>
             <if test="businessEntity != null">
                 business_entity=#{businessEntity},
@@ -266,8 +266,8 @@
         UPDATE
         scux_rcwl_sample
         <set>
-            <if test="companyName !=null">
-                company_name=#{companyName},
+            <if test="company !=null">
+                company=#{company},
             </if>
             <if test="sampleName !=null">
                 sample_name=#{sampleName},
@@ -609,7 +609,7 @@
         srs.enabled_flag,
         srs.object_version_number,
         srs.phone,
-        srs.company_name,
+        srs.company,
         srs.last_updated_by,
         srs.last_update_date
         FROM
@@ -646,7 +646,7 @@
         srs.enabled_flag,
         srs.object_version_number,
         srs.phone,
-        srs.company_name,
+        srs.company,
         srs.last_updated_by,
         srs.last_update_date
         FROM
