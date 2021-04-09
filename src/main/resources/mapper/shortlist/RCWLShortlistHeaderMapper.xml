@@ -319,7 +319,7 @@
     </update>
     <update id="updatePrline">
         UPDATE
-        scux_rcwl_sample
+        sprm_pr_line
         <set>
             <if test="attributeVarchar2 !=null">
                 attribute_varchar2={attributeVarchar2}
@@ -674,7 +674,8 @@
                spl.attribute_varchar2
         FROM sprm_pr_line spl
                  JOIN smdm_item_category sic ON spl.category_id = sic.category_id
-        WHERE spl.tenant_id = #{tenantId} and spl.attribute_varchar2 = #{shortlistHeaderId}
+        WHERE spl.tenant_id = #{tenantId} and spl.attribute_varchar2 =
+        (select shortlist_num from scux_rcwl_shortlist_header t where t.shortlist_header_id = #{shortlistHeaderId})
     </select>
 
 

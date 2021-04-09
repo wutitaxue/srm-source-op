@@ -114,10 +114,10 @@ public class RCWLShortlistHeaderController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/scux-rcwl/purchase-create")
     @FilterSupplier
-    public ResponseEntity<Integer> purchaseRequisitionToBeShortlisted(@PathVariable Long organizationId,
+    public ResponseEntity<RCWLShortlistHeader> purchaseRequisitionToBeShortlisted(@PathVariable Long organizationId,
                                                                       @Encrypt @RequestBody List<Long> prLineIds) {
-        rcwlShortlistHeaderService.purchaseRequisitionToBeShortlisted(prLineIds);
-        return Results.success();
+        RCWLShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderService.purchaseRequisitionToBeShortlisted(prLineIds);
+        return Results.success(rcwlShortlistHeader);
     }
 
     @ApiOperation(value = "删除入围单头-融创")
