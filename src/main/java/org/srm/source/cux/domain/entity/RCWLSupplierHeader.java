@@ -1,11 +1,13 @@
 package org.srm.source.cux.domain.entity;
 
 import lombok.Data;
+import org.srm.common.mybatis.domain.ExpandDomain;
 
+import javax.persistence.Table;
 import java.sql.Date;
 
-@Data
-public class RCWLSupplierHeader {
+@Table(name = "scux_rcwl_supplier_header")
+public class RCWLSupplierHeader extends ExpandDomain {
     private Long supplierId;
     private Long tenantId;
     private Long companyId;
@@ -36,10 +38,7 @@ public class RCWLSupplierHeader {
 
     private Integer enabledFlag;
     private Long objectVersionNumber;
-    private Date creationDate;
-    private Long createdBy;
-    private Long lastUpdatedBy;
-    private Date lastUpdateDate;
+
 
     public Long getSupplierId() {
         return supplierId;
@@ -233,35 +232,4 @@ public class RCWLSupplierHeader {
         this.objectVersionNumber = objectVersionNumber;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Long getLastUpdatedBy() {
-        return lastUpdatedBy;
-    }
-
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
-
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
 }

@@ -1,11 +1,14 @@
 package org.srm.source.cux.domain.entity;
 
-import lombok.Data;
 
+import org.srm.common.mybatis.domain.ExpandDomain;
+
+import javax.persistence.Table;
 import java.util.Date;
 
-@Data
-public class RCWLSample {
+
+@Table(name = "scux_rcwl_sample")
+public class RCWLSample extends ExpandDomain {
     private Long sampleId;
     private Long tenantId;
     private Long companyId;
@@ -34,8 +37,6 @@ public class RCWLSample {
 
     private Integer enabledFlag;
     private Long objectVersionNumber;
-    private Long lastUpdatedBy;
-    private Date lastUpdateDate;
 
     public Long getSampleId() {
         return sampleId;
@@ -237,19 +238,5 @@ public class RCWLSample {
         this.objectVersionNumber = objectVersionNumber;
     }
 
-    public Long getLastUpdatedBy() {
-        return lastUpdatedBy;
-    }
 
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
-
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
 }
