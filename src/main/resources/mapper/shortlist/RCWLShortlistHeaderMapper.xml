@@ -322,7 +322,7 @@
         sprm_pr_line
         <set>
             <if test="attributeVarchar2 !=null">
-                attribute_varchar2={attributeVarchar2}
+                attribute_varchar2= #{attributeVarchar2}
             </if>
         </set>
         WHERE pr_line_id = #{prLineId}
