@@ -1,5 +1,6 @@
 package org.srm.source.cux.infra.mapper;
 
+import io.choerodon.mybatis.common.BaseMapper;
 import org.srm.source.share.domain.vo.PrLineVO;
 import org.srm.source.cux.domain.entity.RCWLSample;
 import org.srm.source.cux.domain.entity.RCWLShortlistHeader;
@@ -7,7 +8,7 @@ import org.srm.source.cux.domain.entity.RCWLSupplierHeader;
 
 import java.util.List;
 
-public interface RCWLShortlistHeaderMapper {
+public interface RCWLShortlistHeaderMapper extends BaseMapper<RCWLShortlistHeader> {
     /**
      * 租户查询入围单头
      *
