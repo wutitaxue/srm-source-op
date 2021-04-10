@@ -40,8 +40,8 @@ public class RCWLSupplierShortlistHeaderRepositoryImpl implements RCWLShortlistH
     }
 
     @Override
-    public List<PrLineVO> listPrline(PrLineVO prline, Long shortlistHeaderId) {
-        return rcwlShortlistHeaderMapper.listPrline(prline, shortlistHeaderId);
+    public List<PrLineVO> listPrline(Long tenantId,PrLineVO prline, Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.listPrline(tenantId,prline, shortlistHeaderId);
     }
 
     @Override
@@ -70,8 +70,8 @@ public class RCWLSupplierShortlistHeaderRepositoryImpl implements RCWLShortlistH
     }
 
     @Override
-    public PrLineVO selectOnePrline(Long prLineId) {
-        return rcwlShortlistHeaderMapper.selectOnePrline(prLineId);
+    public PrLineVO selectOnePrline(Long tenantId,Long prLineId) {
+        return rcwlShortlistHeaderMapper.selectOnePrline(tenantId,prLineId);
     }
 
     @Override
