@@ -35,6 +35,11 @@ public class RCWLSupplierShortlistHeaderRepositoryImpl implements RCWLShortlistH
     }
 
     @Override
+    public Long selectOneShortlistHeaderByNum(String Num) {
+        return rcwlShortlistHeaderMapper.selectOneShortlistHeaderByNum(Num);
+    }
+
+    @Override
     public List<RCWLSupplierHeader> listShortlistSupplier(RCWLSupplierHeader rcwLSupplierHeader, Long shortlistHeaderId) {
         return rcwlShortlistHeaderMapper.listShortlistSupplier(rcwLSupplierHeader, shortlistHeaderId);
     }

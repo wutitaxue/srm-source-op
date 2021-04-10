@@ -5,12 +5,15 @@ package org.srm.source.cux.domain.entity;
 
 import org.srm.common.mybatis.domain.ExpandDomain;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+
 
 @Table(name = "scux_rcwl_shortlist_header")
 public class RCWLShortlistHeader extends ExpandDomain {
 
+    @Id
     private Long shortlistHeaderId;
     private Long tenantId;
     private Long companyId;
