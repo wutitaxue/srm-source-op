@@ -43,7 +43,7 @@ public interface RCWLShortlistHeaderRepository {
      * @param prLine
      * @param shortlistHeaderId
      */
-    List<PrLineVO> listPrline(PrLineVO prLine, Long shortlistHeaderId);
+    List<PrLineVO> listPrline(Long tenantId,PrLineVO prLine, Long shortlistHeaderId);
 
     /**
      * 查询送样单
@@ -86,7 +86,7 @@ public interface RCWLShortlistHeaderRepository {
      *
      * @param prLineId
      */
-    PrLineVO selectOnePrline(Long prLineId);
+    PrLineVO selectOnePrline(Long tenantId,Long prLineId);
 
 
     /**

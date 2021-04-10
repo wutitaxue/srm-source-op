@@ -77,7 +77,7 @@ public class RCWLShortlistHeaderController {
     @FilterSupplier
     public ResponseEntity<Page<PrLineVO>> listPrline(@PathVariable("organizationId") Long organizationId,
                                                      @Encrypt PrLineVO prline, PageRequest pageRequest, Long shortlistHeaderId) {
-        return Results.success(rcwlShortlistHeaderService.listPrline(prline, pageRequest, shortlistHeaderId));
+        return Results.success(rcwlShortlistHeaderService.listPrline(organizationId,prline, pageRequest, shortlistHeaderId));
     }
 
     @ApiOperation(value = "批量查询送样单-融创")
@@ -116,7 +116,7 @@ public class RCWLShortlistHeaderController {
     @FilterSupplier
     public ResponseEntity<RCWLShortlistHeader> purchaseRequisitionToBeShortlisted(@PathVariable Long organizationId,
                                                                       @Encrypt @RequestBody List<Long> prLineIds) {
-        RCWLShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderService.purchaseRequisitionToBeShortlisted(prLineIds);
+        RCWLShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderService.purchaseRequisitionToBeShortlisted(organizationId,prLineIds);
         return Results.success(rcwlShortlistHeader);
     }
 

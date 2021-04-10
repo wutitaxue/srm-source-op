@@ -84,8 +84,8 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     }
 
     @Override
-    public Page<PrLineVO> listPrline(PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId) {
-        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderRepository.listPrline(prLine, shortlistHeaderId));
+    public Page<PrLineVO> listPrline(Long tenantId,PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId) {
+        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderRepository.listPrline(tenantId,prLine, shortlistHeaderId));
     }
 
     @Override
@@ -114,12 +114,12 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     }
 
     @Override
-    public RCWLShortlistHeader purchaseRequisitionToBeShortlisted(List<Long> prLineIds) {
+    public RCWLShortlistHeader purchaseRequisitionToBeShortlisted(Long tenantId,List<Long> prLineIds) {
         String str = codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), SourceConstants.CodeRule.RFX_NUM, "GLOBAL", "GLOBAL", null);
         String shortlistNum = "RW" + str.substring(3);
         RCWLShortlistHeader rcwlShortlistHeader = new RCWLShortlistHeader();
         for (Long prLineId : prLineIds) {
-            PrLineVO prLine = rcwlShortlistHeaderRepository.selectOnePrline(prLineId);
+            PrLineVO prLine = rcwlShortlistHeaderRepository.selectOnePrline(tenantId,prLineId);
             if (prLine == null) {
                 throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
             }
