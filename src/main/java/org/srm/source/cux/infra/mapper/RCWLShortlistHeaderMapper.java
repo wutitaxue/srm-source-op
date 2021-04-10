@@ -28,7 +28,12 @@ public interface RCWLShortlistHeaderMapper {
      * @param shortlistHeaderId
      */
     RCWLShortlistHeader selectOneShortlistHeader(Long shortlistHeaderId);
-
+    /**
+     * 查询入围单头明细
+     *
+     * @param Num
+     */
+    Long selectOneShortlistHeaderByNum(String Num);
     /**
      * 查询供应商
      *

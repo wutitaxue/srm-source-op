@@ -539,6 +539,55 @@
         WHERE
         srsh.shortlist_header_id = #{shortlistHeaderId}
     </select>
+    <select id="selectOneShortlistHeaderByNum"
+            resultType="java.lang.Long">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.pr_line_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        hc.company_name,
+        srsh.business_entity,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.created_by,
+        srsh.creation_date,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.accessoryName,
+        srsh.files,
+        srsh.accessory_info,
+        srsh.uploader,
+        srsh.upload_date,
+        srsh.pr_header_id,
+        srsh.line_num,
+        srsh.category_name,
+        srsh.item_code,
+        srsh.item_name,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.last_updated_by,
+        srsh.last_update_date
+        FROM
+        scux_rcwl_shortlist_header srsh
+        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        WHERE
+        srsh.shortlist_num = #{Num}
+    </select>
+
     <select id="listShortlistSupplier" resultType="org.srm.source.cux.domain.entity.RCWLSupplierHeader">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         SELECT

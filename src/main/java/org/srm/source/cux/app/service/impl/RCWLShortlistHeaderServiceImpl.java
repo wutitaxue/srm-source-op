@@ -131,6 +131,7 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
         rcwlShortlistHeader.setShortlistNum(shortlistNum);
         rcwlShortlistHeaderRepository.insertShortlistHeader(rcwlShortlistHeader);
         //返回入围id
+        rcwlShortlistHeader.setShortlistHeaderId(rcwlShortlistHeaderRepository.selectOneShortlistHeaderByNum(shortlistNum));
         return rcwlShortlistHeader;
     }
 
