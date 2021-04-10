@@ -49,7 +49,7 @@ public interface RCWLShortlistHeaderService {
      * @param pageRequest
      * @param shortlistHeaderId
      */
-    Page<PrLineVO> listPrline(PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId);
+    Page<PrLineVO> listPrline(Long tenantId,PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId);
 
     /**
      * 查询送样单
@@ -79,7 +79,7 @@ public interface RCWLShortlistHeaderService {
      *
      * @param prLineIds
      */
-    RCWLShortlistHeader purchaseRequisitionToBeShortlisted(List<Long> prLineIds);
+    RCWLShortlistHeader purchaseRequisitionToBeShortlisted(Long tenantId,List<Long> prLineIds);
 
     /**
      * 删除入围单
