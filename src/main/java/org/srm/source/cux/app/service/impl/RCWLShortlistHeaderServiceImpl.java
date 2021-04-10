@@ -10,6 +10,7 @@ import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.srm.source.cux.infra.mapper.RCWLShortlistHeaderMapper;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
 import org.srm.source.rfx.infra.constant.SourceConstants;
 import org.srm.source.share.domain.entity.User;
@@ -34,6 +35,9 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     private CodeRuleBuilder codeRuleBuilder;
     @Autowired
     private CommonQueryRepository commonQueryRepository;
+
+    @Autowired
+    private RCWLShortlistHeaderMapper rcwlShortlistHeaderMapper;
 
     @Override
     public Page<RCWLShortlistHeader> listShortlistHeader(RCWLShortlistHeader rcwlShortlistHeader, PageRequest pageRequest) {
@@ -129,7 +133,7 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
         }
         //创建入围单
         rcwlShortlistHeader.setShortlistNum(shortlistNum);
-        rcwlShortlistHeaderRepository.insertShortlistHeader(rcwlShortlistHeader);
+        rcwlShortlistHeaderMapper.insertSelective(rcwlShortlistHeader);
         //返回入围id
         return rcwlShortlistHeader;
     }
