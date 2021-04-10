@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RCWLShortlistHeaderMapper">
-    <insert id="insertShortlistHeader">
+    <insert id="insertShortlistHeader" useGeneratedKeys="true" keyColumn="shortlist_header_id" keyProperty="shortlistHeaderId">
         <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         INSERT INTO scux_rcwl_shortlist_header
