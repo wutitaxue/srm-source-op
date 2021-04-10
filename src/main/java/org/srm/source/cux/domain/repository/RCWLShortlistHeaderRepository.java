@@ -30,6 +30,12 @@ public interface RCWLShortlistHeaderRepository {
     RCWLShortlistHeader selectOneShortlistHeader(Long shortlistHeaderId);
 
     /**
+     * 查询入围单头
+     *
+     * @param Num
+     */
+    Long selectOneShortlistHeaderByNum(String Num);
+    /**
      * 查询入围单供应商
      *
      * @param rcwlSupplierHeader
