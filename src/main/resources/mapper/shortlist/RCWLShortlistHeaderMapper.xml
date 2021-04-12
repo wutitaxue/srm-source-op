@@ -424,7 +424,7 @@
         srsh.pr_line_id,
         srsh.shortlist_num,
         srsh.project_name,
-        hc.company_name,
+        (select hc.company_name from hpfm_company hc where srsh.company_id = hc.company_id),
         srsh.business_entity,
         srsh.source_category,
         srsh.shortlist_category,
@@ -456,7 +456,6 @@
         srsh.last_update_date
         FROM
         scux_rcwl_shortlist_header srsh
-        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
         WHERE
         srsh.tenant_id = #{userDetails.organizationId}
         AND srsh.sample=1
@@ -503,7 +502,7 @@
         srsh.pr_line_id,
         srsh.shortlist_num,
         srsh.project_name,
-        hc.company_name,
+        (select hc.company_name from hpfm_company hc where srsh.company_id = hc.company_id),
         srsh.business_entity,
         srsh.source_category,
         srsh.shortlist_category,
@@ -535,7 +534,6 @@
         srsh.last_update_date
         FROM
         scux_rcwl_shortlist_header srsh
-        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
         WHERE
         srsh.shortlist_header_id = #{shortlistHeaderId}
     </select>
@@ -551,7 +549,7 @@
         srsh.pr_line_id,
         srsh.shortlist_num,
         srsh.project_name,
-        hc.company_name,
+        (select hc.company_name from hpfm_company hc where srsh.company_id = hc.company_id),
         srsh.business_entity,
         srsh.source_category,
         srsh.shortlist_category,
@@ -583,7 +581,6 @@
         srsh.last_update_date
         FROM
         scux_rcwl_shortlist_header srsh
-        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
         WHERE
         srsh.shortlist_num = #{Num}
     </select>
