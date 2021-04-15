@@ -1,0 +1,77 @@
+package org.srm.source.cux.api.controller.v1;
+
+import org.hzero.core.util.Results;
+import org.hzero.core.base.BaseController;
+import org.srm.source.cux.domain.entity.RcwlShortlistAttachment;
+import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.hzero.mybatis.helper.SecurityTokenHelper;
+
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.choerodon.swagger.annotation.Permission;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
+
+/**
+ * 入围单附件模版 管理 API
+ *
+ * @author furong.tang@hand-china.com 2021-04-15 19:39:45
+ */
+@RestController("rcwlShortlistAttachmentController.v1")
+@RequestMapping("/v1/{organizationId}/rcwl-shortlist-attachments")
+public class RcwlShortlistAttachmentController extends BaseController {
+
+    @Autowired
+    private RcwlShortlistAttachmentRepository rcwlShortlistAttachmentRepository;
+
+    @ApiOperation(value = "入围单附件模版列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping
+    public ResponseEntity<Page<RcwlShortlistAttachment>> list(RcwlShortlistAttachment rcwlShortlistAttachment, @ApiIgnore @SortDefault(value = RcwlShortlistAttachment.FIELD_RCWL_SHORTLIST_ATTACHMENT_ID,
+            direction = Sort.Direction.DESC) PageRequest pageRequest) {
+        Page<RcwlShortlistAttachment> list = rcwlShortlistAttachmentRepository.pageAndSort(pageRequest, rcwlShortlistAttachment);
+        return Results.success(list);
+    }
+
+    @ApiOperation(value = "入围单附件模版明细")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{rcwlShortlistAttachmentId}")
+    public ResponseEntity<RcwlShortlistAttachment> detail(@PathVariable Long rcwlShortlistAttachmentId) {
+        RcwlShortlistAttachment rcwlShortlistAttachment = rcwlShortlistAttachmentRepository.selectByPrimaryKey(rcwlShortlistAttachmentId);
+        return Results.success(rcwlShortlistAttachment);
+    }
+
+    @ApiOperation(value = "创建入围单附件模版")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping
+    public ResponseEntity<RcwlShortlistAttachment> create(@RequestBody RcwlShortlistAttachment rcwlShortlistAttachment) {
+        validObject(rcwlShortlistAttachment);
+        rcwlShortlistAttachmentRepository.insertSelective(rcwlShortlistAttachment);
+        return Results.success(rcwlShortlistAttachment);
+    }
+
+    @ApiOperation(value = "修改入围单附件模版")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PutMapping
+    public ResponseEntity<RcwlShortlistAttachment> update(@RequestBody RcwlShortlistAttachment rcwlShortlistAttachment) {
+        SecurityTokenHelper.validToken(rcwlShortlistAttachment);
+        rcwlShortlistAttachmentRepository.updateByPrimaryKeySelective(rcwlShortlistAttachment);
+        return Results.success(rcwlShortlistAttachment);
+    }
+
+    @ApiOperation(value = "删除入围单附件模版")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @DeleteMapping
+    public ResponseEntity<?> remove(@RequestBody RcwlShortlistAttachment rcwlShortlistAttachment) {
+        SecurityTokenHelper.validToken(rcwlShortlistAttachment);
+        rcwlShortlistAttachmentRepository.deleteByPrimaryKey(rcwlShortlistAttachment);
+        return Results.success();
+    }
+
+}
