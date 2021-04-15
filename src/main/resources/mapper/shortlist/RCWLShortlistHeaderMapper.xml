@@ -378,7 +378,7 @@
         srsh.last_update_date
         FROM
         scux_rcwl_shortlist_header srsh
-        JOIN hpfm_company hc ON srsh.company_id = hc.company_id
+        LEFT JOIN hpfm_company hc ON srsh.company_id = hc.company_id
         WHERE
         srsh.tenant_id = #{userDetails.organizationId}
         <if test="shortlistNum != null and shortlistNum != ''">

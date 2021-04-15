@@ -1,0 +1,360 @@
+package org.srm.source.cux.domain.entity;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Date;
+import java.util.List;
+
+import io.choerodon.mybatis.annotation.ModifyAudit;
+import io.choerodon.mybatis.annotation.VersionAudit;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import org.srm.common.mybatis.domain.ExpandDomain;
+
+/**
+ * 入围单头表
+ *
+ * @author furong.tang@hand-china.com 2021-04-15 19:39:45
+ */
+@ApiModel("入围单头表")
+@VersionAudit
+@ModifyAudit
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Table(name = "scux_rcwl_shortlist_header")
+public class RcwlShortlistHeader extends ExpandDomain {
+
+    public static final String FIELD_SHORTLIST_HEADER_ID = "shortlistHeaderId";
+    public static final String FIELD_TENANT_ID = "tenantId";
+    public static final String FIELD_COMPANY_ID = "companyId";
+    public static final String FIELD_SAMPLE_ID = "sampleId";
+    public static final String FIELD_SHORTLIST_NUM = "shortlistNum";
+    public static final String FIELD_PROJECT_NAME = "projectName";
+    public static final String FIELD_BUSINESS_COMPANY_ID = "businessCompanyId";
+    public static final String FIELD_SOURCE_CATEGORY = "sourceCategory";
+    public static final String FIELD_SHORTLIST_CATEGORY = "shortlistCategory";
+    public static final String FIELD_START_DATE = "startDate";
+    public static final String FIELD_FINISH_DATE = "finishDate";
+    public static final String FIELD_CAPITAL = "capital";
+    public static final String FIELD_YEARS = "years";
+    public static final String FIELD_ONE_PROFIT = "oneProfit";
+    public static final String FIELD_TWO_PROFIT = "twoProfit";
+    public static final String FIELD_STATE = "state";
+    public static final String FIELD_EXAMINE = "examine";
+    public static final String FIELD_PUBLISH = "publish";
+    public static final String FIELD_SAMPLE = "sample";
+    public static final String FIELD_REQUEST_CONTENT = "requestContent";
+    public static final String FIELD_ENABLED_FLAG = "enabledFlag";
+
+    //
+    // 业务方法(按public protected private顺序排列)
+    // ------------------------------------------------------------------------------
+
+    //
+    // 数据库字段
+    // ------------------------------------------------------------------------------
+
+
+    @ApiModelProperty("主键ID，PK")
+    @Id
+    @GeneratedValue
+    private Long shortlistHeaderId;
+    @ApiModelProperty(value = "租户ID,hpfm_tenant.tenant_id")
+    private Long tenantId;
+    @ApiModelProperty(value = "公司ID")
+    private Long companyId;
+    @ApiModelProperty(value = "送样单id")
+    private Long sampleId;
+    @ApiModelProperty(value = "入围单号")
+    private String shortlistNum;
+    @ApiModelProperty(value = "项目名称")
+    private String projectName;
+    @ApiModelProperty(value = "实体公司ID")
+    private Long businessCompanyId;
+    @ApiModelProperty(value = "寻源类别")
+    private String sourceCategory;
+    @ApiModelProperty(value = "入围方式")
+    private String shortlistCategory;
+    @ApiModelProperty(value = "开始时间")
+    private Date startDate;
+    @ApiModelProperty(value = "结束时间")
+    private Date finishDate;
+    @ApiModelProperty(value = "注册资本")
+    private Long capital;
+    @ApiModelProperty(value = "成立年限")
+    private Long years;
+    @ApiModelProperty(value = "近1年营业额（万元）")
+    private Long oneProfit;
+    @ApiModelProperty(value = "近2年营业额（万元）")
+    private Long twoProfit;
+    @ApiModelProperty(value = "状态")
+    private String state;
+    @ApiModelProperty(value = "是否审核")
+    private Integer examine;
+    @ApiModelProperty(value = "是否发布")
+    private Integer publish;
+    @ApiModelProperty(value = "是否送样")
+    private Integer sample;
+    @ApiModelProperty(value = "要求内容")
+    private String requestContent;
+    @ApiModelProperty(value = "启用标识", required = true)
+    @NotNull
+    private Integer enabledFlag;
+
+
+    //
+    // 非数据库字段
+    // ------------------------------------------------------------------------------
+
+    @ApiModelProperty(value = "采购订单行")
+    @Transient
+    private List<Long> prLineIds;
+
+    //
+    // getter/setter
+    // ------------------------------------------------------------------------------
+
+    /**
+     * @return 主键ID，PK
+     */
+    public Long getShortlistHeaderId() {
+        return shortlistHeaderId;
+    }
+
+    public void setShortlistHeaderId(Long shortlistHeaderId) {
+        this.shortlistHeaderId = shortlistHeaderId;
+    }
+
+    /**
+     * @return 租户ID, hpfm_tenant.tenant_id
+     */
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    /**
+     * @return 公司ID
+     */
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
+    }
+
+    /**
+     * @return 送样单id
+     */
+    public Long getSampleId() {
+        return sampleId;
+    }
+
+    public void setSampleId(Long sampleId) {
+        this.sampleId = sampleId;
+    }
+
+    /**
+     * @return 入围单号
+     */
+    public String getShortlistNum() {
+        return shortlistNum;
+    }
+
+    public void setShortlistNum(String shortlistNum) {
+        this.shortlistNum = shortlistNum;
+    }
+
+    /**
+     * @return 项目名称
+     */
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    /**
+     * @return 实体公司ID
+     */
+    public Long getBusinessCompanyId() {
+        return businessCompanyId;
+    }
+
+    public void setBusinessCompanyId(Long businessCompanyId) {
+        this.businessCompanyId = businessCompanyId;
+    }
+
+    /**
+     * @return 寻源类别
+     */
+    public String getSourceCategory() {
+        return sourceCategory;
+    }
+
+    public void setSourceCategory(String sourceCategory) {
+        this.sourceCategory = sourceCategory;
+    }
+
+    /**
+     * @return 入围方式
+     */
+    public String getShortlistCategory() {
+        return shortlistCategory;
+    }
+
+    public void setShortlistCategory(String shortlistCategory) {
+        this.shortlistCategory = shortlistCategory;
+    }
+
+    /**
+     * @return 开始时间
+     */
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    /**
+     * @return 结束时间
+     */
+    public Date getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(Date finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    /**
+     * @return 注册资本
+     */
+    public Long getCapital() {
+        return capital;
+    }
+
+    public void setCapital(Long capital) {
+        this.capital = capital;
+    }
+
+    /**
+     * @return 成立年限
+     */
+    public Long getYears() {
+        return years;
+    }
+
+    public void setYears(Long years) {
+        this.years = years;
+    }
+
+    /**
+     * @return 近1年营业额（万元）
+     */
+    public Long getOneProfit() {
+        return oneProfit;
+    }
+
+    public void setOneProfit(Long oneProfit) {
+        this.oneProfit = oneProfit;
+    }
+
+    /**
+     * @return 近2年营业额（万元）
+     */
+    public Long getTwoProfit() {
+        return twoProfit;
+    }
+
+    public void setTwoProfit(Long twoProfit) {
+        this.twoProfit = twoProfit;
+    }
+
+    /**
+     * @return 状态
+     */
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     * @return 是否审核
+     */
+    public Integer getExamine() {
+        return examine;
+    }
+
+    public void setExamine(Integer examine) {
+        this.examine = examine;
+    }
+
+    /**
+     * @return 是否发布
+     */
+    public Integer getPublish() {
+        return publish;
+    }
+
+    public void setPublish(Integer publish) {
+        this.publish = publish;
+    }
+
+    /**
+     * @return 是否送样
+     */
+    public Integer getSample() {
+        return sample;
+    }
+
+    public void setSample(Integer sample) {
+        this.sample = sample;
+    }
+
+    /**
+     * @return 要求内容
+     */
+    public String getRequestContent() {
+        return requestContent;
+    }
+
+    public void setRequestContent(String requestContent) {
+        this.requestContent = requestContent;
+    }
+
+    /**
+     * @return 启用标识
+     */
+    public Integer getEnabledFlag() {
+        return enabledFlag;
+    }
+
+    public void setEnabledFlag(Integer enabledFlag) {
+        this.enabledFlag = enabledFlag;
+    }
+
+    public List<Long> getPrLineIds() {
+        return prLineIds;
+    }
+
+    public void setPrLineIds(List<Long> prLineIds) {
+        this.prLineIds = prLineIds;
+    }
+}

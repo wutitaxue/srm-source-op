@@ -10,6 +10,10 @@
     <artifactId>srm-source-op</artifactId>
     <dependencies>
         <dependency>
+            <groupId>org.hzero.boot</groupId>
+            <artifactId>hzero-boot-platform</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.srm</groupId>
             <artifactId>srm-source</artifactId>
             <version>1.13.29.RELEASE</version>
