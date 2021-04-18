@@ -1,6 +1,7 @@
 package org.srm.source.cux.infra.repository.impl;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
@@ -44,8 +45,36 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId) {
         Page<RcwlSupplierHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectSupplierByShortlistHeaderId(organizationId, shortlistHeaderId));
+        RcwlShortlistHeader rcwlShortlistHeader;
         for (RcwlSupplierHeader rcwlSupplierHeader : page) {
+            rcwlShortlistHeader = this.selectByPrimaryKey(shortlistHeaderId);
+            rcwlSupplierHeader.setContacts(DetailsHelper.getUserDetails().getRealName());
+            User user = rcwlShortlistHeaderMapper.selectUserInfoById(DetailsHelper.getUserDetails().getUserId());
+            rcwlSupplierHeader.setPhone(user.getPhone());
 
+            String str1 = "";
+            String str2 = "";
+            String str3 = "";
+            String str4 = "";
+            if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
+                str1 = "注册资本不符合";
+            }
+            if (rcwlSupplierHeader.getYears() < rcwlShortlistHeader.getYears()) {
+                str2 = "成立年限不符合";
+            }
+            if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
+                str2 = "一年营收不符合";
+            }
+            if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
+                str2 = "两年营收不符合";
+            }
+            if (str1 != null && str2 != null && str3 != null && str4 != null) {
+                rcwlSupplierHeader.setQualificationInfo("全部符合");
+                rcwlSupplierHeader.setQualification(1);
+            } else {
+                rcwlSupplierHeader.setQualificationInfo(str1 + str2 + str3 + str4);
+                rcwlSupplierHeader.setQualification(0);
+            }
         }
         return page;
     }

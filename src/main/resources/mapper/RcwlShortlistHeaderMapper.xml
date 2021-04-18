@@ -271,7 +271,8 @@
     </select>
     <select id="selectUserInfoById" resultType="org.srm.source.share.api.dto.User">
         select
-            iu.real_name
+            iu.real_name,
+            iu.phone
         from iam_user iu
         where iu.id = #{userId}
     </select>

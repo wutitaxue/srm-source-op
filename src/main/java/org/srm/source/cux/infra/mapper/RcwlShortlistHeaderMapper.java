@@ -72,9 +72,9 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
 
     /**
      * 查询入围单头信息
+     *
      * @param rcwlShortlistQueryDTO 查询条件
      * @return Page<RcwlShortlistHeader>
      */
     Page<RcwlShortlistHeader> selectRcwlShortlistHeader(RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
-
 }
