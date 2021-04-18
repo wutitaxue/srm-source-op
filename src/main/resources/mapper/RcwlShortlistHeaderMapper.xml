@@ -207,7 +207,10 @@
         where pr_line_id = #{prLineId}
     </update>
     <update id="updatePrLineByShortlistHeader">
-
+        update
+            sprm_pr_line
+        set attribute_bigint1 = null
+        where pr_line_id = #{prLineId}
     </update>
 
     <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
@@ -224,14 +227,42 @@
 
     <select id="selectShortlistHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
         select
-               *
+            srsh.shortlist_header_id,
+            srsh.tenant_id,
+            srsh.company_id,
+            srsh.sample_id,
+            srsh.shortlist_num,
+            srsh.project_name,
+            srsh.business_company_id,
+            srsh.source_category,
+            srsh.shortlist_category,
+            srsh.start_date,
+            srsh.finish_date,
+            srsh.capital,
+            srsh.years,
+            srsh.one_profit,
+            srsh.two_profit,
+            srsh.state,
+            srsh.examine,
+            srsh.publish,
+            srsh.sample,
+            srsh.request_content,
+            srsh.enabled_flag,
+            srsh.object_version_number,
+            srsh.created_by,
+            srsh.creation_date,
+            hc.company_num,
+            hc.company_name,
+            iu.real_name created_name,
+            hou.ou_code,
+            hou.ou_name
         from scux_rcwl_shortlist_header srsh
+                 left join iam_user iu on iu.id = srsh.created_by
+                 left join hpfm_company hc on hc.company_id = srsh.company_id
+                 left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
         where
             srsh.tenant_id = #{organizationId}
             and srsh.shortlist_header_id = #{shortlistHeaderId}
-    </select>
-    <select id="selectPrLineByShortlistHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
-        select * from sprm_pr_line where
     </select>
 
     <select id="selectSupplierByShortlistHeaderId"

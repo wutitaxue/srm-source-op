@@ -29,15 +29,6 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Autowired
     private RcwlShortlistHeaderMapper rcwlShortlistHeaderMapper;
 
-    @Override
-    public void updatePrLineByShortlistHeaderId(Long shortlistHeaderId, List<Long> prLineIds) {
-        for (Long prLineId : prLineIds) {
-            rcwlShortlistHeaderMapper.updatePrLineByShortlistHeaderId(shortlistHeaderId, prLineId);
-
-            //TODO 修改采购订单数量
-
-        }
-    }
 
     @Override
     public PrLineVO selectPrLineByIdDontShortHeaderId(Long prLineId, Long shortlistHeaderId) {
@@ -49,43 +40,16 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         return rcwlShortlistHeaderMapper.selectShortlistHeaderById(organizationId, shortlistHeaderId);
     }
 
-    @Override
-    public Page<PrLineVO> selectPrLineByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId) {
-        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectPrLineByShortlistHeaderId(organizationId, shortlistHeaderId));
-    }
 
     @Override
     public Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId) {
-        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectSupplierByShortlistHeaderId(organizationId, shortlistHeaderId));
-    }
-
-    @Override
-    @Transactional(rollbackOn = Exception.class)
-    public void deleteRcwlShortlistHeaderByIds(List<RcwlShortlistHeader> rcwlShortlistHeaders) {
-        for (RcwlShortlistHeader rcwlShortlistHeader : rcwlShortlistHeaders) {
-            //1。恢复prLine的值
-            rcwlShortlistHeaderMapper.updatePrLineByShortlistHeader(rcwlShortlistHeader);
-            //2。删除入围单头信息
-            rcwlShortlistHeaderMapper.deleteByPrimaryKey(rcwlShortlistHeader);
-
-            //4。删除入围单附件信息
-
-            //查询附件信息
-
-            //3。删除附件
-
-            //5。删除供应商信息
-
-            //查询附件信息
-
-            //6。删除附件
-
-            //7。删除供应商附件信息
-
-
+        Page<RcwlSupplierHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectSupplierByShortlistHeaderId(organizationId, shortlistHeaderId));
+        for (RcwlSupplierHeader rcwlSupplierHeader : page) {
 
         }
+        return page;
     }
+
 
     @Override
     public User selectUserInfoById(Long userId) {
@@ -95,5 +59,10 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectRcwlShortlistHeader(rcwlShortlistQueryDTO));
+    }
+
+    @Override
+    public void updatePrLineByShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader) {
+        rcwlShortlistHeaderMapper.updatePrLineByShortlistHeader(rcwlShortlistHeader);
     }
 }

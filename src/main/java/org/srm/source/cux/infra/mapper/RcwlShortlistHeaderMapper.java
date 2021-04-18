@@ -45,14 +45,6 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      */
     RcwlShortlistHeader selectShortlistHeaderById(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
 
-    /**
-     * 根据入围单查询采购订单行信息
-     *
-     * @param organizationId    租户ID
-     * @param shortlistHeaderId 入围单ID
-     * @return List<PrLineVO>
-     */
-    Page<PrLineVO> selectPrLineByShortlistHeaderId(Long organizationId, Long shortlistHeaderId);
 
     /**
      * 根据入围单查询供应商信息
@@ -84,4 +76,5 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @return Page<RcwlShortlistHeader>
      */
     Page<RcwlShortlistHeader> selectRcwlShortlistHeader(RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
+
 }

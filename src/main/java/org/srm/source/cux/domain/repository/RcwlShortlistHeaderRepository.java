@@ -18,13 +18,6 @@ import java.util.List;
  */
 public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortlistHeader> {
 
-    /**
-     * 更新prLine 入围单信息
-     *
-     * @param shortlistHeaderId 入围单id
-     * @param prLineIds         采购订单行
-     */
-    void updatePrLineByShortlistHeaderId(Long shortlistHeaderId, List<Long> prLineIds);
 
     /**
      * 根据当前入围单查询采购订单行是否存在
@@ -46,16 +39,6 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
     RcwlShortlistHeader selectShortlistHeaderById(Long organizationId, Long shortlistHeaderId);
 
     /**
-     * 根据入围单查询采购订单行信息
-     *
-     * @param pageRequest       分页
-     * @param organizationId    租户ID
-     * @param shortlistHeaderId 入围单ID
-     * @return List<PrLineVO>
-     */
-    Page<PrLineVO> selectPrLineByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId);
-
-    /**
      * 根据入围单查询供应商信息
      *
      * @param pageRequest       分页
@@ -65,12 +48,6 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      */
     Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId);
 
-    /**
-     * 删除入围单信息
-     *
-     * @param rcwlShortlistHeaders 入围单
-     */
-    void deleteRcwlShortlistHeaderByIds(List<RcwlShortlistHeader> rcwlShortlistHeaders);
 
     /**
      * 查询用户信息
@@ -83,9 +60,16 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
     /**
      * 查询入围单列表
      *
-     * @param pageRequest         分页
+     * @param pageRequest           分页
      * @param rcwlShortlistQueryDTO 查询条件
      * @return Page<RcwlShortlistHeader>
      */
     Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
+
+    /**
+     * 恢复prLine的值
+     *
+     * @param rcwlShortlistHeader 入围单
+     */
+    void updatePrLineByShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader);
 }

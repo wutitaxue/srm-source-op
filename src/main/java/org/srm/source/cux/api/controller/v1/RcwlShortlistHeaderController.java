@@ -56,13 +56,6 @@ public class RcwlShortlistHeaderController extends BaseController {
         return Results.success(rcwlShortlistHeader);
     }
 
-    @ApiOperation(value = "入围单采购订单行明细")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/pr-line-list/{shortlistHeaderId}")
-    public ResponseEntity<Page<PrLineVO>> prLineDetail(PageRequest pageRequest, @PathVariable Long shortlistHeaderId, @PathVariable Long organizationId) {
-        Page<PrLineVO> prLineVOS = rcwlShortlistHeaderRepository.selectPrLineByShortlistHeaderId(pageRequest, organizationId, shortlistHeaderId);
-        return Results.success(prLineVOS);
-    }
     @ApiOperation(value = "入围单供应商明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/supplier-list/{shortlistHeaderId}")
@@ -81,22 +74,14 @@ public class RcwlShortlistHeaderController extends BaseController {
         return Results.success(rcwlShortlistHeader);
     }
 
-    @ApiOperation(value = "修改入围单头表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<RcwlShortlistHeader> update(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
-        SecurityTokenHelper.validToken(rcwlShortlistHeader);
-        rcwlShortlistHeaderRepository.updateByPrimaryKeySelective(rcwlShortlistHeader);
-        return Results.success(rcwlShortlistHeader);
-    }
-
-    @ApiOperation(value = "删除入围单")
+    @ApiOperation(value = "批量删除入围单")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping
     public ResponseEntity<?> remove(@RequestBody List<RcwlShortlistHeader> rcwlShortlistHeaders) {
-        rcwlShortlistHeaderRepository.deleteRcwlShortlistHeaderByIds(rcwlShortlistHeaders);
+        rcwlShortlistHeaderService.deleteRcwlShortlistHeaderByIds(rcwlShortlistHeaders);
         return Results.success();
     }
+    //TODO 审批
 
     //TODO 供应商LOV
 

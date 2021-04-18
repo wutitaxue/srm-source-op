@@ -128,6 +128,21 @@ public class RcwlShortlistHeader extends ExpandDomain {
     private String createdName;
 
 
+    @ApiModelProperty(value = "业务实体名称")
+    @Transient
+    private String ouName;
+
+    @ApiModelProperty(value = "业务实体编码")
+    @Transient
+    private String ouCode;
+
+    @ApiModelProperty(value = "供应商状态")
+    @Transient
+    private String supplierStatus;
+
+    @ApiModelProperty(value = "供应商状态")
+    @Transient
+    private Long supplierId;
 
     //
     // getter/setter
@@ -394,5 +409,37 @@ public class RcwlShortlistHeader extends ExpandDomain {
 
     public void setCreatedName(String createdName) {
         this.createdName = createdName;
+    }
+
+    public String getOuName() {
+        return ouName;
+    }
+
+    public void setOuName(String ouName) {
+        this.ouName = ouName;
+    }
+
+    public String getOuCode() {
+        return ouCode;
+    }
+
+    public void setOuCode(String ouCode) {
+        this.ouCode = ouCode;
+    }
+
+    public String getSupplierStatus() {
+        return supplierStatus;
+    }
+
+    public void setSupplierStatus(String supplierStatus) {
+        this.supplierStatus = supplierStatus;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 }

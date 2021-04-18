@@ -2,6 +2,8 @@ package org.srm.source.cux.api.controller.v1;
 
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
+import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
+import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
+
 /**
  * 入围单供应商头信息 管理 API
  *
@@ -33,17 +37,17 @@ public class RcwlSupplierHeaderController extends BaseController {
     @ApiOperation(value = "入围单供应商头信息列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
-    public ResponseEntity<Page<RcwlSupplierHeader>> list(RcwlSupplierHeader rcwlSupplierHeader, @ApiIgnore @SortDefault(value = RcwlSupplierHeader.FIELD_SUPPLIER_ID,
+    public ResponseEntity<Page<RcwlShortlistHeader>> list(RcwlShortlistQueryDTO rcwlShortlistQueryDTO, @ApiIgnore @SortDefault(value = RcwlSupplierHeader.FIELD_SUPPLIER_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<RcwlSupplierHeader> list = rcwlSupplierHeaderRepository.pageAndSortRcwlSupplierHeader(pageRequest, rcwlSupplierHeader);
+        Page<RcwlShortlistHeader> list = rcwlSupplierHeaderRepository.pageAndSortRcwlSupplierHeader(pageRequest, rcwlShortlistQueryDTO);
         return Results.success(list);
     }
 
     @ApiOperation(value = "入围单供应商头信息明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{supplierId}")
-    public ResponseEntity<RcwlSupplierHeader> detail(@PathVariable Long supplierId) {
-        RcwlSupplierHeader rcwlSupplierHeader = rcwlSupplierHeaderRepository.selectByPrimaryKey(supplierId);
+    @GetMapping("/{supplierHeaderId}")
+    public ResponseEntity<RcwlSupplierHeader> detail(@PathVariable Long supplierHeaderId) {
+        RcwlSupplierHeader rcwlSupplierHeader = rcwlSupplierHeaderRepository.detailRcwlSupplierHeader(supplierHeaderId);
         return Results.success(rcwlSupplierHeader);
     }
 
@@ -52,25 +56,16 @@ public class RcwlSupplierHeaderController extends BaseController {
     @PostMapping
     public ResponseEntity<RcwlSupplierHeader> create(@RequestBody RcwlSupplierHeader rcwlSupplierHeader) {
         validObject(rcwlSupplierHeader);
-        rcwlSupplierHeaderRepository.insertSelective(rcwlSupplierHeader);
-        return Results.success(rcwlSupplierHeader);
-    }
-
-    @ApiOperation(value = "修改入围单供应商头信息")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<RcwlSupplierHeader> update(@RequestBody RcwlSupplierHeader rcwlSupplierHeader) {
-        SecurityTokenHelper.validToken(rcwlSupplierHeader);
-        rcwlSupplierHeaderRepository.updateByPrimaryKeySelective(rcwlSupplierHeader);
+        rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(rcwlSupplierHeader);
         return Results.success(rcwlSupplierHeader);
     }
 
     @ApiOperation(value = "删除入围单供应商头信息")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping
-    public ResponseEntity<?> remove(@RequestBody RcwlSupplierHeader rcwlSupplierHeader) {
-        SecurityTokenHelper.validToken(rcwlSupplierHeader);
-        rcwlSupplierHeaderRepository.deleteByPrimaryKey(rcwlSupplierHeader);
+    public ResponseEntity<?> remove(@RequestBody List<RcwlSupplierHeader> rcwlSupplierHeaders) {
+        //SecurityTokenHelper.validToken(rcwlSupplierHeader);
+        rcwlSupplierHeaderRepository.batchDeleteBySupplierHeader(rcwlSupplierHeaders);
         return Results.success();
     }
 

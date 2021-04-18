@@ -45,14 +45,6 @@ public class RcwlShortlistAttachmentController extends BaseController {
         return Results.success(list);
     }
 
-    @ApiOperation(value = "入围单附件模版明细")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{rcwlShortlistAttachmentId}")
-    public ResponseEntity<RcwlShortlistAttachment> detail(@PathVariable Long rcwlShortlistAttachmentId) {
-        RcwlShortlistAttachment rcwlShortlistAttachment = rcwlShortlistAttachmentRepository.selectByPrimaryKey(rcwlShortlistAttachmentId);
-        return Results.success(rcwlShortlistAttachment);
-    }
-
     @ApiOperation(value = "创建入围单附件模版")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
@@ -60,15 +52,6 @@ public class RcwlShortlistAttachmentController extends BaseController {
         rcwlShortlistAttachments.forEach(this::validObject);
         List<RcwlShortlistAttachment> rcwlShortlistAttachmentList = rcwlShortlistAttachmentService.createShortlistAttachment(rcwlShortlistAttachments);
         return Results.success(rcwlShortlistAttachmentList);
-    }
-
-    @ApiOperation(value = "修改入围单附件模版")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<RcwlShortlistAttachment> update(@RequestBody RcwlShortlistAttachment rcwlShortlistAttachment) {
-        SecurityTokenHelper.validToken(rcwlShortlistAttachment);
-        rcwlShortlistAttachmentRepository.updateByPrimaryKeySelective(rcwlShortlistAttachment);
-        return Results.success(rcwlShortlistAttachment);
     }
 
     @ApiOperation(value = "删除入围单附件模版")

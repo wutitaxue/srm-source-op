@@ -45,14 +45,6 @@ public class RcwlSupplierAttachmentController extends BaseController {
         return Results.success(list);
     }
 
-    @ApiOperation(value = "入围供应商单附件明细")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{rcwlSupplierAttachmentId}")
-    public ResponseEntity<RcwlSupplierAttachment> detail(@PathVariable Long rcwlSupplierAttachmentId) {
-        RcwlSupplierAttachment rcwlSupplierAttachment = rcwlSupplierAttachmentRepository.selectByPrimaryKey(rcwlSupplierAttachmentId);
-        return Results.success(rcwlSupplierAttachment);
-    }
-
     @ApiOperation(value = "创建入围供应商单附件")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
@@ -60,15 +52,6 @@ public class RcwlSupplierAttachmentController extends BaseController {
         rcwlSupplierAttachments.forEach(this::validObject);
         List<RcwlSupplierAttachment> rcwlSupplierAttachmentList = rcwlSupplierAttachmentService.createAndUpdate(rcwlSupplierAttachments);
         return Results.success(rcwlSupplierAttachmentList);
-    }
-
-    @ApiOperation(value = "修改入围供应商单附件")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<RcwlSupplierAttachment> update(@RequestBody RcwlSupplierAttachment rcwlSupplierAttachment) {
-        SecurityTokenHelper.validToken(rcwlSupplierAttachment);
-        rcwlSupplierAttachmentRepository.updateByPrimaryKeySelective(rcwlSupplierAttachment);
-        return Results.success(rcwlSupplierAttachment);
     }
 
     @ApiOperation(value = "删除入围供应商单附件")

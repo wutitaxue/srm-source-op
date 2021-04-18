@@ -3,6 +3,7 @@ package org.srm.source.cux.domain.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -64,6 +65,8 @@ public class RcwlSupplierHeader extends ExpandDomain {
     @ApiModelProperty("主键ID，PK")
     @Id
     @GeneratedValue
+    private Long supplierHeaderId;
+    @ApiModelProperty(value = "供应商ID")
     private Long supplierId;
     @ApiModelProperty(value = "租户ID,hpfm_tenant.tenant_id")
     private Long tenantId;
@@ -105,10 +108,22 @@ public class RcwlSupplierHeader extends ExpandDomain {
     @NotNull
     private Integer enabledFlag;
 
+    @ApiModelProperty(value = "状态")
+    private String status;
+
 
     //
     // 非数据库字段
     // ------------------------------------------------------------------------------
+
+
+    @ApiModelProperty(value = "公司编码")
+    @Transient
+    private String companyNum;
+
+    @ApiModelProperty(value = "公司名称")
+    @Transient
+    private String companyName;
 
     //
     // getter/setter
@@ -312,4 +327,27 @@ public class RcwlSupplierHeader extends ExpandDomain {
         this.enabledFlag = enabledFlag;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCompanyNum() {
+        return companyNum;
+    }
+
+    public void setCompanyNum(String companyNum) {
+        this.companyNum = companyNum;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
 }
