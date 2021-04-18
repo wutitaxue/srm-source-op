@@ -8,14 +8,22 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
 import org.hzero.boot.platform.code.constant.CodeConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.srm.source.cux.app.service.RcwlShortlistAttachmentService;
 import org.srm.source.cux.app.service.RcwlShortlistHeaderService;
 import org.springframework.stereotype.Service;
+import org.srm.source.cux.domain.entity.RcwlShortlistAttachment;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
+import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
+import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
+import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
+import org.srm.source.cux.infra.feign.RcwlSpucRemoteService;
+import org.srm.source.share.api.dto.PrLine;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.CodeRule.SCUX_RCWL_SHORT_HEADER_NUM;
@@ -29,10 +37,23 @@ import static org.srm.source.cux.infra.constant.RcwlShortlistContants.CodeRule.S
 public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderService {
 
     @Autowired
+    private RcwlShortlistAttachmentService rcwlShortlistAttachmentService;
+
+    @Autowired
+    private RcwlShortlistAttachmentRepository rcwlShortlistAttachmentRepository;
+
+    @Autowired
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
 
     @Autowired
     private CodeRuleBuilder codeRuleBuilder;
+
+    @Autowired
+    private RcwlSpucRemoteService rcwlSpucRemoteService;
+
+    @Autowired
+    private RcwlSupplierHeaderRepository rcwlSupplierHeaderRepository;
+
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -50,12 +71,53 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
             String ruleCode = codeRuleBuilder.generateCode(tenantId, SCUX_RCWL_SHORT_HEADER_NUM, CodeConstants.CodeRuleLevelCode.GLOBAL, CodeConstants.CodeRuleLevelCode.GLOBAL, null);
             rcwlShortlistHeader.setShortlistNum(ruleCode);
             rcwlShortlistHeaderRepository.insertSelective(rcwlShortlistHeader);
+            //更新prLine 信息
+            if (CollectionUtils.isNotEmpty(rcwlShortlistHeader.getPrLineIds())) {
+                List<PrLine> prLines = new ArrayList<>();
+                PrLine prLine;
+                for (Long prLineId : rcwlShortlistHeader.getPrLineIds()) {
+                    prLine = new PrLine();
+                    prLine.setPrLineId(prLineId);
+                    prLine.setAttributeBigint1(rcwlShortlistHeader.getShortlistHeaderId());
+                    prLines.add(prLine);
+                }
+                rcwlSpucRemoteService.feignUpdatePrLine(tenantId, prLines);
+                //rcwlShortlistHeaderRepository.updatePrLineByShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId(), rcwlShortlistHeader.getPrLineIds());
+            }
         } else {
             rcwlShortlistHeaderRepository.updateByPrimaryKeySelective(rcwlShortlistHeader);
         }
-        //更新prLine 信息
-        if (CollectionUtils.isNotEmpty(rcwlShortlistHeader.getPrLineIds())) {
-            rcwlShortlistHeaderRepository.updatePrLineByShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId(), rcwlShortlistHeader.getPrLineIds());
+
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteRcwlShortlistHeaderByIds(List<RcwlShortlistHeader> rcwlShortlistHeaders) {
+        for (RcwlShortlistHeader rcwlShortlistHeader : rcwlShortlistHeaders) {
+            //恢复prLine的值
+            rcwlShortlistHeaderRepository.updatePrLineByShortlistHeader(rcwlShortlistHeader);
+            //删除入围单头信息
+            rcwlShortlistHeaderRepository.deleteByPrimaryKey(rcwlShortlistHeader);
+            //查询附件模版信息
+            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
+            rcwlShortlistAttachment.setShortlistId(rcwlShortlistHeader.getShortlistHeaderId());
+            List<RcwlShortlistAttachment> selectShortlistAttachment = rcwlShortlistAttachmentRepository.select(rcwlShortlistAttachment);
+            if(CollectionUtils.isNotEmpty(selectShortlistAttachment)){
+                //删除入围单附件信息
+                rcwlShortlistAttachmentService.deleteRcwlShortlistAttachment(selectShortlistAttachment);
+                //TODO 删除附件
+            }
+
+            RcwlSupplierHeader rcwlSupplierHeader = new RcwlSupplierHeader();
+            rcwlSupplierHeader.setShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId());
+            List<RcwlSupplierHeader> selectSupplierHeaders = rcwlSupplierHeaderRepository.select(rcwlSupplierHeader);
+            if(CollectionUtils.isNotEmpty(selectSupplierHeaders)){
+                //删除供应商信息
+                rcwlSupplierHeaderRepository.batchDeleteBySupplierHeader(selectSupplierHeaders);
+            }
+
+
+
         }
     }
 
