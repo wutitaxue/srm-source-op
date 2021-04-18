@@ -54,10 +54,12 @@ public class RcwlSupplierHeaderController extends BaseController {
     @ApiOperation(value = "创建入围单供应商头信息")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
-    public ResponseEntity<RcwlSupplierHeader> create(@RequestBody RcwlSupplierHeader rcwlSupplierHeader) {
-        validObject(rcwlSupplierHeader);
-        rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(rcwlSupplierHeader);
-        return Results.success(rcwlSupplierHeader);
+    public ResponseEntity<List<RcwlSupplierHeader>> create(@RequestBody List<RcwlSupplierHeader> rcwlSupplierHeaders) {
+        for (RcwlSupplierHeader rcwlSupplierHeader : rcwlSupplierHeaders) {
+            validObject(rcwlSupplierHeader);
+            rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(rcwlSupplierHeader);
+        }
+        return Results.success(rcwlSupplierHeaders);
     }
 
     @ApiOperation(value = "删除入围单供应商头信息")

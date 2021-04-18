@@ -53,7 +53,7 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @param shortlistHeaderId 入围单ID
      * @return Page<RcwlSupplierHeader>
      */
-    Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(Long organizationId, Long shortlistHeaderId);
+    Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
 
     /**
      * 更新prLine 信息

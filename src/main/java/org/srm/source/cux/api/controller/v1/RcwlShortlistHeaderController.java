@@ -19,7 +19,6 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
-import org.srm.source.share.domain.vo.PrLineVO;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -81,6 +80,9 @@ public class RcwlShortlistHeaderController extends BaseController {
         rcwlShortlistHeaderService.deleteRcwlShortlistHeaderByIds(rcwlShortlistHeaders);
         return Results.success();
     }
+
+    //TODO 通过用户获取供应商信息
+
     //TODO 审批
 
     //TODO 供应商LOV

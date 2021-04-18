@@ -48,9 +48,6 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         RcwlShortlistHeader rcwlShortlistHeader;
         for (RcwlSupplierHeader rcwlSupplierHeader : page) {
             rcwlShortlistHeader = this.selectByPrimaryKey(shortlistHeaderId);
-            rcwlSupplierHeader.setContacts(DetailsHelper.getUserDetails().getRealName());
-            User user = rcwlShortlistHeaderMapper.selectUserInfoById(DetailsHelper.getUserDetails().getUserId());
-            rcwlSupplierHeader.setPhone(user.getPhone());
 
             String str1 = "";
             String str2 = "";
@@ -75,6 +72,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                 rcwlSupplierHeader.setQualificationInfo(str1 + str2 + str3 + str4);
                 rcwlSupplierHeader.setQualification(0);
             }
+
+            //TODO 生命周期 ！！！
         }
         return page;
     }

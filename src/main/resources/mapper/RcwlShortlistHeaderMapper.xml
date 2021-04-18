@@ -267,8 +267,23 @@
 
     <select id="selectSupplierByShortlistHeaderId"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
-        select * from
+        select
+            srsh2.supplier_header_id,
+            srsh2.supplier_id,
+            srsh.sample_id,
+            ssb.company_num supplier_num,
+            iu.real_name contacts,
+            iu.phone,
+            srsh2.status supplier_status
+        from scux_rcwl_supplier_header srsh2
+                 left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+                 left join sslm_supplier_basic ssb on ssb.supplier_basic_id = srsh2.supplier_id
+                 left join iam_user iu on iu.id = srsh2.created_by
+        where
+            srsh2.tenant_id = #{organizationId}
+            and srsh2.shortlist_header_id = #{shortlistHeaderId}
     </select>
+
     <select id="selectUserInfoById" resultType="org.srm.source.share.api.dto.User">
         select
             iu.real_name,

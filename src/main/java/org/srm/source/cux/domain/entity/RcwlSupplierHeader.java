@@ -125,6 +125,10 @@ public class RcwlSupplierHeader extends ExpandDomain {
     @Transient
     private String companyName;
 
+    @ApiModelProperty(value = "供应商编码")
+    @Transient
+    private String supplierNum;
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -349,5 +353,21 @@ public class RcwlSupplierHeader extends ExpandDomain {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public Long getSupplierHeaderId() {
+        return supplierHeaderId;
+    }
+
+    public void setSupplierHeaderId(Long supplierHeaderId) {
+        this.supplierHeaderId = supplierHeaderId;
+    }
+
+    public String getSupplierNum() {
+        return supplierNum;
+    }
+
+    public void setSupplierNum(String supplierNum) {
+        this.supplierNum = supplierNum;
     }
 }
