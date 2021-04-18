@@ -1,5 +1,9 @@
 package org.srm.source.cux.app.service;
 
+import org.srm.source.cux.domain.entity.RcwlSupplierAttachment;
+
+import java.util.List;
+
 /**
  * 入围供应商单附件应用服务
  *
@@ -7,4 +11,10 @@ package org.srm.source.cux.app.service;
  */
 public interface RcwlSupplierAttachmentService {
 
+    /**
+     * 更新供应商附件信息
+     * @param rcwlSupplierAttachments 附件信息
+     * @return List<RcwlSupplierAttachment>
+     */
+    List<RcwlSupplierAttachment> createAndUpdate(List<RcwlSupplierAttachment> rcwlSupplierAttachments);
 }

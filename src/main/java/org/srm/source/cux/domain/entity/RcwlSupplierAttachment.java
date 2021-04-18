@@ -3,6 +3,7 @@ package org.srm.source.cux.domain.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -67,6 +68,15 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     //
     // 非数据库字段
     // ------------------------------------------------------------------------------
+
+    @Transient
+    @ApiModelProperty(value = "附件模板地址")
+    private String tempAttachmentUrl;
+
+
+    @Transient
+    @ApiModelProperty(value = "上传姓名")
+    private String uploadUserName;
 
     //
     // getter/setter
@@ -161,4 +171,19 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     }
 
 
+    public String getTempAttachmentUrl() {
+        return tempAttachmentUrl;
+    }
+
+    public void setTempAttachmentUrl(String tempAttachmentUrl) {
+        this.tempAttachmentUrl = tempAttachmentUrl;
+    }
+
+    public String getUploadUserName() {
+        return uploadUserName;
+    }
+
+    public void setUploadUserName(String uploadUserName) {
+        this.uploadUserName = uploadUserName;
+    }
 }

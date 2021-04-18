@@ -18,6 +18,7 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.srm.common.mybatis.domain.ExpandDomain;
 
 /**
  * 入围单供应商
@@ -29,7 +30,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ModifyAudit
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Table(name = "scux_rcwl_supplier_header")
-public class RcwlSupplierHeader extends AuditDomain {
+public class RcwlSupplierHeader extends ExpandDomain {
 
     public static final String FIELD_SUPPLIER_ID = "supplierId";
     public static final String FIELD_TENANT_ID = "tenantId";
@@ -89,12 +90,16 @@ public class RcwlSupplierHeader extends AuditDomain {
     @ApiModelProperty(value = "符合说明")
     private String qualificationInfo;
     @ApiModelProperty(value = "注册资本")
+    @NotNull
     private Long capital;
     @ApiModelProperty(value = "成立年限")
+    @NotNull
     private Long years;
     @ApiModelProperty(value = "近1年营业额（万元）")
+    @NotNull
     private Long oneProfit;
     @ApiModelProperty(value = "近2年营业额（万元）")
+    @NotNull
     private Long twoProfit;
     @ApiModelProperty(value = "启用标识", required = true)
     @NotNull

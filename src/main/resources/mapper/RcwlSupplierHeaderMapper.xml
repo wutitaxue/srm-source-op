@@ -197,4 +197,13 @@
         <result column="attribute_date19" property="attributeDate19" jdbcType="DATE"/>
         <result column="attribute_date20" property="attributeDate20" jdbcType="DATE"/>
     </resultMap>
+    <select id="selectRcwlSupplierHeader" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        select
+            *
+        from scux_rcwl_supplier_header srsh
+        <where>
+            1=1
+            and srsh
+        </where>
+    </select>
 </mapper>

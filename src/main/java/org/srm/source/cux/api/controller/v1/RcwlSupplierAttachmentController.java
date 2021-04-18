@@ -2,6 +2,7 @@ package org.srm.source.cux.api.controller.v1;
 
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
+import org.srm.source.cux.app.service.RcwlSupplierAttachmentService;
 import org.srm.source.cux.domain.entity.RcwlSupplierAttachment;
 import org.srm.source.cux.domain.repository.RcwlSupplierAttachmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
+
 /**
  * 入围供应商单附件 管理 API
  *
@@ -30,12 +33,15 @@ public class RcwlSupplierAttachmentController extends BaseController {
     @Autowired
     private RcwlSupplierAttachmentRepository rcwlSupplierAttachmentRepository;
 
+    @Autowired
+    private RcwlSupplierAttachmentService rcwlSupplierAttachmentService;
+
     @ApiOperation(value = "入围供应商单附件列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
     public ResponseEntity<Page<RcwlSupplierAttachment>> list(RcwlSupplierAttachment rcwlSupplierAttachment, @ApiIgnore @SortDefault(value = RcwlSupplierAttachment.FIELD_RCWL_SUPPLIER_ATTACHMENT_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSort(pageRequest, rcwlSupplierAttachment);
+        Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSortByRcwlSupplierAttachment(pageRequest, rcwlSupplierAttachment);
         return Results.success(list);
     }
 
@@ -50,10 +56,10 @@ public class RcwlSupplierAttachmentController extends BaseController {
     @ApiOperation(value = "创建入围供应商单附件")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
-    public ResponseEntity<RcwlSupplierAttachment> create(@RequestBody RcwlSupplierAttachment rcwlSupplierAttachment) {
-        validObject(rcwlSupplierAttachment);
-        rcwlSupplierAttachmentRepository.insertSelective(rcwlSupplierAttachment);
-        return Results.success(rcwlSupplierAttachment);
+    public ResponseEntity<List<RcwlSupplierAttachment>> create(@RequestBody List<RcwlSupplierAttachment> rcwlSupplierAttachments) {
+        rcwlSupplierAttachments.forEach(this::validObject);
+        List<RcwlSupplierAttachment> rcwlSupplierAttachmentList = rcwlSupplierAttachmentService.createAndUpdate(rcwlSupplierAttachments);
+        return Results.success(rcwlSupplierAttachmentList);
     }
 
     @ApiOperation(value = "修改入围供应商单附件")

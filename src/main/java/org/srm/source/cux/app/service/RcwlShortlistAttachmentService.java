@@ -1,5 +1,9 @@
 package org.srm.source.cux.app.service;
 
+import org.srm.source.cux.domain.entity.RcwlShortlistAttachment;
+
+import java.util.List;
+
 /**
  * 入围单附件模版应用服务
  *
@@ -7,4 +11,17 @@ package org.srm.source.cux.app.service;
  */
 public interface RcwlShortlistAttachmentService {
 
+    /**
+     * 批量保存
+     * @param rcwlShortlistAttachments 入围单附件信息
+     * @return List<RcwlShortlistAttachment>
+     */
+    List<RcwlShortlistAttachment> createShortlistAttachment(List<RcwlShortlistAttachment> rcwlShortlistAttachments);
+
+    /**
+     * 删除附件
+     *
+     * @param rcwlShortlistAttachments 附件
+     */
+    void deleteRcwlShortlistAttachment(List<RcwlShortlistAttachment> rcwlShortlistAttachments);
 }

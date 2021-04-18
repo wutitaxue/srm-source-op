@@ -115,6 +115,20 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @Transient
     private List<Long> prLineIds;
 
+    @ApiModelProperty(value = "公司编码")
+    @Transient
+    private String companyNum;
+
+    @ApiModelProperty(value = "公司名称")
+    @Transient
+    private String companyName;
+
+    @ApiModelProperty(value = "创建人姓名")
+    @Transient
+    private String createdName;
+
+
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -356,5 +370,29 @@ public class RcwlShortlistHeader extends ExpandDomain {
 
     public void setPrLineIds(List<Long> prLineIds) {
         this.prLineIds = prLineIds;
+    }
+
+    public String getCompanyNum() {
+        return companyNum;
+    }
+
+    public void setCompanyNum(String companyNum) {
+        this.companyNum = companyNum;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getCreatedName() {
+        return createdName;
+    }
+
+    public void setCreatedName(String createdName) {
+        this.createdName = createdName;
     }
 }

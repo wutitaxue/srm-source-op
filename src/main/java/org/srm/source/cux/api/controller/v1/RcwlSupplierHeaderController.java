@@ -35,7 +35,7 @@ public class RcwlSupplierHeaderController extends BaseController {
     @GetMapping
     public ResponseEntity<Page<RcwlSupplierHeader>> list(RcwlSupplierHeader rcwlSupplierHeader, @ApiIgnore @SortDefault(value = RcwlSupplierHeader.FIELD_SUPPLIER_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<RcwlSupplierHeader> list = rcwlSupplierHeaderRepository.pageAndSort(pageRequest, rcwlSupplierHeader);
+        Page<RcwlSupplierHeader> list = rcwlSupplierHeaderRepository.pageAndSortRcwlSupplierHeader(pageRequest, rcwlSupplierHeader);
         return Results.success(list);
     }
 

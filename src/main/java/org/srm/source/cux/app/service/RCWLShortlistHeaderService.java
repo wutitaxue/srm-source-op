@@ -1,5 +1,7 @@
 package org.srm.source.cux.app.service;
 
+import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
+
 /**
  * 入围单头表应用服务
  *
@@ -7,4 +9,9 @@ package org.srm.source.cux.app.service;
  */
 public interface RcwlShortlistHeaderService {
 
+    /**
+     * 创建入围单信息
+     * @param rcwlShortlistHeader 入围单
+     */
+    void createShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader);
 }
