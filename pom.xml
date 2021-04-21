@@ -7,16 +7,14 @@
         <artifactId>srm-parent</artifactId>
         <version>1.13.5.RELEASE</version>
     </parent>
+    <groupId>org.srm-op</groupId>
     <artifactId>srm-source-op</artifactId>
+    <version>1.13.30-SNAPSHOT</version>
     <dependencies>
         <dependency>
-            <groupId>org.hzero.boot</groupId>
-            <artifactId>hzero-boot-platform</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.srm</groupId>
+            <groupId>org.srm-op</groupId>
             <artifactId>srm-source</artifactId>
-            <version>1.13.29.RELEASE</version>
+            <version>1.13.30-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.hzero.starter</groupId>
