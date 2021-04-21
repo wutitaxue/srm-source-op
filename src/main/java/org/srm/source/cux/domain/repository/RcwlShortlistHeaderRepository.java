@@ -6,6 +6,7 @@ import org.hzero.mybatis.base.BaseRepository;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
+import org.srm.source.cux.domain.vo.SupplierVO;
 import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
@@ -72,4 +73,51 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @param rcwlShortlistHeader 入围单
      */
     void updatePrLineByShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader);
+
+    /**
+     * @param shortlistHeaderId 入围单ID
+     * @param prLineIds         prLineID
+     */
+    void updatePrLineByShortlistHeaderId(Long shortlistHeaderId, List<Long> prLineIds);
+
+    /**
+     * 根据编码获取静态文本内容
+     *
+     * @param organizationId 租户
+     * @param textCode       编码
+     * @return String
+     */
+    String selectStaticTextValueByCode(Long organizationId, String textCode);
+
+    /**
+     * 审批
+     *
+     * @param rcwlShortlistHeaders 入围单
+     * @param status               状态
+     * @return List<RcwlShortlistHeader>
+     */
+    List<RcwlShortlistHeader> approve(List<RcwlShortlistHeader> rcwlShortlistHeaders, String status);
+
+    /**
+     * 发布
+     *
+     * @param rcwlShortlistHeader 入围单
+     * @return RcwlShortlistHeader
+     */
+    RcwlShortlistHeader published(RcwlShortlistHeader rcwlShortlistHeader);
+
+    /**
+     * 提交
+     *
+     * @param rcwlShortlistHeader 入围单
+     * @return RcwlShortlistHeader
+     */
+    RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader);
+
+    /**
+     * 获取当前供应商信息
+     *
+     * @return SupplierVO
+     */
+    SupplierVO currentSupplierInfo();
 }

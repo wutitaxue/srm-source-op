@@ -1,8 +1,10 @@
 package org.srm.source.cux.api.controller.v1;
 
+import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.srm.source.cux.app.service.RcwlSupplierAttachmentService;
+import org.srm.source.cux.config.ShortlistSourceSwaggerApiConfig;
 import org.srm.source.cux.domain.entity.RcwlSupplierAttachment;
 import org.srm.source.cux.domain.repository.RcwlSupplierAttachmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import java.util.List;
  *
  * @author furong.tang@hand-china.com 2021-04-15 19:39:45
  */
+@Api(ShortlistSourceSwaggerApiConfig.RCWL_SUPPLIER_ATTACHMENTS)
 @RestController("rcwlSupplierAttachmentController.v1")
 @RequestMapping("/v1/{organizationId}/rcwl-supplier-attachments")
 public class RcwlSupplierAttachmentController extends BaseController {

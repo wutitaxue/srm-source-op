@@ -42,8 +42,30 @@ public interface RcwlSupplierHeaderRepository extends BaseRepository<RcwlSupplie
 
     /**
      * 创建更新入围单供应商
+     *
      * @param rcwlSupplierHeader 入围单供应商
      * @return RcwlSupplierHeader
      */
     RcwlSupplierHeader createAndUpdateSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader);
+
+    /**
+     * 校验入围单供应商
+     *
+     * @param rcwlSupplierHeader 入围单供应商
+     */
+    void checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader);
+
+    /**
+     * 更新状态
+     *
+     * @param rcwlShortlistHeader 入围单供应商
+     */
+    void updateStatus(RcwlShortlistHeader rcwlShortlistHeader);
+
+    /**
+     * 提交
+     * @param rcwlSupplierHeader 入围单供应商
+     * @return RcwlSupplierHeader
+     */
+    RcwlSupplierHeader submit(RcwlSupplierHeader rcwlSupplierHeader);
 }

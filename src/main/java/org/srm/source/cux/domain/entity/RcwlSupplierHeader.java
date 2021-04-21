@@ -70,7 +70,7 @@ public class RcwlSupplierHeader extends ExpandDomain {
     private Long supplierId;
     @ApiModelProperty(value = "租户ID,hpfm_tenant.tenant_id")
     private Long tenantId;
-    @ApiModelProperty(value = "供应商id")
+    @ApiModelProperty(value = "公司id")
     private Long companyId;
     @ApiModelProperty(value = "入围单id")
     private Long shortlistHeaderId;
@@ -87,7 +87,7 @@ public class RcwlSupplierHeader extends ExpandDomain {
     @ApiModelProperty(value = "联系方式")
     private String phone;
     @ApiModelProperty(value = "生命周期")
-    private String stageCode;
+    private Long stageId;
     @ApiModelProperty(value = "是否符合")
     private Integer qualification;
     @ApiModelProperty(value = "符合说明")
@@ -128,6 +128,14 @@ public class RcwlSupplierHeader extends ExpandDomain {
     @ApiModelProperty(value = "供应商编码")
     @Transient
     private String supplierNum;
+
+    @ApiModelProperty(value = "供应商名称")
+    @Transient
+    private String supplierName;
+
+    @ApiModelProperty(value = "生命周期描述")
+    @Transient
+    private String stageDescription;
 
     //
     // getter/setter
@@ -246,12 +254,12 @@ public class RcwlSupplierHeader extends ExpandDomain {
     /**
      * @return 生命周期
      */
-    public String getStageCode() {
-        return stageCode;
+    public Long getStageId() {
+        return stageId;
     }
 
-    public void setStageCode(String stageCode) {
-        this.stageCode = stageCode;
+    public void setStageId(Long stageId) {
+        this.stageId = stageId;
     }
 
     /**
@@ -369,5 +377,21 @@ public class RcwlSupplierHeader extends ExpandDomain {
 
     public void setSupplierNum(String supplierNum) {
         this.supplierNum = supplierNum;
+    }
+
+    public String getStageDescription() {
+        return stageDescription;
+    }
+
+    public void setStageDescription(String stageDescription) {
+        this.stageDescription = stageDescription;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 }

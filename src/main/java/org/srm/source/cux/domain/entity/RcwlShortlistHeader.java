@@ -144,6 +144,10 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @Transient
     private Long supplierId;
 
+    @ApiModelProperty(value = "供应商状态")
+    @Transient
+    private Integer selected;
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -441,5 +445,13 @@ public class RcwlShortlistHeader extends ExpandDomain {
 
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public Integer getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Integer selected) {
+        this.selected = selected;
     }
 }

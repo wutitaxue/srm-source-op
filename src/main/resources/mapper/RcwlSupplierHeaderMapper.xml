@@ -197,9 +197,37 @@
         <result column="attribute_date19" property="attributeDate19" jdbcType="DATE"/>
         <result column="attribute_date20" property="attributeDate20" jdbcType="DATE"/>
     </resultMap>
-    <select id="selectRcwlSupplierHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
-        select
-            srsh2.supplier_header_id,
+
+    <sql id="selectRcwlSupplierHeaderWhere">
+        <where>
+            srsh.state = 'published'
+            srsh2.created_by = #{userId}
+            <if test="shortlistNum != null and shortlistNum != '' ">
+                and srsh.shortlist_num = #{shortlistNum}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and srsh.project_name = #{projectName}
+            </if>
+            <if test="sourceCategory != null and sourceCategory != '' ">
+                and srsh.source_category = #{sourceCategory}
+            </if>
+            <if test="shortlistCategory != null and shortlistCategory != '' ">
+                and srsh.shortlist_category = #{shortlistCategory}
+            </if>
+            <if test="state != null and state != '' ">
+                and srsh.state = #{state}
+            </if>
+            <if test="startDateFrom != null">
+                and srsh.start_date >= #{startDateFrom}
+            </if>
+            <if test="finishDateTo != null">
+                and srsh.finish_date &lt;= #{finishDateTo}
+            </if>
+        </where>
+    </sql>
+
+    <sql id="selectRcwlSupplierHeaderResult">
+        srsh2.supplier_header_id,
             srsh2.supplier_id,
             srsh.shortlist_header_id,
             srsh.tenant_id,
@@ -228,34 +256,18 @@
             hc.company_name,
             iu.real_name created_name,
             srsh2.status supplier_status
+    </sql>
+
+    <select id="selectRcwlSupplierHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        <bind name="userId" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails().getUserId()"/>
+        select
+            <include refid="selectRcwlSupplierHeaderResult"></include>
         from scux_rcwl_shortlist_header srsh
         left join hpfm_company hc on hc.company_id = srsh.company_id
         left join scux_rcwl_supplier_header srsh2 on srsh2.shortlist_header_id = srsh.shortlist_header_id
         left join iam_user iu on iu.id = srsh2.created_by
-        <where>
-            1=1
-            <if test="shortlistNum != null and shortlistNum != '' ">
-                and srsh.shortlist_num = #{shortlistNum}
-            </if>
-            <if test="projectName != null and projectName != '' ">
-                and srsh.project_name = #{projectName}
-            </if>
-            <if test="sourceCategory != null and sourceCategory != '' ">
-                and srsh.source_category = #{sourceCategory}
-            </if>
-            <if test="shortlistCategory != null and shortlistCategory != '' ">
-                and srsh.shortlist_category = #{shortlistCategory}
-            </if>
-            <if test="state != null and state != '' ">
-                and srsh.state = #{state}
-            </if>
-            <if test="startDateFrom != null">
-                and srsh.start_date >= #{startDateFrom}
-            </if>
-            <if test="finishDateTo != null">
-                and srsh.finish_date &lt;= #{finishDateTo}
-            </if>
-        </where>
+        <include refid="selectRcwlSupplierHeaderWhere"/>
+
     </select>
     <select id="selectCompanyById" resultType="org.srm.source.rfx.api.dto.CompanyDTO">
         select

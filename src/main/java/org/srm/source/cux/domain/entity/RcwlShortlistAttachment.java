@@ -49,7 +49,7 @@ public class RcwlShortlistAttachment extends ExpandDomain {
     @ApiModelProperty(value = "入围单ID")
     private Long shortlistId;
     @ApiModelProperty(value = "附件名称")
-    private Long attachmentName;
+    private String attachmentName;
     @ApiModelProperty(value = "附件URL")
     private String attachmentUrl;
     @ApiModelProperty(value = "附件说明")
@@ -94,14 +94,11 @@ public class RcwlShortlistAttachment extends ExpandDomain {
         this.shortlistId = shortlistId;
     }
 
-    /**
-     * @return 附件名称
-     */
-    public Long getAttachmentName() {
+    public String getAttachmentName() {
         return attachmentName;
     }
 
-    public void setAttachmentName(Long attachmentName) {
+    public void setAttachmentName(String attachmentName) {
         this.attachmentName = attachmentName;
     }
 

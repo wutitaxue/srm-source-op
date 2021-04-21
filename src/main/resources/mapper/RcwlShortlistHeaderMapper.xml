@@ -210,7 +210,7 @@
         update
             sprm_pr_line
         set attribute_bigint1 = null
-        where pr_line_id = #{prLineId}
+        where attribute_bigint1 = #{shortlistHeaderId}
     </update>
 
     <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
@@ -267,18 +267,37 @@
 
     <select id="selectSupplierByShortlistHeaderId"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select
             srsh2.supplier_header_id,
             srsh2.supplier_id,
             srsh.sample_id,
-            ssb.company_num supplier_num,
-            iu.real_name contacts,
-            iu.phone,
-            srsh2.status supplier_status
+            ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+            ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+            srsh2.contacts,
+            srsh2.phone,
+            srsh2.status supplier_status,
+            slcs.stage_description,
+            srsh2.object_version_number,
+            srsh2.selected,
+            srsh2.enroll,
+            srsh2.enroll_date,
+            srsh2.status,
+            srsh2.created_by,
+            srsh2.creation_date
         from scux_rcwl_supplier_header srsh2
                  left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
-                 left join sslm_supplier_basic ssb on ssb.supplier_basic_id = srsh2.supplier_id
                  left join iam_user iu on iu.id = srsh2.created_by
+                 left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+                 LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+                 LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+                    AND slc.supplier_company_id = hc.company_id
+                 LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+                    AND slc.company_id = sp.company_id
+                    AND slc.supplier_tenant_id = sp.partner_tenant_id
+                    AND slc.supplier_company_id = sp.partner_company_id
+                 LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+                 LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         where
             srsh2.tenant_id = #{organizationId}
             and srsh2.shortlist_header_id = #{shortlistHeaderId}
@@ -324,6 +343,7 @@
         left join hpfm_company hc on hc.company_id = srsh.company_id
         <where>
             1=1
+            and srsh.state != 'delete'
             <if test="shortlistNum != null and shortlistNum != '' ">
                 and srsh.shortlist_num = #{shortlistNum}
             </if>
@@ -347,6 +367,49 @@
             </if>
         </where>
 
+    </select>
+    <select id="selectStaticTextValueByCode" resultType="java.lang.String">
+        SELECT
+            hstv.text
+        FROM
+            hpfm_static_text hst
+                LEFT JOIN hpfm_static_text_value hstv ON hst.text_id = hstv.text_id
+        WHERE
+            hst.text_code = #{textCode}
+            AND hst.tenant_id = #{organizationId}
+    </select>
+    <select id="currentSupplierInfo" resultType="org.srm.source.cux.domain.vo.SupplierVO">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+            hc.company_num supplier_num,
+            hc.company_id supplier_id,
+            ifnull(ssbt.company_name,hc.company_name) supplier_name,
+            slc.company_id company_id,
+            slcst.stage_id,
+            slcst.stage_description
+        FROM
+            iam_user iu
+            LEFT JOIN hpfm_company hc ON iu.organization_id = hc.tenant_id AND hc.source_key IS NOT NULL
+            LEFT JOIN sslm_life_cycle slc on slc.supplier_company_id = hc.company_id
+            LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+            LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
+            LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+            AND slc.company_id = sp.company_id
+            AND slc.supplier_tenant_id = sp.partner_tenant_id
+            AND slc.supplier_company_id = sp.partner_company_id
+            LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+            LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        WHERE
+            iu.id = #{userId}
+    </select>
+    <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
+        SELECT
+            scc.name contact,
+            scc.mobilephone phone
+        FROM spfm_company_contacts scc
+        WHERE
+            scc.company_id = #{companyId}
+            AND scc.default_flag = 1
     </select>
 
 </mapper>

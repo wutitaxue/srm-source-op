@@ -1,8 +1,10 @@
 package org.srm.source.cux.api.controller.v1;
 
+import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.srm.source.cux.app.service.RcwlShortlistHeaderService;
+import org.srm.source.cux.config.ShortlistSourceSwaggerApiConfig;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
@@ -19,6 +21,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
+import org.srm.source.cux.domain.vo.SupplierVO;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -28,6 +31,7 @@ import java.util.List;
  *
  * @author furong.tang@hand-china.com 2021-04-15 19:39:45
  */
+@Api(ShortlistSourceSwaggerApiConfig.RCWL_SHORTLIST_HEADERS)
 @RestController("rcwlShortlistHeaderController.v1")
 @RequestMapping("/v1/{organizationId}/rcwl-shortlist-headers")
 public class RcwlShortlistHeaderController extends BaseController {
@@ -68,7 +72,7 @@ public class RcwlShortlistHeaderController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
     public ResponseEntity<RcwlShortlistHeader> create(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
-        validObject(rcwlShortlistHeader);
+        //validObject(rcwlShortlistHeader);
         rcwlShortlistHeaderService.createShortlistHeader(rcwlShortlistHeader);
         return Results.success(rcwlShortlistHeader);
     }
@@ -81,13 +85,45 @@ public class RcwlShortlistHeaderController extends BaseController {
         return Results.success();
     }
 
-    //TODO 通过用户获取供应商信息
+    @ApiOperation(value = "获取静态文本信息")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/static-text")
+    public ResponseEntity<String> staticText(@PathVariable Long organizationId, String textCode) {
+        String value = rcwlShortlistHeaderRepository.selectStaticTextValueByCode(organizationId, textCode);
+        return Results.success(value);
+    }
 
-    //TODO 审批
+    @ApiOperation(value = "审批")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/approve/{status}")
+    public ResponseEntity<List<RcwlShortlistHeader>> approve(@PathVariable String status, @RequestBody List<RcwlShortlistHeader> rcwlShortlistHeaders) {
+        List<RcwlShortlistHeader> rcwlShortlistHeader1 =  rcwlShortlistHeaderRepository.approve(rcwlShortlistHeaders, status);
+        return Results.success(rcwlShortlistHeader1);
+    }
 
-    //TODO 供应商LOV
+    @ApiOperation(value = "提交")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit")
+    public ResponseEntity<RcwlShortlistHeader> submit(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
+        RcwlShortlistHeader rcwlShortlistHeader1 =  rcwlShortlistHeaderRepository.submit(rcwlShortlistHeader);
+        return Results.success(rcwlShortlistHeader1);
+    }
 
-    //TODO 获取静态文本 信息
+    @ApiOperation(value = "发布")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/published")
+    public ResponseEntity<RcwlShortlistHeader> published(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
+        RcwlShortlistHeader rcwlShortlistHeader1 =  rcwlShortlistHeaderRepository.published(rcwlShortlistHeader);
+        return Results.success(rcwlShortlistHeader1);
+    }
+
+    @ApiOperation(value = "通过用户获取供应商信息")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/current-supplier-info")
+    public ResponseEntity<SupplierVO> currentSupplierInfo(@PathVariable Long organizationId) {
+        SupplierVO value = rcwlShortlistHeaderRepository.currentSupplierInfo();
+        return Results.success(value);
+    }
 
 
 }

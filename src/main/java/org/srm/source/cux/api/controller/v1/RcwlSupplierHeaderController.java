@@ -1,8 +1,10 @@
 package org.srm.source.cux.api.controller.v1;
 
+import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
+import org.srm.source.cux.config.ShortlistSourceSwaggerApiConfig;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
@@ -27,6 +29,7 @@ import java.util.List;
  *
  * @author furong.tang@hand-china.com 2021-04-15 19:39:45
  */
+@Api(ShortlistSourceSwaggerApiConfig.RCWL_SUPPLIER_HEADERS)
 @RestController("rcwlSupplierHeaderController.v1")
 @RequestMapping("/v1/{organizationId}/rcwl-supplier-headers")
 public class RcwlSupplierHeaderController extends BaseController {
@@ -56,7 +59,7 @@ public class RcwlSupplierHeaderController extends BaseController {
     @PostMapping
     public ResponseEntity<List<RcwlSupplierHeader>> create(@RequestBody List<RcwlSupplierHeader> rcwlSupplierHeaders) {
         for (RcwlSupplierHeader rcwlSupplierHeader : rcwlSupplierHeaders) {
-            validObject(rcwlSupplierHeader);
+            //validObject(rcwlSupplierHeader);
             rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(rcwlSupplierHeader);
         }
         return Results.success(rcwlSupplierHeaders);
@@ -69,6 +72,13 @@ public class RcwlSupplierHeaderController extends BaseController {
         //SecurityTokenHelper.validToken(rcwlSupplierHeader);
         rcwlSupplierHeaderRepository.batchDeleteBySupplierHeader(rcwlSupplierHeaders);
         return Results.success();
+    }
+
+    @ApiOperation(value = "提交")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit")
+    public ResponseEntity<RcwlSupplierHeader> submit(@RequestBody RcwlSupplierHeader rcwlSupplierHeader) {
+        return Results.success(rcwlSupplierHeaderRepository.submit(rcwlSupplierHeader));
     }
 
 }

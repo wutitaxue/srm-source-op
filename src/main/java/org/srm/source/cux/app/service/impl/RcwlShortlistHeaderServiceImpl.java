@@ -17,6 +17,7 @@ import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
+import org.srm.source.cux.infra.constant.RcwlShortlistContants;
 import org.srm.source.cux.infra.feign.RcwlSpucRemoteService;
 import org.srm.source.share.api.dto.PrLine;
 import org.srm.source.share.domain.vo.PrLineVO;
@@ -27,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.CodeRule.SCUX_RCWL_SHORT_HEADER_NUM;
+import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.RW_STUTAS_DELETE;
+import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.RW_STUTAS_NEW;
 
 /**
  * 入围单头表应用服务默认实现
@@ -66,10 +69,13 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
         //校验
         this.checkRcwlShortlistHeader(rcwlShortlistHeader);
 
-        if (rcwlShortlistHeader.getShortlistHeaderId() != null) {
+        if (rcwlShortlistHeader.getShortlistHeaderId() == null) {
             //生成编码
-            String ruleCode = codeRuleBuilder.generateCode(tenantId, SCUX_RCWL_SHORT_HEADER_NUM, CodeConstants.CodeRuleLevelCode.GLOBAL, CodeConstants.CodeRuleLevelCode.GLOBAL, null);
+            //String ruleCode = codeRuleBuilder.generateCode(tenantId, SCUX_RCWL_SHORT_HEADER_NUM, CodeConstants.CodeRuleLevelCode.GLOBAL, CodeConstants.CodeRuleLevelCode.GLOBAL, null);
+            String ruleCode = "RW202104210001";
             rcwlShortlistHeader.setShortlistNum(ruleCode);
+            //默认新建状态
+            rcwlShortlistHeader.setState(RW_STUTAS_NEW);
             rcwlShortlistHeaderRepository.insertSelective(rcwlShortlistHeader);
             //更新prLine 信息
             if (CollectionUtils.isNotEmpty(rcwlShortlistHeader.getPrLineIds())) {
@@ -81,8 +87,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                     prLine.setAttributeBigint1(rcwlShortlistHeader.getShortlistHeaderId());
                     prLines.add(prLine);
                 }
-                rcwlSpucRemoteService.feignUpdatePrLine(tenantId, prLines);
-                //rcwlShortlistHeaderRepository.updatePrLineByShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId(), rcwlShortlistHeader.getPrLineIds());
+                //rcwlSpucRemoteService.feignUpdatePrLine(tenantId, prLines);
+                rcwlShortlistHeaderRepository.updatePrLineByShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId(), rcwlShortlistHeader.getPrLineIds());
             }
         } else {
             rcwlShortlistHeaderRepository.updateByPrimaryKeySelective(rcwlShortlistHeader);
@@ -96,25 +102,28 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
         for (RcwlShortlistHeader rcwlShortlistHeader : rcwlShortlistHeaders) {
             //恢复prLine的值
             rcwlShortlistHeaderRepository.updatePrLineByShortlistHeader(rcwlShortlistHeader);
-            //删除入围单头信息
-            rcwlShortlistHeaderRepository.deleteByPrimaryKey(rcwlShortlistHeader);
-            //查询附件模版信息
-            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
-            rcwlShortlistAttachment.setShortlistId(rcwlShortlistHeader.getShortlistHeaderId());
-            List<RcwlShortlistAttachment> selectShortlistAttachment = rcwlShortlistAttachmentRepository.select(rcwlShortlistAttachment);
-            if(CollectionUtils.isNotEmpty(selectShortlistAttachment)){
-                //删除入围单附件信息
-                rcwlShortlistAttachmentService.deleteRcwlShortlistAttachment(selectShortlistAttachment);
-                //TODO 删除附件
-            }
-
-            RcwlSupplierHeader rcwlSupplierHeader = new RcwlSupplierHeader();
-            rcwlSupplierHeader.setShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId());
-            List<RcwlSupplierHeader> selectSupplierHeaders = rcwlSupplierHeaderRepository.select(rcwlSupplierHeader);
-            if(CollectionUtils.isNotEmpty(selectSupplierHeaders)){
-                //删除供应商信息
-                rcwlSupplierHeaderRepository.batchDeleteBySupplierHeader(selectSupplierHeaders);
-            }
+            Long shortlistHeaderId = rcwlShortlistHeader.getShortlistHeaderId();
+            RcwlShortlistHeader rcwlShortlistHeaderSelect = rcwlShortlistHeaderRepository.selectByPrimaryKey(shortlistHeaderId);
+            rcwlShortlistHeaderSelect.setState(RW_STUTAS_DELETE);
+            //更新入围单头信息
+            rcwlShortlistHeaderRepository.updateOptional(rcwlShortlistHeader, RcwlShortlistHeader.FIELD_STATE);
+//            //查询附件模版信息
+//            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
+//            rcwlShortlistAttachment.setShortlistId(rcwlShortlistHeader.getShortlistHeaderId());
+//            List<RcwlShortlistAttachment> selectShortlistAttachment = rcwlShortlistAttachmentRepository.select(rcwlShortlistAttachment);
+//            if(CollectionUtils.isNotEmpty(selectShortlistAttachment)){
+//                //删除入围单附件信息
+//                rcwlShortlistAttachmentService.deleteRcwlShortlistAttachment(selectShortlistAttachment);
+//                //TODO 删除附件
+//            }
+//
+//            RcwlSupplierHeader rcwlSupplierHeader = new RcwlSupplierHeader();
+//            rcwlSupplierHeader.setShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId());
+//            List<RcwlSupplierHeader> selectSupplierHeaders = rcwlSupplierHeaderRepository.select(rcwlSupplierHeader);
+//            if(CollectionUtils.isNotEmpty(selectSupplierHeaders)){
+//                //删除供应商信息
+//                rcwlSupplierHeaderRepository.batchDeleteBySupplierHeader(selectSupplierHeaders);
+//            }
 
 
 

@@ -6,6 +6,8 @@ import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import io.choerodon.mybatis.common.BaseMapper;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
+import org.srm.source.cux.domain.vo.CompanyContactVO;
+import org.srm.source.cux.domain.vo.SupplierVO;
 import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
@@ -77,4 +79,28 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @return Page<RcwlShortlistHeader>
      */
     Page<RcwlShortlistHeader> selectRcwlShortlistHeader(RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
+
+    /**
+     * 根据编码获取静态文本内容
+     *
+     * @param organizationId 租户
+     * @param textCode       编码
+     * @return String
+     */
+    String selectStaticTextValueByCode(@Param("organizationId") Long organizationId, @Param("textCode") String textCode);
+
+    /**
+     * 获取当前用户信息
+     *
+     * @param userId 用户ID
+     * @return SupplierVO
+     */
+    SupplierVO currentSupplierInfo(Long userId);
+
+    /**
+     * 获取公司联系人
+     * @param companyId 公司ID
+     * @return List<CompanyContactVO>
+     */
+    List<CompanyContactVO> selectContactsByCompanyId(@Param("companyId") Long companyId);
 }
