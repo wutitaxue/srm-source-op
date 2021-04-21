@@ -226,7 +226,7 @@
     </sql>
 
     <sql id="selectRcwlSupplierHeaderResult">
-        srsh2.supplier_header_id,
+            srsh2.supplier_header_id,
             srsh2.supplier_id,
             srsh.shortlist_header_id,
             srsh.tenant_id,
