@@ -71,8 +71,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
 
         if (rcwlShortlistHeader.getShortlistHeaderId() == null) {
             //生成编码
-            //String ruleCode = codeRuleBuilder.generateCode(tenantId, SCUX_RCWL_SHORT_HEADER_NUM, CodeConstants.CodeRuleLevelCode.GLOBAL, CodeConstants.CodeRuleLevelCode.GLOBAL, null);
-            String ruleCode = "RW202104210001";
+            String ruleCode = codeRuleBuilder.generateCode(tenantId, SCUX_RCWL_SHORT_HEADER_NUM, CodeConstants.CodeRuleLevelCode.GLOBAL, CodeConstants.CodeRuleLevelCode.GLOBAL, null);
+            //String ruleCode = "RW202104210001";
             rcwlShortlistHeader.setShortlistNum(ruleCode);
             //默认新建状态
             rcwlShortlistHeader.setState(RW_STUTAS_NEW);
