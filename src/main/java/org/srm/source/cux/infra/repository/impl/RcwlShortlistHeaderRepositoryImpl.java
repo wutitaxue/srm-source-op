@@ -11,6 +11,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
+import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
@@ -114,8 +115,12 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     }
 
     @Override
-    public String selectStaticTextValueByCode(Long organizationId, String textCode) {
-        return rcwlShortlistHeaderMapper.selectStaticTextValueByCode(organizationId, textCode);
+    public StaticTextDTO selectStaticTextValueByCode(Long organizationId, String textCode) {
+        String s = rcwlShortlistHeaderMapper.selectStaticTextValueByCode(organizationId, textCode);
+        StaticTextDTO staticTextDTO = new StaticTextDTO();
+        staticTextDTO.setTextCode(textCode);
+        staticTextDTO.setValue(s);
+        return staticTextDTO;
     }
 
     @Override
