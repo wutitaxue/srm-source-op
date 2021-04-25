@@ -4,6 +4,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.mybatis.base.BaseRepository;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
+import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.vo.SupplierVO;
@@ -85,9 +86,9 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      *
      * @param organizationId 租户
      * @param textCode       编码
-     * @return String
+     * @return StaticTextDTO
      */
-    String selectStaticTextValueByCode(Long organizationId, String textCode);
+    StaticTextDTO selectStaticTextValueByCode(Long organizationId, String textCode);
 
     /**
      * 审批

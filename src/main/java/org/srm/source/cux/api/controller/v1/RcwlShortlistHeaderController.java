@@ -3,6 +3,7 @@ package org.srm.source.cux.api.controller.v1;
 import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
+import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
 import org.srm.source.cux.app.service.RcwlShortlistHeaderService;
 import org.srm.source.cux.config.ShortlistSourceSwaggerApiConfig;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
@@ -88,8 +89,8 @@ public class RcwlShortlistHeaderController extends BaseController {
     @ApiOperation(value = "获取静态文本信息")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/static-text")
-    public ResponseEntity<String> staticText(@PathVariable Long organizationId, String textCode) {
-        String value = rcwlShortlistHeaderRepository.selectStaticTextValueByCode(organizationId, textCode);
+    public ResponseEntity<StaticTextDTO> staticText(@PathVariable Long organizationId, String textCode) {
+        StaticTextDTO value = rcwlShortlistHeaderRepository.selectStaticTextValueByCode(organizationId, textCode);
         return Results.success(value);
     }
 
