@@ -8,26 +8,15 @@
         <version>1.13.5-SNAPSHOT</version>
     </parent>
     <groupId>org.srm-op</groupId>
-    <artifactId>srm-source-adient</artifactId>
+    <artifactId>srm-source-op</artifactId>
     <version>1.13.30-SNAPSHOT</version>
-
     <dependencies>
         <dependency>
-             <groupId>org.srm-op</groupId>
-            <artifactId>srm-source</artifactId>
-            <version>1.13.30-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hzero.starter</groupId>
-                    <artifactId>hzero-starter-mybatis-mapper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.srm.starter</groupId>
-                    <artifactId>srm-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.srm-op</groupId>
+            <artifactId>srm-source-rcwl-hotfix</artifactId>
+            <version>1.13.0.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>com.hand.scm</groupId>
             <artifactId>customize</artifactId>
@@ -37,6 +26,10 @@
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
             <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
 
