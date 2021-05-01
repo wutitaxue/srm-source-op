@@ -3,16 +3,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.srm</groupId>
+        <groupId>org.srm-op</groupId>
         <artifactId>srm-parent</artifactId>
-        <version>1.13.5.RELEASE</version>
+        <version>1.13.5-SNAPSHOT</version>
     </parent>
-    <artifactId>srm-source-op</artifactId>
+    <groupId>org.srm-op</groupId>
+    <artifactId>srm-source-adient</artifactId>
+    <version>1.13.30-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
-            <groupId>org.srm</groupId>
+             <groupId>org.srm-op</groupId>
             <artifactId>srm-source</artifactId>
-            <version>1.13.29.RELEASE</version>
+            <version>1.13.30-SNAPSHOT</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.hzero.starter</groupId>
