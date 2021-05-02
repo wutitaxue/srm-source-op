@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.srm-op</groupId>
             <artifactId>srm-source-rcwl-hotfix</artifactId>
-            <version>1.13.0.RELEASE</version>
+            <version>1.13.1.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -30,6 +30,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- srm 应用市场 -->
+        <dependency>
+            <groupId>org.srm.plugin</groupId>
+            <artifactId>amkt-hzero-client</artifactId>
+            <version>1.14.1.RELEASE</version>
         </dependency>
     </dependencies>
 
