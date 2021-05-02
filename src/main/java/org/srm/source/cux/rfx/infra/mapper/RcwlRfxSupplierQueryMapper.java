@@ -14,7 +14,7 @@ import java.util.List;
  * @Author hand_ghq
  */
 @Tenant(RcwlSourceConstant.TENANT_CODE)
-public interface RcwlRfxSupplierQueryMapper extends RfxHeaderMapper, ExtendMapper<RfxHeader> {
+public interface RcwlRfxSupplierQueryMapper  {
 
     /**
      * 根据条件查询询价信息
