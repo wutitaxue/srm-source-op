@@ -88,8 +88,8 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     }
 
     @Override
-    public Page<PrLineVO> listPrline(Long tenantId,PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId) {
-        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderRepository.listPrline(tenantId,prLine, shortlistHeaderId));
+    public Page<PrLineVO> listPrline(Long tenantId, PrLineVO prLine, PageRequest pageRequest, Long shortlistHeaderId) {
+        return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderRepository.listPrline(tenantId, prLine, shortlistHeaderId));
     }
 
     @Override
@@ -118,12 +118,12 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     }
 
     @Override
-    public RCWLShortlistHeader purchaseRequisitionToBeShortlisted(Long tenantId,List<Long> prLineIds) {
+    public RCWLShortlistHeader purchaseRequisitionToBeShortlisted(Long tenantId, List<Long> prLineIds) {
         String str = codeRuleBuilder.generateCode(DetailsHelper.getUserDetails().getTenantId(), SourceConstants.CodeRule.RFX_NUM, "GLOBAL", "GLOBAL", null);
         String shortlistNum = "RW" + str.substring(3);
         RCWLShortlistHeader rcwlShortlistHeader = new RCWLShortlistHeader();
         for (Long prLineId : prLineIds) {
-            PrLineVO prLine = rcwlShortlistHeaderRepository.selectOnePrline(tenantId,prLineId);
+            PrLineVO prLine = rcwlShortlistHeaderRepository.selectOnePrline(tenantId, prLineId);
             if (prLine == null) {
                 throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
             }
@@ -154,9 +154,16 @@ public class RCWLShortlistHeaderServiceImpl implements RCWLShortlistHeaderServic
     @Transactional(rollbackFor = Exception.class)
     public void submitShortlistHeader(Long shortlistHeaderId) {
         RCWLShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectOneShortlistHeader(shortlistHeaderId);
-        if (rcwlShortlistHeader.getShortlistCategory().equals("INVITATION")) {
-            rcwlShortlistHeader.setExamine(1);
-            rcwlShortlistHeaderRepository.updateShortlistHeader(rcwlShortlistHeader);
+
+        //查询供应个数
+        Long supplierCount = rcwlShortlistHeaderRepository.supplierCount(shortlistHeaderId);
+        if (supplierCount >= rcwlShortlistHeader.getAttributeBigint2() * 2 + 2) {
+            if (rcwlShortlistHeader.getShortlistCategory().equals("INVITATION")) {
+                rcwlShortlistHeader.setExamine(1);
+                rcwlShortlistHeaderRepository.updateShortlistHeader(rcwlShortlistHeader);
+            }
+        }else{
+            throw new CommonException("入围供应商数量不满足，请重新维护！");
         }
     }
 

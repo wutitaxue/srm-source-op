@@ -44,6 +44,17 @@ public class RCWLSupplierShortlistHeaderRepositoryImpl implements RCWLShortlistH
         return rcwlShortlistHeaderMapper.listShortlistSupplier(rcwLSupplierHeader, shortlistHeaderId);
     }
 
+    /**
+     * 供应商个数查询ß
+     *
+     * @param shortlistHeaderId
+     * @return
+     */
+    @Override
+    public Long supplierCount(Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.supplierCount(shortlistHeaderId);
+    }
+
     @Override
     public List<PrLineVO> listPrline(Long tenantId,PrLineVO prline, Long shortlistHeaderId) {
         return rcwlShortlistHeaderMapper.listPrline(tenantId,prline, shortlistHeaderId);

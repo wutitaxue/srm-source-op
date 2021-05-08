@@ -29,12 +29,14 @@ public interface RCWLShortlistHeaderMapper extends BaseMapper<RCWLShortlistHeade
      * @param shortlistHeaderId
      */
     RCWLShortlistHeader selectOneShortlistHeader(Long shortlistHeaderId);
+
     /**
      * 查询入围单头明细
      *
      * @param Num
      */
     Long selectOneShortlistHeaderByNum(String Num);
+
     /**
      * 查询供应商
      *
@@ -44,12 +46,20 @@ public interface RCWLShortlistHeaderMapper extends BaseMapper<RCWLShortlistHeade
     List<RCWLSupplierHeader> listShortlistSupplier(RCWLSupplierHeader rcwLSupplierHeader, Long shortlistHeaderId);
 
     /**
+     * 供应商个数查询ß
+     *
+     * @param shortlistHeaderId
+     * @return
+     */
+    Long supplierCount(Long shortlistHeaderId);
+
+    /**
      * 查询采购申请单
      *
      * @param prLine
      * @param shortlistHeaderId
      */
-    List<PrLineVO> listPrline(Long tenantId,PrLineVO prLine, Long shortlistHeaderId);
+    List<PrLineVO> listPrline(Long tenantId, PrLineVO prLine, Long shortlistHeaderId);
 
     /**
      * 查询送样单
@@ -79,6 +89,7 @@ public interface RCWLShortlistHeaderMapper extends BaseMapper<RCWLShortlistHeade
      * @param rcwlShortlistHeader
      */
     void updateShortlistHeader(RCWLShortlistHeader rcwlShortlistHeader);
+
     /**
      * 删除入围单
      *
@@ -91,7 +102,7 @@ public interface RCWLShortlistHeaderMapper extends BaseMapper<RCWLShortlistHeade
      *
      * @param prLineId
      */
-    PrLineVO selectOnePrline(Long tenantId,Long prLineId);
+    PrLineVO selectOnePrline(Long tenantId, Long prLineId);
 
     void updatePrline(PrLineVO prLine);
 

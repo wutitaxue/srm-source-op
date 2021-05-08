@@ -44,6 +44,13 @@ public interface RCWLShortlistHeaderRepository {
     List<RCWLSupplierHeader> listShortlistSupplier(RCWLSupplierHeader rcwlSupplierHeader, Long shortlistHeaderId);
 
     /**
+     * 供应商个数查询ß
+     *
+     * @param shortlistHeaderId
+     * @return
+     */
+    Long supplierCount(Long shortlistHeaderId);
+    /**
      * 查询采购申请单
      *
      * @param prLine

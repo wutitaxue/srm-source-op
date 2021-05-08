@@ -723,6 +723,14 @@
         WHERE spl.tenant_id = #{tenantId} and spl.attribute_varchar2 =
         (select shortlist_num from scux_rcwl_shortlist_header t where t.shortlist_header_id = #{shortlistHeaderId})
     </select>
+    <select id="supplierCount" resultType="java.lang.Long">
+        SELECT
+            count( 1 )
+        FROM
+            scux_rcwl_supplier_header h
+        WHERE
+            h.shortlist_header_id =#{shortlistHeaderId}
+    </select>
 
 
 </mapper>
