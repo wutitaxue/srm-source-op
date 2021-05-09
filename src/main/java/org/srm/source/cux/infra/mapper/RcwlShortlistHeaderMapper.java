@@ -103,4 +103,12 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @return List<CompanyContactVO>
      */
     List<CompanyContactVO> selectContactsByCompanyId(@Param("companyId") Long companyId);
+
+    /**
+     * 供应商个数查询ß
+     *
+     * @param shortlistHeaderId
+     * @return
+     */
+    Long supplierCount(Long shortlistHeaderId);
 }
