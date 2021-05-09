@@ -411,5 +411,13 @@
             scc.company_id = #{companyId}
             AND scc.default_flag = 1
     </select>
+    <select id="supplierCount" resultType="java.lang.Long">
+        SELECT
+            count( 1 )
+        FROM
+            scux_rcwl_supplier_header h
+        WHERE
+            h.shortlist_header_id =#{shortlistHeaderId}
+    </select>
 
 </mapper>
