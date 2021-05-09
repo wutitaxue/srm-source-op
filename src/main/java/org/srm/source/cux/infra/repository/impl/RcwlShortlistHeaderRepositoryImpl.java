@@ -175,7 +175,13 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             }
         }
         //供应商数量<标段数*2+2 则报错
-        if (supplierCount < rcwlShortlistHeader.getAttributeBigint2() * 2 + 2) {
+        Long bidNumber;
+        if (null!=rcwlShortlistHeader.getAttributeBigint2()&&"".equals(rcwlShortlistHeader.getAttributeBigint2())){
+            bidNumber = rcwlShortlistHeader.getAttributeBigint2();
+        }else{
+            bidNumber = 0L;
+        }
+        if (supplierCount < bidNumber * 2 + 2) {
             throw new CommonException("入围供应商数量不满足，请重新维护！");
         }
         //将状态修改为审批中
