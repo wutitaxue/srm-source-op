@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlSourceProjectMapper">
+    <select id="selectItemByShortlistNum" resultType="org.srm.source.share.domain.entity.ProjectLineItem">
+
+
+    </select>
+
+    <select id="selectSupplierByShortlistNum" resultType="org.srm.source.share.domain.entity.ProjectLineSupplier">
+
+
+    </select>
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper">
+    <select id="selectRcwlShortlistHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        srsh.business_company_id,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.created_by,
+        srsh.creation_date,
+        hc.company_num,
+        hc.company_name,
+        iu.real_name created_name
+        from scux_rcwl_shortlist_header srsh
+        left join iam_user iu on iu.id = srsh.created_by
+        left join hpfm_company hc on hc.company_id = srsh.company_id
+        <where>
+            1=1
+            and srsh.state = 'approved'
+            and srsh.tenant_id = #{tenantId}
+            <if test="shortlistNum != null and shortlistNum != '' ">
+                and srsh.shortlist_num = #{shortlistNum}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and srsh.project_name = #{projectName}
+            </if>
+            <if test="sourceCategory != null and sourceCategory != '' ">
+                and srsh.source_category = #{sourceCategory}
+            </if>
+            <if test="shortlistCategory != null and shortlistCategory != '' ">
+                and srsh.shortlist_category = #{shortlistCategory}
+            </if>
+            <if test="state != null and state != '' ">
+                and srsh.state = #{state}
+            </if>
+            <if test="startDateFrom != null">
+                and srsh.start_date >= #{startDateFrom}
+            </if>
+            <if test="finishDateTo != null">
+                and srsh.finish_date &lt;= #{finishDateTo}
+            </if>
+        </where>
+    </select>
+</mapper>
