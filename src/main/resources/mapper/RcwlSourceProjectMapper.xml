@@ -2,13 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlSourceProjectMapper">
     <select id="selectItemByShortlistNum" resultType="org.srm.source.share.domain.entity.ProjectLineItem">
-
+        SELECT
+            spl.line_num project_line_item_num,
+            spl.ou_id,
+            spl.inv_organization_id,
+            spl.item_id,
+            spl.item_code,
+            spl.item_name,
+            spl.category_id item_category_id,
+            spl.item_name item_remark,
+            spl.uom_id,
+            ROUND( spl.quantity, 0 ) required_quantity,
+            ROUND( spl.tax_included_unit_price, 0 ) cost_price,
+            ROUND( spl.tax_included_unit_price * spl.quantity, 0 ) total_price,
+            spl.pr_header_id pr_header_id,
+            sph.pr_num,
+            spl.pr_line_id,
+            spl.line_num pr_line_num,
+            spl.requested_by request_user_id,
+            ( SELECT si.specifications FROM smdm_item si WHERE si.item_id = spl.item_id ),
+            ( SELECT si.model FROM smdm_item si WHERE si.item_id = spl.item_id )
+        FROM
+            sprm_pr_line spl
+            LEFT JOIN scux_rcwl_shortlist_header srsh ON spl.attribute_bigint1 = srsh.shortlist_header_id
+            LEFT JOIN sprm_pr_header sph ON sph.pr_header_id = spl.pr_header_id
+        WHERE
+            srsh.tenant_id = #{tenantId} and srsh.shortlist_num = #{shortlistNum}
 
     </select>
 
     <select id="selectSupplierByShortlistNum" resultType="org.srm.source.share.domain.entity.ProjectLineSupplier">
-
-
+        SELECT
+            srph.tenant_id,
+            (select ssb.supplier_tenant_id from sslm_supplier_basic ssb where ssb.supplier_company_id =srph.supplier_id)supplier_tenant_id,
+            srph.supplier_id supplier_company_id
+        FROM
+            scux_rcwl_shortlist_header srsh
+            left JOIN scux_rcwl_supplier_header srph on srsh.shortlist_header_id = srph.shortlist_header_id
+            where srsh.tenant_id = #{tenantId} and srsh.shortlist_num = #{shortlistNum}
     </select>
 
 </mapper>

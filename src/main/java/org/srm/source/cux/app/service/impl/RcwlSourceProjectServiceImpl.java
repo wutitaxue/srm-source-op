@@ -53,8 +53,18 @@ public class RcwlSourceProjectServiceImpl extends SourceProjectServiceImpl {
 
         //获取入围单号
         String shortlistNum = sourceProject.getAttributeVarchar1();
+        //设置行上的头id和租户
+        Long sourceProjectId = sourceProject.getSourceProjectId();
         List<ProjectLineItem> projectLineItems = fullSourceProjectDTO.getProjectLineItems();
+        projectLineItems.forEach(projectLineItem -> {
+            projectLineItem.setTenantId(tenantId);
+            projectLineItem.setSourceProjectId(sourceProjectId);
+        });
         List<ProjectLineSupplier> projectLineSuppliers = fullSourceProjectDTO.getProjectLineSuppliers();
+        projectLineSuppliers.forEach(projectLineSupplier -> {
+            projectLineSupplier.setTenantId(tenantId);
+            projectLineSupplier.setSourceProjectId(sourceProjectId);
+        });
         //判断供应商和物料是否传值[无值代表第一次保存，根据入围单号查找供应商和物料行，如果有值代表第二次保存则直接存入不做处理]
         if(projectLineItems == null){
             //通过入围单号查找物料行信息
