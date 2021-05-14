@@ -12,6 +12,7 @@ import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 入围单头表资源库
@@ -131,4 +132,7 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @return SupplierVO
      */
     SupplierVO currentSupplierInfo();
+
+
+    Set<Long> queryPrLine(Long shortlistHeaderId);
 }
