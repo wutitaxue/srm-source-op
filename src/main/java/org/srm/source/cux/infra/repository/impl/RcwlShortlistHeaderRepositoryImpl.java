@@ -101,6 +101,18 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectRcwlShortlistHeader(rcwlShortlistQueryDTO));
     }
 
+    /**
+     * 转询价的供应商ß
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    @Override
+    public List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(Long organizationId, Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
+    }
+
     @Override
     public void updatePrLineByShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader) {
         rcwlShortlistHeaderMapper.updatePrLineByShortlistHeader(rcwlShortlistHeader);
@@ -176,9 +188,9 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         }
         //供应商数量<标段数*2+2 则报错
         Long bidNumber;
-        if (null!=rcwlShortlistHeader.getAttributeBigint2()&&"".equals(rcwlShortlistHeader.getAttributeBigint2())){
+        if (null != rcwlShortlistHeader.getAttributeBigint2() && "".equals(rcwlShortlistHeader.getAttributeBigint2())) {
             bidNumber = rcwlShortlistHeader.getAttributeBigint2();
-        }else{
+        } else {
             bidNumber = 0L;
         }
         if (supplierCount < bidNumber * 2 + 2) {
