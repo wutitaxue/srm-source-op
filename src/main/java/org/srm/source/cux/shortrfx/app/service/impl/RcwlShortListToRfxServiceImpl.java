@@ -1,7 +1,5 @@
 package org.srm.source.cux.shortrfx.app.service.impl;
 
-import cfca.com.itextpdf.text.log.Logger;
-import cfca.com.itextpdf.text.log.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -9,6 +7,8 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import javassist.Loader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
@@ -58,28 +58,26 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
     @Override
     public PreSourceHeaderDTO rcwlShortListToRfx(Long organizationId, Long shortlistHeaderId, Long templateId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        PreSourceHeaderDTO preSourceHeaderDTO = new PreSourceHeaderDTO();
         PrLineDTO prLineDTO = new PrLineDTO();
         prLineDTO.setNewPriceLibSearch(1);
         prLineDTO.setAttributeBigint1(shortlistHeaderId);
         PageRequest pageRequest = new PageRequest();
         pageRequest.setSize(100);
 
-
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
-        logger.info("prLineDTO："+mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
-        logger.info("---------------------查询采购申请开始：-------------------organizationId："+organizationId);
+        logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
+        logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
         Page<PrLineVO> prLineVOS = this.prLineService.listPurchase(pageRequest, prLineDTO, organizationId);
         List<PrLineVO> prLineVOList = prLineVOS.getContent();
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
         preFullSourceHeaderDTO.setPrLineList(prLineVOList);
-        logger.debug("preFullSourceHeaderDTO:[{}]");
+        logger.debug("preFullSourceHeaderDTO:[{}]" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
 
         //入围单供应商查询
         List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
         //创建询价单
-        preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
+        PreSourceHeaderDTO preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
         //创建询价单供应商
         List<RfxLineSupplier> rfxLineSupplierList = new ArrayList<>();
         if (null != list && list.size() > 0) {
