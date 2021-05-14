@@ -27,6 +27,7 @@ import org.srm.source.rfx.infra.constant.Constants;
 import org.srm.source.rfx.infra.constant.SourceConstants;
 import org.srm.source.share.api.dto.PreSourceHeaderDTO;
 import org.srm.source.share.api.dto.SourceProjectDTO;
+import org.srm.source.share.domain.entity.ProjectLineSection;
 import org.srm.source.share.domain.entity.RoundHeaderDate;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.vo.PrLineVO;
@@ -57,7 +58,6 @@ import java.util.stream.Collectors;
 @Table(name = "ssrc_rfx_header")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RfxHeader extends ExpandDomain {
-
     public static final String FIELD_RFX_HEADER_ID = "rfxHeaderId";
     public static final String FIELD_TENANT_ID = "tenantId";
     public static final String FIELD_RFX_NUM = "rfxNum";
@@ -155,7 +155,7 @@ public class RfxHeader extends ExpandDomain {
     public static final String FIELD_PAYMENT_CLAUSE = "paymentClause";
     public static final String FIELD_RANK_RULE = "rankRule";
     public static final String FIELD_PUR_NAME = "purName";
-    public static final String FIELD_PUR_EMAIL= "purEmail";
+    public static final String FIELD_PUR_EMAIL = "purEmail";
     public static final String FIELD_PUR_PHONE = "purPhone";
     public static final String FIELD_ITEM_GENERATE_POLICY = "itemGeneratePolicy";
     public static final String FIELD_SCORE_PROCESS_FLAG = "scoreProcessFlag";
@@ -167,638 +167,85 @@ public class RfxHeader extends ExpandDomain {
     public static final String FIELD_QUOTATION_ROUNDS = "quotationRounds";
     public static final String FIELD_SOURCE_PROJECT_ID = "sourceProjectId";
     public static final String FIELD_CHECK_FINISHED_DATE = "checkFinishedDate";
-
-    public RfxHeader() {
-    }
-    public RfxHeader(Integer quotationFlag) {
-        this.quotationFlag = quotationFlag;
-    }
-    public RfxHeader(CheckPriceHeaderDTO checkPriceHeaderDTO) {
-        this.setObjectVersionNumber(checkPriceHeaderDTO.getObjectVersionNumber());
-        this.rfxHeaderId = checkPriceHeaderDTO.getRfxHeaderId();
-        this.totalCost = checkPriceHeaderDTO.getTotalCost();
-        this.costRemark = checkPriceHeaderDTO.getCostRemark();
-        this.checkAttachmentUuid = checkPriceHeaderDTO.getCheckAttachmentUuid();
-        this.checkRemark = checkPriceHeaderDTO.getCheckRemark();
-    }
-
-    public RfxHeader(Long tenantId, Long rfxHeaderId) {
-        this.tenantId = tenantId;
-        this.rfxHeaderId = rfxHeaderId;
-    }
-
-    public void initTotalCoast(List<RfxLineItem> rfxLineItemList) {
-        this.totalCost = new BigDecimal(0);
-        rfxLineItemList.stream()
-                .filter(lineItem -> null != lineItem.getCostPrice() && lineItem.getCostPrice().compareTo(new BigDecimal(0)) > 0)
-                .forEach(lineItem -> this.totalCost = this.totalCost.add(lineItem.getCostPrice().multiply(lineItem.getRfxQuantity())));
-        if (new BigDecimal(0).compareTo(this.totalCost) == 0) {
-            this.totalCost = this.totalCost.setScale(2, RoundingMode.HALF_UP);
-        }
-    }
-
-    /**
-     * 开启操作状态校验
-     */
-    public void validResume() {
-        if (!SourceConstants.RfxStatus.PAUSED.equals(this.rfxStatus)) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_OPERATE_STATUS);
-        }
-    }
-
-    /**
-     * 关闭操作状态校验
-     */
-    public void validClose() {
-        switch (this.rfxStatus) {
-            case SourceConstants.RfxStatus.NEW:
-            case SourceConstants.RfxStatus.CLOSED:
-            case SourceConstants.RfxStatus.FINISHED:
-            case SourceConstants.RfxStatus.RELEASE_APPROVING:
-            case SourceConstants.RfxStatus.CHECK_APPROVING:
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_OPERATE_STATUS);
-            default:
-                return;
-        }
-    }
-
-    /**
-     * 关闭操作数据初始化
-     */
-    public void initClose(String terminatedRemark) {
-        this.rfxStatus = SourceConstants.RfxStatus.CLOSED;
-        this.closedFlag = BaseConstants.Flag.YES;
-        this.terminatedBy = DetailsHelper.getUserDetails().getUserId();
-        this.terminatedDate = new Date();
-        this.terminatedRemark = terminatedRemark;
-    }
-
-    /**
-     * 询价单校验竞价规则
-     */
-    public void validAuctionRule(SourceTemplate sourceTemplate) {
-        if (ShareConstants.SourceTemplate.CategoryType.RFA.equals(this.sourceCategory)) {
-            if (BaseConstants.Flag.YES.equals(this.getStartFlag()) && BaseConstants.Flag.YES.equals(sourceTemplate.getFastBidding())){
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_RFA_START_FLAG_DISABLE);
-            }
-            if (ShareConstants.SourceTemplate.AuctionDirection.NONE.equals(this.auctionDirection)) {
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_RFA_AUCTION_DIRECTION);
-            }
-            if (this.quotationRunningDuration == null) {
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_QUOTATION_RUNNING_DURATION_IS_NULL);
-            }
-            if (SourceConstants.QuotationOrderType.PARALLEL.equals(this.quotationOrderType)) {
-                this.quotationInterval = null;
-            } else {
-                if (this.quotationInterval == null) {
-                    throw new CommonException(SourceConstants.ErrorCode.ERROR_QUOTATION_INTERVAL_IS_NULL);
-                }
-            }
-            if (!ShareConstants.SourceTemplate.SourceMethod.INVITE.equals(this.sourceMethod)
-                    && ShareConstants.SourceTemplate.RankRule.WEIGHT_PRICE.equals(this.rankRule)) {
-                throw new CommonException(ShareConstants.ErrorCode.ERROR_WEIGHT_PRICE_INVITE);
-            }
-            if (BaseConstants.Flag.YES.equals(sourceTemplate.getFastBidding()) && this.estimatedStartTime == null){
-                //如果模板勾选了集中竞价，那么校验预计开始时间为必输
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_ESTIMATED_START_TIME_IS_NULL);
-            }
-        }
-    }
-
-    public void initAuctionRule(SourceTemplate sourceTemplate) {
-        if (ShareConstants.SourceTemplate.CategoryType.RFA.equals(sourceTemplate.getSourceCategory())) {
-            this.openRule = sourceTemplate.getOpenRule();
-            this.auctionRule = sourceTemplate.getAuctionRule();
-            this.auctionRanking = sourceTemplate.getAuctionRanking();
-            this.autoDeferFlag = sourceTemplate.getAutoDeferFlag();
-            this.autoDeferDuration = sourceTemplate.getAutoDeferDuration();
-            this.rankRule = sourceTemplate.getRankRule();
-        }
-    }
-
-    /**
-     * 时间修改初始化
-     */
-    public void initAdjustDate() {
-        this.timeAdjustedBy = DetailsHelper.getUserDetails().getUserId();
-        this.timeAdjustedDate = new Date();
-    }
-
-    public void validateOpener(SourceTemplate sourceTemplate, RfxMemberRepository rfxMemberRepository) {
-        if (BaseConstants.Flag.YES.equals(this.sealedQuotationFlag) && BaseConstants.Flag.YES.equals(sourceTemplate.getOpenerFlag())) {
-            List<RfxMember> rfxOpenerMembers = rfxMemberRepository.select(new RfxMember(this.tenantId,this.rfxHeaderId, SourceConstants.RfxRole.OPENED_BY,null));
-            if (CollectionUtils.isEmpty(rfxOpenerMembers)) {
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_OPENER_NOT_NULL);
-            }
-        }
-    }
-
-    /**
-     * 询报价时间调整
-     *
-     * @param rfxHeaderRepository 询价单Repository
-     * @param realRfxHeader       物料行号
-     */
-    public void adjustDate(RfxHeaderRepository rfxHeaderRepository, RfxHeader realRfxHeader) {
-        Date now = new Date();
-        //报价开始时间更改校验
-        if (realRfxHeader.getQuotationStartDate() != null && DateUtil.beforeStartDate(realRfxHeader.getQuotationStartDate(), now, "")) {
-            //如果报价开始时间是可选的，那么报价开始时间校验必须大于当前时间
-            if (DateUtil.beforeStartDate(now, this.quotationStartDate == null ? realRfxHeader.getQuotationStartDate() : this.quotationStartDate, "")) {
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_START_TIME_EARLIER_THEN_CURRENT_TIME);
-            }
-            if (Objects.nonNull(realRfxHeader.getQuotationEndDate())) {
-                if(DateUtil.beforeStartDate(now, realRfxHeader.getQuotationEndDate(), "")){
-                    //如果有报价结束时间，那么报价开始时间校验必须大于当前时间
-                    throw new CommonException(SourceConstants.ErrorCode.ERROR_END_TIME_EARLIER_THEN_CURRENT_TIME);
-                }
-                if(DateUtil.beforeStartDate(this.quotationStartDate == null ? realRfxHeader.getQuotationStartDate() : this.quotationStartDate, realRfxHeader.getQuotationEndDate(), "")) {
-                    //如果有报价结束时间，那么更改报价开始时间的时候，报价开始时间还不能大于报价截止时间
-                    throw new CommonException(SourceConstants.ErrorCode.ERROR_END_TIME_EARLIER_THEN_START_TIME);
-                }
-            }
-            if (realRfxHeader.getPrequalEndDate() != null && DateUtil.beforeStartDate(realRfxHeader.getPrequalEndDate(), this.quotationStartDate, null)) {
-                throw new CommonException(SourceConstants.ErrorCode.PREQUAL_END_TIME_BIGGER_OR_SMALLER);
-            }
-        }
-        String realStatus = realRfxHeader.getRfxStatus();
-        if (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(realRfxHeader.getSourceCategory())
-                || RcwlShareConstants.CategoryType.RCBJ.equals(realRfxHeader.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZB.equals(realRfxHeader.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZW.equals(realRfxHeader.getSourceCategory())) {
-            if (SourceConstants.RfxStatus.NOT_START.equals(realStatus) || SourceConstants.RfxStatus.PENDING_PREQUAL.equals(realStatus)) {
-                realRfxHeader.setQuotationStartDate(this.quotationStartDate);
-                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
-                realRfxHeader.setHandDownDate(this.quotationEndDate);
-                CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this,
-                        RfxHeader.FIELD_QUOTATION_START_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_BY,
-                        RfxHeader.FIELD_QUOTATION_END_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_REMARK));
-            }
-            if (SourceConstants.RfxStatus.IN_QUOTATION.equals(realStatus) || SourceConstants.RfxStatus.LACK_QUOTED.equals(realStatus)
-                    || (realRfxHeader.getQuotationEndDateChangeFlag()==BaseConstants.Flag.YES &&  SourceConstants.RfxStatus.OPEN_BID_PENDING.equals(realStatus))) {
-                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
-                realRfxHeader.setHandDownDate(this.quotationEndDate);
-                this.rfxStatus = SourceConstants.RfxStatus.IN_QUOTATION;
-                CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this,
-                        RfxHeader.FIELD_QUOTATION_END_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_BY,
-                        RfxHeader.FIELD_RFX_STATUS,
-                        RfxHeader.FIELD_TIME_ADJUSTED_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_REMARK));
-            }
-
-            if (SourceConstants.RfxStatus.IN_PREQUAL.equals(realStatus)) {
-                realRfxHeader.setQuotationStartDate(this.getQuotationStartDate());
-                CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this,
-                        RfxHeader.FIELD_QUOTATION_START_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_BY,
-                        RfxHeader.FIELD_TIME_ADJUSTED_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_REMARK
-                ));
-
-            }
-        }
-        if (ShareConstants.SourceTemplate.CategoryType.RFA.equals(realRfxHeader.getSourceCategory())) {
-            if (SourceConstants.RfxStatus.NOT_START.equals(realStatus) || SourceConstants.RfxStatus.PENDING_PREQUAL.equals(realStatus)) {
-                realRfxHeader.setQuotationStartDate(this.quotationStartDate);
-                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
-                realRfxHeader.setQuotationInterval(this.quotationInterval);
-                realRfxHeader.setQuotationRunningDuration(this.quotationRunningDuration);
-                dealWithRfqQuotationEndDate();
-                realRfxHeader.setHandDownDate(this.quotationEndDate);
-                CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this,
-                        RfxHeader.FIELD_QUOTATION_START_DATE,
-                        RfxHeader.FIELD_QUOTATION_RUNNING_DURATION,
-                        RfxHeader.FIELD_QUOTATION_INTERVAL,
-                        RfxHeader.FIELD_TIME_ADJUSTED_BY,
-                        RfxHeader.FIELD_TIME_ADJUSTED_DATE,
-                        RfxHeader.FIELD_QUOTATION_END_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_REMARK));
-            }
-            if (SourceConstants.RfxStatus.IN_QUOTATION.equals(realStatus)) {
-                throw new CommonException(SourceConstants.ErrorCode.ERROR_OPERATE_STATUS);
-            }
-            if (SourceConstants.RfxStatus.IN_PREQUAL.equals(realStatus)) {
-                realRfxHeader.setQuotationStartDate(this.getQuotationStartDate());
-                dealWithRfqQuotationEndDate();
-                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
-                realRfxHeader.setHandDownDate(this.quotationEndDate);
-                CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this,
-                        RfxHeader.FIELD_QUOTATION_START_DATE,
-                        RfxHeader.FIELD_QUOTATION_RUNNING_DURATION,
-                        RfxHeader.FIELD_QUOTATION_INTERVAL,
-                        RfxHeader.FIELD_TIME_ADJUSTED_BY,
-                        RfxHeader.FIELD_TIME_ADJUSTED_DATE,
-                        RfxHeader.FIELD_QUOTATION_END_DATE,
-                        RfxHeader.FIELD_TIME_ADJUSTED_REMARK
-                ));
-            }
-        }
-        this.latestQuotationEndDate = realRfxHeader.getQuotationEndDate();
-        this.handDownDate = realRfxHeader.getQuotationEndDate();
-        CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this, RfxHeader.FIELD_LATEST_QUOTATION_END_DATE, RfxHeader.FIELD_HAND_DOWN_DATE));
-    }
-
-    /**
-     * 竞价的时候对报价截止时间处理
-     */
-    private void dealWithRfqQuotationEndDate() {
-        if (Objects.nonNull(this.day)) {
-            this.quotationEndDate = DateUtil.addDay(this.quotationStartDate, day.intValue());
-        }
-        if (Objects.nonNull(this.hour)){
-            this.quotationEndDate = DateUtil.addHourOrMin(this.quotationStartDate,hour.intValue(), Calendar.HOUR_OF_DAY);
-        }
-        if (Objects.nonNull(this.minute)){
-            this.quotationEndDate = DateUtil.addHourOrMin(this.quotationStartDate,minute.intValue(),Calendar.MINUTE);
-        }
-    }
-
-    public void initPretrialUser(SourceTemplate sourceTemplate) {
-        if (BaseConstants.Flag.YES.equals(sourceTemplate.getPretrialFlag())) {
-            this.pretrialUserId = DetailsHelper.getUserDetails().getUserId();
-            this.pretrialStatus = SourceConstants.PretrialStatus.NO_TRIAL;
-        }
-    }
-
-    /**
-     * 初始化资格预审标志
-     *
-     * @param sourceTemplate
-     */
-    public void initPreQualificationFlag(SourceTemplate sourceTemplate) {
-        this.preQualificationFlag = (BidConstants.BidHeader.QualificationType.PRE.equals(sourceTemplate.getQualificationType())
-                || BidConstants.BidHeader.QualificationType.PRE_POST.equals(sourceTemplate.getQualificationType())) ? BaseConstants.Digital.ONE : BaseConstants.Digital.ZERO;
-    }
-
-    /**
-     * 准备询价单头初始值
-     *
-     * @param sourceTemplate 寻源模板
-     * @param prLineVO       参数
-     * @param organizationId 租户id
-     * @return RfxHeader
-     */
-    public void preRfxHeader(SourceTemplate sourceTemplate, PrLineVO prLineVO, Long organizationId) {
-        this.templateId = sourceTemplate.getTemplateId();
-        this.companyId = prLineVO.getCompanyId();
-        this.companyName = prLineVO.getCompanyName();
-        this.currencyCode = prLineVO.getCurrencyCode() == null? SourceConstants.RfxConstants.CURRENCY_CODE_DEFAULT : prLineVO.getCurrencyCode();
-        this.timeAdjustedBy = 1L;
-        this.rfxStatus = SourceConstants.RfxStatus.NEW;
-        this.tenantId = organizationId;
-        this.rfxTitle = BaseConstants.Symbol.SPACE;
-        this.sourceMethod = sourceTemplate.getSourceMethod();
-        this.sourceType = sourceTemplate.getSourceType();
-        this.priceCategory = ShareConstants.SourceTemplate.SourcePriceCategory.STANDARD;
-        this.sourceFrom = SourceConstants.SourceFrom.DEMAND_POOL;
-        this.sourceCategory = sourceTemplate.getSourceCategory();
-        this.quotationType = sourceTemplate.getQuotationType();
-        this.auctionDirection = sourceTemplate.getAuctionDirection();
-        this.quotationScope = sourceTemplate.getQuotationScope();
-        this.purchaserId=prLineVO.getPurchaseAgentId();
-    }
-
-    public void validQuotationType() {
-        if (SourceConstants.EntryMethod.OFFLINE.equals(this.quotationType) && SourceConstants.RfxType.INVITE.equals(this.sourceMethod)) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_OFFLINE_SOURCE_METHOD);
-        }
-    }
-
-    public void initQuotationEndDateByItem(RfxHeaderRepository rfxHeaderRepository, List<RfxLineItem> rfxLineItems) {
-        Optional<RfxLineItem> itemOptional = rfxLineItems.stream().max(Comparator.comparing(RfxLineItem::getRfxLineItemNum));
-        itemOptional.ifPresent(rfxLineItem -> {
-            this.quotationEndDate = rfxLineItem.getQuotationEndDate();
-            CustomizeHelper.ignore(() -> rfxHeaderRepository.updateOptional(this, RfxHeader.FIELD_QUOTATION_END_DATE));
-        });
-    }
-
-    public void pretrialSubmit() {
-        this.rfxStatus = SourceConstants.RfxStatus.CHECK_PENDING;
-        this.pretrialStatus = SourceConstants.PretrialStatus.SUBMITED;
-    }
-
-    public void pretrialBack() {
-        this.rfxStatus = SourceConstants.RfxStatus.PRETRIAL_PENDING;
-        this.pretrialStatus = SourceConstants.PretrialStatus.NO_TRIAL;
-    }
-
-    /**
-     * 初始化动态排名配置
-     *
-     * @param sourceTemplate 寻源模板
-     */
-    public void initRankRule(SourceTemplate sourceTemplate) {
-        if (this.openRule != null) {
-            sourceTemplate.setOpenRule(openRule);
-        }
-        if (this.auctionDirection != null) {
-            sourceTemplate.setAuctionDirection(this.auctionDirection);
-        }
-        if (this.autoDeferFlag != null) {
-            sourceTemplate.setAutoDeferFlag(this.autoDeferFlag);
-        }
-        if (this.quotationOrderType != null) {
-            sourceTemplate.setQuotationOrderType(this.quotationOrderType);
-        }
-        sourceTemplate.setRoundNumber(this.roundNumber);
-        sourceTemplate.setRfxHeaderId(this.rfxHeaderId);
-        sourceTemplate.setRankRule(this.rankRule);
-        sourceTemplate.setRfxNum(this.rfxNum);
-    }
-
-    public void validQuotationTime(SourceTemplate sourceTemplate) {
-        //判断如果报价运行时间为0则改成null
-        BigDecimal startQuotationRunningDuration = this.getStartQuotationRunningDuration();
-        if (startQuotationRunningDuration !=null && startQuotationRunningDuration.equals(BigDecimal.ZERO)){
-            this.startQuotationRunningDuration = null;
-        }
-        //寻源类别
-        String categroyType = sourceTemplate.getSourceCategory();
-        // 是否设置报价截至时间标识
-        Integer quotationEndDateFlag = sourceTemplate.getQuotationEndDateFlag();
-        Date now = new Date();
-        if (this.startFlag == null || BaseConstants.Flag.NO.equals(startFlag)) {
-            if (BaseConstants.Flag.NO.equals(sourceTemplate.getFastBidding())){
-                Assert.notNull(this.quotationStartDate, SourceConstants.ErrorCode.ERROR_QUOTATION_START_TIME_NOT_FOUND);
-                Assert.isTrue(this.quotationStartDate.compareTo(now) >= 0, SourceConstants.ErrorCode.ERROR_START_TIME_EARLIER_THEN_CURRENT_TIME);
-                if (BaseConstants.Flag.YES.equals(quotationEndDateFlag)
-                        && (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(categroyType)
-                        ||RcwlShareConstants.CategoryType.RCBJ.equals(categroyType)
-                        ||RcwlShareConstants.CategoryType.RCZB.equals(categroyType)
-                        ||RcwlShareConstants.CategoryType.RCZW.equals(categroyType))) {
-                    //报价运行时间和报价截至时间不能同时为空
-                    Assert.isTrue(this.startQuotationRunningDuration != null || this.quotationEndDate != null, SourceConstants.ErrorCode.ERROR_QUOTATION_END_DATE_OR_RUNNING_TIME_ONE_EXIST);
-                    Assert.isTrue(this.quotationEndDate == null || this.quotationEndDate.compareTo(now) >= 0, SourceConstants.ErrorCode.ERROR_END_TIME_EARLIER_THEN_CURRENT_TIME);
-                    Assert.isTrue(this.quotationEndDate == null || this.quotationEndDate.compareTo(quotationStartDate) > 0, SourceConstants.ErrorCode.ERROR_END_TIME_EARLIER_THEN_START_TIME);
-                }
-            }
-        } else {
-            this.quotationStartDate = null;
-        }
-        if (BaseConstants.Flag.NO.equals(quotationEndDateFlag)) {
-            this.quotationEndDate = null;
-            this.startQuotationRunningDuration = null;
-        }
-    }
-
-    /**
-     * 询价单审批通过后的初始化
-     */
-    public void initAfterApproval() {
-        this.sourceType = Optional.ofNullable(this.sourceType).orElse(SourceConstants.SourceType.NORMAL);
-        this.approvedBy = DetailsHelper.getUserDetails().getUserId();
-        this.approvedDate = new Date();
-        if (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory)) {
-            this.startQuotationRunningDuration = this.quotationEndDate == null ? null : new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000);
-        }
-        this.latestQuotationEndDate = quotationEndDate;
-        //默认下发时间为报价截至时间
-        this.handDownDate = quotationEndDate;
-        //设置议价状态
-        if (Objects.isNull(this.bargainRule) || SourceConstants.BargainRule.NONE.equals(this.bargainRule)) {
-            this.bargainStatus = SourceConstants.BargainStatus.CLOSE;
-        } else {
-            this.bargainStatus = SourceConstants.BargainStatus.INITIATE;
-        }
-    }
-
-    /**
-     * 初始化需求部门
-     *
-     * @param prLineVOList
-     */
-    public void initUnitInfo(List<PrLineVO> prLineVOList) {
-        if (CollectionUtils.isEmpty(prLineVOList)) {
-            return;
-        }
-        if (BaseConstants.Digital.ONE != prLineVOList.stream().map(PrLineVO::getUnitId).collect(Collectors.toSet()).size()) {
-            return;
-        }
-        this.unitId = prLineVOList.get(BaseConstants.Digital.ZERO).getUnitId();
-    }
-
-    public void validationQuotationStartDate() {
-        if (Objects.isNull(this.quotationStartDate)) {
-            return;
-        }
-        if (this.quotationStartDate.before(super.getCreationDate())) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_QUOTATION_START_DATE);
-        }
-    }
-
-    /**
-     * 确认中标候选人时复原议价状态
-     */
-    public void resetBargainStatus() {
-        if (Objects.equals(SourceConstants.RfxStatus.PRE_EVALUATION_PENDING, this.rfxStatus)) {
-            if (Objects.equals(SourceConstants.BargainStatus.BARGAINING_ONLINE, this.bargainStatus)) {
-                this.bargainStatus = SourceConstants.BargainStatus.BARGAIN_ONLINE;
-            }
-            if (Objects.equals(SourceConstants.BargainStatus.BARGAINING_OFFLINE, this.bargainStatus)) {
-                this.bargainStatus = SourceConstants.BargainStatus.BARGAIN_OFFLINE;
-            }
-        }
-    }
-
-    public void initSentMessagePara(Map<String, String> map, SimpleDateFormat format) {
-        map.put(Constants.MessageConstants.ORGANIZATION_ID, String.valueOf(this.tenantId));
-        map.put(Constants.MessageConstants.COMPANY_NAME, this.companyName);
-        map.put(Constants.MessageConstants.COMPANY_ID, String.valueOf(this.companyId));
-        map.put(Constants.MessageConstants.RFX_TITLE, this.rfxTitle);
-        map.put(Constants.MessageConstants.RFX_NUMBER, this.rfxNum);
-        map.put(Constants.MessageConstants.RFX_CHECK_SUBMIT_TIME, format.format(new Date()));
-        map.put(Constants.MessageConstants.SOURCE_HEADER_ID, String.valueOf(this.rfxHeaderId));
-        map.put(Constants.MessageConstants.SOURCE_TYPE, ShareConstants.SourceCategory.RFX);
-    }
-
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
-    }
-
-    public List<PrChangeVO> initPrChangeVOS(List<RfxLineItem> rfxLineItems) {
-        if (CollectionUtils.isEmpty(rfxLineItems)){
-            return null;
-        }
-        List<PrChangeVO> prChangeVOS = new ArrayList<>();
-        rfxLineItems.forEach(rfxLineItem -> {
-            if (null != rfxLineItem.getPrHeaderId() && null != rfxLineItem.getPrLineId()){
-                prChangeVOS.add(new PrChangeVO(rfxLineItem.getPrHeaderId(), rfxLineItem.getPrLineId(), ShareConstants.PrBillType.SOURCE_RFX, rfxLineItem.getRfxHeaderId(), rfxLineItem.getRfxLineItemId(),String.valueOf(rfxLineItem.getRfxLineItemNum()),this.rfxNum, null, rfxLineItem.getRfxQuantity(),DetailsHelper.getUserDetails().getUserId()));
-            }
-        });
-        return prChangeVOS;
-    }
-
-    public void prequalData(Long quotationHeaderId, RfxLineSupplier rfxLineSupplier) {
-        this.quotationHeaderId=quotationHeaderId;
-        this.docCategory=ShareConstants.SourceEventCode.RFX_PREQUAL_DOC_CATEGORY;
-        this.publishedDate=new Date();
-        this.supplierCompanyId=rfxLineSupplier.getSupplierCompanyId();
-        this.supplierName=rfxLineSupplier.getSupplierCompanyName();
-        this.supplierTenantId=rfxLineSupplier.getSupplierTenantId();
-    }
-
-    public void initDataBeforeUpdate() {
-        this.centralPurchaseFlag = (this.centralPurchaseFlag == null? BaseConstants.Flag.NO :this.centralPurchaseFlag);
-        this.checkedBy = (this.checkedBy == null? (this.getCreatedBy() == null? DetailsHelper.getUserDetails().getUserId() : this.getCreatedBy()) :this.checkedBy);
-        this.lackQuotedSendFlag = (this.lackQuotedSendFlag == null? BaseConstants.Flag.NO :this.lackQuotedSendFlag);
-        this.bidBond = (this.bidBond == null? new BigDecimal(0.00) : this.bidBond);
-        this.budgetAmountFlag = (this.budgetAmountFlag == null? BaseConstants.Flag.NO :this.budgetAmountFlag);
-    }
-
-    public void initCustomizeField(CheckPriceHeaderDTO checkPriceHeaderDTO){
-        String priceEffectiveDate = checkPriceHeaderDTO.getPriceEffectiveDate();
-        String priceExpiryDate = checkPriceHeaderDTO.getPriceExpiryDate();
-        if (StringUtils.isBlank(priceEffectiveDate) && StringUtils.isBlank(priceExpiryDate)) return;
-        try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(BaseConstants.Pattern.DATE);
-            this.priceEffectiveDate = priceEffectiveDate == null? null : simpleDateFormat.parse(priceEffectiveDate);
-            this.priceExpiryDate = priceExpiryDate == null? null : simpleDateFormat.parse(priceExpiryDate);
-            if (priceEffectiveDate != null && priceExpiryDate!= null) {
-                Assert.isTrue(this.priceExpiryDate.after(this.priceEffectiveDate), SourceConstants.ErrorCode.ERROR_EFFECTIVE_DATE_NOT_VALID);
-            }
-        } catch (ParseException p) {
-
-        }
-    }
-
-    public void initCalMergeRuleProperties(PreSourceHeaderDTO preSourceHeaderDTO) {
-        this.purOrganizationId = preSourceHeaderDTO.getCalPurchaseOrgId();
-        this.purchaserId = preSourceHeaderDTO.getCalPurchaseAgentId();
-        this.currencyCode = preSourceHeaderDTO.getCalCurrencyCode();
-        this.unitId = preSourceHeaderDTO.getCalUnitId();
-    }
-
-    public String[] buildConfigCenterParameters() {
-        //公司、创建人、创建人部门、采购组织、需求部门、寻源模板、寻源类别
-        String companyId = this.companyId == null? null : this.companyId.toString();
-        String createdBy = this.getCreatedBy() == null? null : this.getCreatedBy().toString();
-        String createdUnitId = this.createdUnitId == null? null : this.createdUnitId.toString();
-        String purOrganizationId = this.purOrganizationId == null? null : this.purOrganizationId.toString();
-        String unitId = this.unitId == null? null : this.unitId.toString();
-        String templateId = this.templateId == null? null : this.templateId.toString();
-        return new String[]{companyId, createdBy, createdUnitId, purOrganizationId, unitId, templateId, sourceCategory};
-    }
-
-    public void referenceSourceProject(SourceProjectDTO sourceProject) {
-        this.rfxTitle = null;
-        if (StringUtils.isNotBlank(sourceProject.getSourceMethod())) {
-            this.sourceMethod = sourceProject.getSourceMethod();
-        }
-        if (StringUtils.isNotBlank(sourceProject.getSourceCategory())) {
-            this.sourceCategory = sourceProject.getSourceCategory();
-        }
-        if (StringUtils.isNotBlank(sourceProject.getCompanyName())) {
-            this.companyName = sourceProject.getCompanyName();
-        }
-        if (StringUtils.isNotBlank(sourceProject.getContactMail())) {
-            this.purEmail = sourceProject.getContactMail();
-        }
-        if (StringUtils.isNotBlank(sourceProject.getContactMobilephone())) {
-            this.purPhone = sourceProject.getContactMobilephone();
-        }if (StringUtils.isNotBlank(sourceProject.getPurAgent())) {
-            this.purName = sourceProject.getPurAgent();
-        }
-        if (sourceProject.getCompanyId() != null) {
-            this.companyId = sourceProject.getCompanyId();
-        }
-        if (sourceProject.getBudgetAmount() != null) {
-            this.budgetAmount = sourceProject.getBudgetAmount();
-        }
-        if (sourceProject.getDepositAmount() != null) {
-            this.bidBond = sourceProject.getDepositAmount();
-        }
-        if (sourceProject.getPaymentTypeId() != null) {
-            this.paymentTypeId = sourceProject.getPaymentTypeId();
-        }
-        if (sourceProject.getPaymentTermId() != null) {
-            this.paymentTermId = sourceProject.getPaymentTermId();
-        }
-        if (sourceProject.getUnitId() != null) {
-            this.unitId = sourceProject.getUnitId();
-        }
-        this.sourceFrom = SourceConstants.SourceType.PROJECT;
-        this.sourceProjectId = sourceProject.getSourceProjectId();
-        this.subjectMatterRule = sourceProject.getSubjectMatterRule();
-        if (CollectionUtils.isNotEmpty(sourceProject.getProjectLineSections())) {
-            this.projectLineSectionId = sourceProject.getProjectLineSections().get(0).getProjectLineSectionId();
-        }
-        if (ShareConstants.SubjectMatterRule.PACK.equals(this.subjectMatterRule)) {
-            this.quotationScope = SourceConstants.QuotationScope.ALL_QUOTATION;
-            this.onlyAllowAllWinBids = BaseConstants.Flag.YES;
-        }
-
-    }
-
-    public void closeBargain(RfxHeader tempHeader) {
-        if (SourceConstants.BargainStatus.BARGAINING_ONLINE.equals(this.bargainStatus)
-                || SourceConstants.BargainStatus.BARGAINING_OFFLINE.equals(this.bargainStatus)) {
-            tempHeader.setBargainEndDate(tempHeader.getCheckFinishedDate());
-            tempHeader.setBargainStatus(SourceConstants.BargainStatus.CLOSE);
-        }
-    }
-
-    public interface Quotation {
-    }
-
-    public interface Abandon {
-    }
-    //
-    // 数据库字段
-    // ------------------------------------------------------------------------------
-
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
-    @NotNull(groups = Quotation.class)
+    @NotNull(
+            groups = {RfxHeader.Quotation.class}
+    )
     @Encrypt
     private Long rfxHeaderId;
-
-    @ApiModelProperty(value = "所属租户ID，hpfm_tenant.tenant_id", example = "9231")
+    @ApiModelProperty(
+            value = "所属租户ID，hpfm_tenant.tenant_id",
+            example = "9231"
+    )
     @NotNull
     private Long tenantId;
-
-    @ApiModelProperty(value = "询价单单号", example = "testNumber")
+    @ApiModelProperty(
+            value = "询价单单号",
+            example = "testNumber"
+    )
     @NotBlank
-    @Length(max = 30, message = "询价单单号最大长度30个字符")
+    @Length(
+            max = 30,
+            message = "询价单单号最大长度30个字符"
+    )
     private String rfxNum;
-
-    @ApiModelProperty(value = "询价单状态SSRC.RFX_STATUS(NEW/新建|RELEASE_APPROVING/发布审批中|RELEASE_REJECTED/发布审批拒绝|NOT_START/未开始|IN_PREQUAL/资格预审中|PREQUAL_CUTOFF/资格预审截止|IN_QUOTATION/报价中|OPEN_BID_PENDING/待开标|PRETRIAL_PENDING/待初审|SCORING/评分中|CHECK_PENDING/待核价|CHECK_APPROVING/核价审批中|CHECK_REJECTED/核价审批拒绝|FINISHED/完成|PAUSED/暂停|CLOSED/关闭|ROUNDED/再次询价|IN_POSTQUAL/资格后审中|POSTQUAL_CUTOFF/资格后审截止)", example = "NEW")
+    @ApiModelProperty(
+            value = "询价单状态SSRC.RFX_STATUS(NEW/新建|RELEASE_APPROVING/发布审批中|RELEASE_REJECTED/发布审批拒绝|NOT_START/未开始|IN_PREQUAL/资格预审中|PREQUAL_CUTOFF/资格预审截止|IN_QUOTATION/报价中|OPEN_BID_PENDING/待开标|PRETRIAL_PENDING/待初审|SCORING/评分中|CHECK_PENDING/待核价|CHECK_APPROVING/核价审批中|CHECK_REJECTED/核价审批拒绝|FINISHED/完成|PAUSED/暂停|CLOSED/关闭|ROUNDED/再次询价|IN_POSTQUAL/资格后审中|POSTQUAL_CUTOFF/资格后审截止)",
+            example = "NEW"
+    )
     @NotBlank
-    @Length(max = 30, message = "询价单状态最大长度30个字符")
+    @Length(
+            max = 30,
+            message = "询价单状态最大长度30个字符"
+    )
     private String rfxStatus;
-
-    @ApiModelProperty(value = "询价单标题", example = "test")
+    @ApiModelProperty(
+            value = "询价单标题",
+            example = "test"
+    )
     @NotBlank
-    @Length(max = 80, message = "询价单标题最大长度80个字符")
+    @Length(
+            max = 80,
+            message = "询价单标题最大长度80个字符"
+    )
     private String rfxTitle;
-
-    @ApiModelProperty(value = "寻源模板ID")
+    @ApiModelProperty("寻源模板ID")
     @NotNull
     @Encrypt
     private Long templateId;
-
-    @ApiModelProperty(value = "商务组权重")
+    @ApiModelProperty("商务组权重")
     private BigDecimal businessWeight;
-    @ApiModelProperty(value = "技术组权重")
+    @ApiModelProperty("技术组权重")
     private BigDecimal technologyWeight;
-
-    @ApiModelProperty(value = "寻源类别SSRC.SOURCE_CATEGORY(RFQ/询价|RFA/竞价|BID/招投标)", example = "RFQ")
+    @ApiModelProperty(
+            value = "寻源类别SSRC.SOURCE_CATEGORY(RFQ/询价|RFA/竞价|BID/招投标)",
+            example = "RFQ"
+    )
     @NotBlank
-    @Length(max = 30, message = "寻源类别最大长度30个字符")
-    @LovValue(lovCode = "SSRC.SOURCE_CATEGORY", meaningField = "sourceCategoryMeaning")
+    @Length(
+            max = 30,
+            message = "寻源类别最大长度30个字符"
+    )
+    @LovValue(
+            lovCode = "SSRC.SOURCE_CATEGORY",
+            meaningField = "sourceCategoryMeaning"
+    )
     private String sourceCategory;
-
-    @ApiModelProperty(value = "询价方式SSRC.SOURCE_METHOD(INVITE/邀请|OPEN/合作伙伴公开|ALL_OPEN/全平台公开)", example = "INVITE")
+    @ApiModelProperty(
+            value = "询价方式SSRC.SOURCE_METHOD(INVITE/邀请|OPEN/合作伙伴公开|ALL_OPEN/全平台公开)",
+            example = "INVITE"
+    )
     @NotBlank
-    @Length(max = 30, message = "询价方式最大长度30个字符")
-    @LovValue(value = "SSRC.SOURCE_METHOD", meaningField = "sourceMethodMeaning")
+    @Length(
+            max = 30,
+            message = "询价方式最大长度30个字符"
+    )
+    @LovValue(
+            value = "SSRC.SOURCE_METHOD",
+            meaningField = "sourceMethodMeaning"
+    )
     private String sourceMethod;
     @Transient
     private String sourceMethodMeaning;
@@ -810,342 +257,324 @@ public class RfxHeader extends ExpandDomain {
     private Date roundQuotationEndDate;
     @Transient
     private Long quotationRoundNumber;
-
-    @ApiModelProperty(value = "采购方采购组织ID")
+    @ApiModelProperty("采购方采购组织ID")
     private Long purOrganizationId;
-
-    @ApiModelProperty(value = "采购方企业ID")
+    @ApiModelProperty("采购方企业ID")
     @NotNull
     @Encrypt
     private Long companyId;
-    @ApiModelProperty(value = "当前组别序号")
+    @ApiModelProperty("当前组别序号")
     private Integer currentSequenceNum;
-
-    @ApiModelProperty(value = "采购方企业名称")
+    @ApiModelProperty("采购方企业名称")
     @NotBlank
-    @Length(max = 360, message = "采购方企业名称最大长度360个字符")
+    @Length(
+            max = 360,
+            message = "采购方企业名称最大长度360个字符"
+    )
     private String companyName;
-
     @Transient
     private String companyNum;
-
-    @ApiModelProperty(value = "竞价方向SSRC.SOURCE_AUCTION_DIRECTION(FORWARD/正向|REVERSE/反向)", example = "FORWARD")
-    @Length(max = 30, message = "竞价方向最大长度30个字符")
-    @LovValue(value = "SSRC.SOURCE_AUCTION_DIRECTION", meaningField = "auctionDirectionMeaning")
+    @ApiModelProperty(
+            value = "竞价方向SSRC.SOURCE_AUCTION_DIRECTION(FORWARD/正向|REVERSE/反向)",
+            example = "FORWARD"
+    )
+    @Length(
+            max = 30,
+            message = "竞价方向最大长度30个字符"
+    )
+    @LovValue(
+            value = "SSRC.SOURCE_AUCTION_DIRECTION",
+            meaningField = "auctionDirectionMeaning"
+    )
     private String auctionDirection;
-
     private Long copyRfxHeaderId;
-
     @Transient
     private String auctionDirectionMeaning;
-
-    @ApiModelProperty(value = "预算金额")
+    @ApiModelProperty("预算金额")
     private BigDecimal budgetAmount;
-
-    @ApiModelProperty(value = "含税标识")
+    @ApiModelProperty("含税标识")
     @NotNull
     private Integer taxIncludedFlag;
-
-    @ApiModelProperty(value = "税率ID")
+    @ApiModelProperty("税率ID")
     private Long taxId;
-
-    @ApiModelProperty(value = "税率")
+    @ApiModelProperty("税率")
     private BigDecimal taxRate;
-
-    @ApiModelProperty(value = "币种")
+    @ApiModelProperty("币种")
     @NotBlank
     private String currencyCode;
-
-    @ApiModelProperty(value = "汇率")
+    @ApiModelProperty("汇率")
     private Long exchangeRateId;
-
-    @ApiModelProperty(value = "汇率类型")
+    @ApiModelProperty("汇率类型")
     private String exchangeRateType;
-
-    @ApiModelProperty(value = "汇率日期", example = "2017-12-27 00:00:00")
+    @ApiModelProperty(
+            value = "汇率日期",
+            example = "2017-12-27 00:00:00"
+    )
     private Date exchangeRateDate;
-
-    @ApiModelProperty(value = "汇率期间")
+    @ApiModelProperty("汇率期间")
     private String exchangeRatePeriod;
-
-    @ApiModelProperty(value = "汇率")
+    @ApiModelProperty("汇率")
     private BigDecimal exchangeRate;
-
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty("备注")
     private String rfxRemark;
-
-    @ApiModelProperty(value = "备注(内部)")
+    @ApiModelProperty("备注(内部)")
     private String internalRemark;
-
-    @ApiModelProperty(value = "报价开始时间", example = "2017-12-29 00:00:00")
+    @ApiModelProperty(
+            value = "报价开始时间",
+            example = "2017-12-29 00:00:00"
+    )
     private Date quotationStartDate;
-
-    @ApiModelProperty(value = "报价截止时间", example = "2017-12-30 23:59:59")
+    @ApiModelProperty(
+            value = "报价截止时间",
+            example = "2017-12-30 23:59:59"
+    )
     private Date quotationEndDate;
-
-    @ApiModelProperty(value = "密封报价标志")
+    @ApiModelProperty("密封报价标志")
     @NotNull
-    @LovValue(lovCode = "HPFM.FLAG", defaultMeaning = "sealedQuotationFlagMeaning")
+    @LovValue(
+            lovCode = "HPFM.FLAG",
+            defaultMeaning = "sealedQuotationFlagMeaning"
+    )
     private Integer sealedQuotationFlag;
     @Transient
     private String sealedQuotationFlagMeaning;
-
-    @ApiModelProperty(value = "公开规则SSRC.RFA_OPEN_RULE(HIDE_IDENTITY_HIDE_QUOTE/隐藏身份隐藏报价|HIDE_IDENTITY_OPEN_QUOTE/隐藏身份公开报价|OPEN_IDENTITY_HIDE_QUOTE/公开身份隐藏报价|OPEN_IDENTITY_OPEN_QUOTE/公开身份公开报价)", example = "HIDE_IDENTITY_HIDE_QUOTE")
+    @ApiModelProperty(
+            value = "公开规则SSRC.RFA_OPEN_RULE(HIDE_IDENTITY_HIDE_QUOTE/隐藏身份隐藏报价|HIDE_IDENTITY_OPEN_QUOTE/隐藏身份公开报价|OPEN_IDENTITY_HIDE_QUOTE/公开身份隐藏报价|OPEN_IDENTITY_OPEN_QUOTE/公开身份公开报价)",
+            example = "HIDE_IDENTITY_HIDE_QUOTE"
+    )
     private String openRule;
-
-    @ApiModelProperty(value = "竞价排名SSRC.RFA_AUCTION_RANKING(OPEN_COUNT_OPEN_RANK显示参与者数目和当前排名|OPEN_COUNT_HIDE_RANK/显示参与者数目隐藏当前排名|HIDE_COUNT_OPEN_RANK/隐藏参与者数目显示当前排名|HIDE_COUNT_HIDE_RANK/隐藏参与者数目和当前排名)", example = "OPEN_COUNT_OPEN_RANK")
+    @ApiModelProperty(
+            value = "竞价排名SSRC.RFA_AUCTION_RANKING(OPEN_COUNT_OPEN_RANK显示参与者数目和当前排名|OPEN_COUNT_HIDE_RANK/显示参与者数目隐藏当前排名|HIDE_COUNT_OPEN_RANK/隐藏参与者数目显示当前排名|HIDE_COUNT_HIDE_RANK/隐藏参与者数目和当前排名)",
+            example = "OPEN_COUNT_OPEN_RANK"
+    )
     private String auctionRanking;
-
-    @ApiModelProperty(value = "寻源类型SSRC.SOURCE_TYPE(常规|OEM|项目|外协|寄售)", example = "常规")
+    @ApiModelProperty(
+            value = "寻源类型SSRC.SOURCE_TYPE(常规|OEM|项目|外协|寄售)",
+            example = "常规"
+    )
     @NotBlank
     private String sourceType;
-
-    @ApiModelProperty(value = "价格类型SSRC.SOURCE_PRICE_CATEGORY(STANDARD/标准|SAMPLE/样品)", example = "STANDARD")
+    @ApiModelProperty(
+            value = "价格类型SSRC.SOURCE_PRICE_CATEGORY(STANDARD/标准|SAMPLE/样品)",
+            example = "STANDARD"
+    )
     @NotBlank
     private String priceCategory;
-
-    @ApiModelProperty(value = "付款方式ID")
+    @ApiModelProperty("付款方式ID")
     private Long paymentTypeId;
-
-    @ApiModelProperty(value = "付款条款")
+    @ApiModelProperty("付款条款")
     private Long paymentTermId;
-
-    @ApiModelProperty(value = "轮次")
+    @ApiModelProperty("轮次")
     @NotNull
     private Long roundNumber;
-
-    @ApiModelProperty(value = "版本")
+    @ApiModelProperty("版本")
     @NotNull
     private Long versionNumber;
-
-    @ApiModelProperty(value = "报价次序SSRC.QUOTATION_ORDER_TYPE(SEQUENCE/序列|STAGGER/交错|PARALLEL/并行)", example = "SEQUENCE")
+    @ApiModelProperty(
+            value = "报价次序SSRC.QUOTATION_ORDER_TYPE(SEQUENCE/序列|STAGGER/交错|PARALLEL/并行)",
+            example = "SEQUENCE"
+    )
     private String quotationOrderType;
-
-    @ApiModelProperty(value = "竞价运行时间(RFA)")
+    @ApiModelProperty("竞价运行时间(RFA)")
     private BigDecimal quotationRunningDuration;
-
-
-    @ApiModelProperty(value = "报价时间间隔")
+    @ApiModelProperty("报价时间间隔")
     private BigDecimal quotationInterval;
-
-    @ApiModelProperty(value = "竞价规则SSRC.RFA_AUCTION_RULE(NONE/所有排名允许报相同价格|ALL/所有排名不允许报相同价格|TOP_THREE前三名不允许报相同价格)", example = "NONE")
+    @ApiModelProperty(
+            value = "竞价规则SSRC.RFA_AUCTION_RULE(NONE/所有排名允许报相同价格|ALL/所有排名不允许报相同价格|TOP_THREE前三名不允许报相同价格)",
+            example = "NONE"
+    )
     private String auctionRule;
-
-    @ApiModelProperty(value = "是否启用自动延时")
+    @ApiModelProperty("是否启用自动延时")
     @NotNull
     private Integer autoDeferFlag;
-
-    @ApiModelProperty(value = "延时时长")
+    @ApiModelProperty("延时时长")
     private BigDecimal autoDeferDuration;
-
-    @ApiModelProperty(value = "发布日期", example = "2017-12-31 00:00:00")
+    @ApiModelProperty(
+            value = "发布日期",
+            example = "2017-12-31 00:00:00"
+    )
     private Date releasedDate;
-
-    @ApiModelProperty(value = "发布人")
+    @ApiModelProperty("发布人")
     private Long releasedBy;
-
-    @ApiModelProperty(value = "终止时间", example = "2017-12-31 00:00:00")
+    @ApiModelProperty(
+            value = "终止时间",
+            example = "2017-12-31 00:00:00"
+    )
     private Date terminatedDate;
-
-    @ApiModelProperty(value = "终止人")
+    @ApiModelProperty("终止人")
     private Long terminatedBy;
-
-    @ApiModelProperty(value = "终止原因")
+    @ApiModelProperty("终止原因")
     private String terminatedRemark;
-
-    @ApiModelProperty(value = "审批日期", example = "2017-12-31 00:00:00")
+    @ApiModelProperty(
+            value = "审批日期",
+            example = "2017-12-31 00:00:00"
+    )
     private Date approvedDate;
-
-    @ApiModelProperty(value = "审批人")
+    @ApiModelProperty("审批人")
     private Long approvedBy;
-
-    @ApiModelProperty(value = "审批备注")
+    @ApiModelProperty("审批备注")
     private String approvedRemark;
-
-    @ApiModelProperty(value = "调整时间日期", example = "2017-12-31 00:00:00")
+    @ApiModelProperty(
+            value = "调整时间日期",
+            example = "2017-12-31 00:00:00"
+    )
     private Date timeAdjustedDate;
-
-    @ApiModelProperty(value = "调整时间人")
+    @ApiModelProperty("调整时间人")
     private Long timeAdjustedBy;
-
-    @ApiModelProperty(value = "调整时间原因")
+    @ApiModelProperty("调整时间原因")
     private String timeAdjustedRemark;
-
-    @ApiModelProperty(value = "关闭标识")
+    @ApiModelProperty("关闭标识")
     @NotNull
     private Integer closedFlag;
-
-    @ApiModelProperty(value = "单据来源(MANUAL/手工创建|DEMAND_POOL/需求池|COPY/复制)", example = "MANUAL")
+    @ApiModelProperty(
+            value = "单据来源(MANUAL/手工创建|DEMAND_POOL/需求池|COPY/复制)",
+            example = "MANUAL"
+    )
     @NotBlank
     private String sourceFrom;
-
-    @ApiModelProperty(value = "发布即开始")
+    @ApiModelProperty("发布即开始")
     private Integer startFlag;
-
-    @ApiModelProperty(value = "发布即开始：报价运行时间(RFQ)")
+    @ApiModelProperty("发布即开始：报价运行时间(RFQ)")
     private BigDecimal startQuotationRunningDuration;
-
-
-    @ApiModelProperty(value = "初审备注")
+    @ApiModelProperty("初审备注")
     private String pretrailRemark;
-
-    @ApiModelProperty(value = "核价备注")
+    @ApiModelProperty("核价备注")
     private String checkRemark;
-
-    @ApiModelProperty(value = "初审人")
+    @ApiModelProperty("初审人")
     private Long pretrialUserId;
-
-    @ApiModelProperty(value = "初审状态")
+    @ApiModelProperty("初审状态")
     private String pretrialStatus;
-
-    @ApiModelProperty(value = "报价方式")
-    @LovValue(value = "SSRC.QUOTATION_TYPE", meaningField = "quotationTypeMeaning")
+    @ApiModelProperty("报价方式")
+    @LovValue(
+            value = "SSRC.QUOTATION_TYPE",
+            meaningField = "quotationTypeMeaning"
+    )
     private String quotationType;
     @Transient
     private String quotationTypeMeaning;
-
-    @ApiModelProperty(value = "退回至初审备注")
+    @ApiModelProperty("退回至初审备注")
     private String backPretrialRemark;
-
-    @ApiModelProperty(value = "总成本")
+    @ApiModelProperty("总成本")
     private BigDecimal totalCost;
-
-    @ApiModelProperty(value = "成本备注")
+    @ApiModelProperty("成本备注")
     private String costRemark;
-
-    @ApiModelProperty(value = "技术附件UUID")
+    @ApiModelProperty("技术附件UUID")
     private String techAttachmentUuid;
-
-    @ApiModelProperty(value = "商务附件UUID")
+    @ApiModelProperty("商务附件UUID")
     private String businessAttachmentUuid;
-
-    @ApiModelProperty(value = "预定标附件UUID")
+    @ApiModelProperty("预定标附件UUID")
     private String preAttachmentUuid;
-
-    @ApiModelProperty(value = "核价附件UUID")
+    @ApiModelProperty("核价附件UUID")
     private String checkAttachmentUuid;
-
-    @ApiModelProperty(value = "报价范围")
-    @LovValue(value = "SSRC.QUOTATION_SCOPE_CODE", meaningField = "quotationScopeMeaning")
+    @ApiModelProperty("报价范围")
+    @LovValue(
+            value = "SSRC.QUOTATION_SCOPE_CODE",
+            meaningField = "quotationScopeMeaning"
+    )
     private String quotationScope;
-
-    @ApiModelProperty(value = "需求部门ID")
+    @ApiModelProperty("需求部门ID")
     private Long unitId;
-
-    @ApiModelProperty(value = "创建人部门ID")
+    @ApiModelProperty("创建人部门ID")
     private Long createdUnitId;
-
-    @ApiModelProperty(value = "创建人部门名称")
+    @ApiModelProperty("创建人部门名称")
     private String createdUnitName;
-
     private Date latestQuotationEndDate;
-    @ApiModelProperty(value = "采购人Id")
+    @ApiModelProperty("采购人Id")
     private Long purchaserId;
-
-    @ApiModelProperty(value = "可发起(INITIATE)/线上议价中(BARGAIN_ONLINE)/线下议价中(BARGAIN_OFFLINE)/关闭(CLOSE)")
+    @ApiModelProperty("可发起(INITIATE)/线上议价中(BARGAIN_ONLINE)/线下议价中(BARGAIN_OFFLINE)/关闭(CLOSE)")
     private String bargainStatus;
-
-    @ApiModelProperty(value = "议价截止时间")
+    @ApiModelProperty("议价截止时间")
     private Date bargainEndDate;
-
-    @ApiModelProperty(value = "议价附件")
+    @ApiModelProperty("议价附件")
     private String bargainAttachmentUuid;
-    @ApiModelProperty(value = "是否集采标识")
+    @ApiModelProperty("是否集采标识")
     private Integer centralPurchaseFlag;
-
-    @ApiModelProperty(value = "付款条件")
+    @ApiModelProperty("付款条件")
     private String paymentClause;
-
-    @ApiModelProperty(value = "是否允许多币种报价")
+    @ApiModelProperty("是否允许多币种报价")
     private Integer multiCurrencyFlag;
-    @ApiModelProperty(value = "保证金")
+    @ApiModelProperty("保证金")
     private BigDecimal bidBond;
-    @ApiModelProperty(value = "标书费")
+    @ApiModelProperty("标书费")
     private BigDecimal bidFileExpense;
-
-    @ApiModelProperty(value = "初审附件")
+    @ApiModelProperty("初审附件")
     private String pretrialUuid;
-
-    @ApiModelProperty(value = "核价员ID")
+    @ApiModelProperty("核价员ID")
     private Long checkedBy;
-
-    @ApiModelProperty(value = "最少报价供应商数")
+    @ApiModelProperty("最少报价供应商数")
     private Long minQuotedSupplier;
-
-    @ApiModelProperty(value = "报价不足通知发送标识")
+    @ApiModelProperty("报价不足通知发送标识")
     private Integer lackQuotedSendFlag;
-
-    @ApiModelProperty(value = "是否允许供应商修改付款条款&方式")
+    @ApiModelProperty("是否允许供应商修改付款条款&方式")
     private Integer paymentTermFlag;
-
-    @ApiModelProperty(value = "事业部(宝龙达个性化)")
+    @ApiModelProperty("事业部(宝龙达个性化)")
     private String ouBusiness;
-    @ApiModelProperty(value = "库存分类(宝龙达个性化)")
+    @ApiModelProperty("库存分类(宝龙达个性化)")
     private String inventoryClassify;
-    @ApiModelProperty(value = "物料类型(宝龙达个性化)")
+    @ApiModelProperty("物料类型(宝龙达个性化)")
     private String itemType;
-    @ApiModelProperty(value = "维护完成率")
+    @ApiModelProperty("维护完成率")
     private Long finishingRate;
-
     @Transient
-    @ApiModelProperty(value = "初审转交人")
+    @ApiModelProperty("初审转交人")
     private Long deliverUserId;
     @Transient
-    @ApiModelProperty(value = "开标转交人")
+    @ApiModelProperty("开标转交人")
     private Long openDeliverUserId;
     private Date handDownDate;
-    @ApiModelProperty(value = "价格有效期")
+    @ApiModelProperty("价格有效期")
     private Date priceEffectiveDate;
-    @ApiModelProperty(value = "价格失效期")
+    @ApiModelProperty("价格失效期")
     private Date priceExpiryDate;
-
-    @ApiModelProperty(value = "寻源事项说明必需标志")
+    @ApiModelProperty("寻源事项说明必需标志")
     private Integer matterRequireFlag;
-    @ApiModelProperty(value = "寻源事项说明")
+    @ApiModelProperty("寻源事项说明")
     private String matterDetail;
-    @LovValue(value = "SSRC.RANK_RULE", meaningField = "rankRuleMeaning")
+    @LovValue(
+            value = "SSRC.RANK_RULE",
+            meaningField = "rankRuleMeaning"
+    )
     private String rankRule;
     private Date checkFinishedDate;
     private String purName;
     private String purEmail;
     private String purPhone;
-    @ApiModelProperty(value = "供应商升降价设置")
+    @ApiModelProperty("供应商升降价设置")
     private String quotationChange;
-    private Integer scoreProcessFlag;//评分计算标志
-
-    @ApiModelProperty(value = "预算总金额修改标志")
+    private Integer scoreProcessFlag;
+    @ApiModelProperty("预算总金额修改标志")
     private Integer budgetAmountFlag;
-    @ApiModelProperty(value = "物料生成策略(0/无需|1/允许创建|2/允许补充)")
+    @ApiModelProperty("物料生成策略(0/无需|1/允许创建|2/允许补充)")
     private String itemGeneratePolicy;
-
-    @ApiModelProperty(value = "(竞价)预计开始时间")
+    @ApiModelProperty("(竞价)预计开始时间")
     private Date estimatedStartTime;
-    @ApiModelProperty(value = "评分方式")
+    @ApiModelProperty("评分方式")
     private String scoreWay;
     private Long quotationRounds;
-    @ApiModelProperty(value = "来源立项id")
+    @ApiModelProperty("来源立项id")
     @Encrypt
     private Long sourceProjectId;
     @Encrypt
     private Long projectLineSectionId;
-    @ApiModelProperty(value = "仅允许整单中标")
+    @ApiModelProperty("仅允许整单中标")
     private Integer onlyAllowAllWinBids;
     @Transient
     private String subjectMatterRule;
-
     @Transient
     private Integer roundQuotationRankFlag;
     @Transient
     private Long currentQuotationRound;
     @Transient
     private String roundQuotationRankRule;
-
     @Transient
     private String rankRuleMeaning;
     @Transient
     private String quotationScopeMeaning;
     @Transient
-    @LovValue(lovCode = "HPFM.FLAG", defaultMeaning = "preQualificationFlagMeaning")
+    @LovValue(
+            lovCode = "HPFM.FLAG",
+            defaultMeaning = "preQualificationFlagMeaning"
+    )
     private Integer preQualificationFlag;
     @Transient
     private String preQualificationFlagMeaning;
@@ -1182,7 +611,7 @@ public class RfxHeader extends ExpandDomain {
     @Transient
     private BigDecimal minute;
     @Transient
-    private Integer quotationFlag ;
+    private Integer quotationFlag;
     @Transient
     private String docCategory;
     @Transient
@@ -1205,27 +634,28 @@ public class RfxHeader extends ExpandDomain {
     private String createdUnitCode;
     @Transient
     private String createdByName;
-    @ApiModelProperty(value = "能否修改报价截止时间标志：报价时间截止且未开标的密封报价单可以修改报价截止时间重新报价")
+    @ApiModelProperty("能否修改报价截止时间标志：报价时间截止且未开标的密封报价单可以修改报价截止时间重新报价")
     @Transient
     private Integer quotationEndDateChangeFlag;
     @Transient
-    @LovValue(lovCode = "HPFM.FLAG", defaultMeaning = "expertScoreFlagMeaning")
+    @LovValue(
+            lovCode = "HPFM.FLAG",
+            defaultMeaning = "expertScoreFlagMeaning"
+    )
     private Integer expertScoreFlag;
     @Transient
     private String expertScoreFlagMeaning;
     @Transient
     private String priceTypeCode;
     @Transient
-    @ApiModelProperty(value = "开启开标密码标识")
+    @ApiModelProperty("开启开标密码标识")
     private Integer passwordFlag;
     @Transient
     private int changeValue;
     @Transient
     private String changeDirection;
-
-    @ApiModelProperty(value = "发票类型")
+    @ApiModelProperty("发票类型")
     private String invoiceType;
-    //
     @Transient
     private RfxLineItem line;
     @Transient
@@ -1240,272 +670,33 @@ public class RfxHeader extends ExpandDomain {
     private String expertSource;
     @Transient
     private List<Long> itemList;
-    //
-    // 业务方法(按public protected private顺序排列)
-    // ------------------------------------------------------------------------------
-
-    /**
-     * 校验核价状态
-     */
-    public void validationCheckPriceStatus() {
-        if (!SourceConstants.RfxStatus.IN_QUOTATION.equals(this.rfxStatus) &&
-                !SourceConstants.RfxStatus.BARGAINING.equals(this.rfxStatus) &&
-                !SourceConstants.RfxStatus.CHECK_PENDING.equals(this.rfxStatus) &&
-                !SourceConstants.RfxStatus.CHECK_REJECTED.equals(this.rfxStatus)) {
-            throw new CommonException(SourceConstants.ErrorCode.CHECK_PRICE_RFX_STATUS_ERROR);
-        }
-    }
-
-    /**
-     * 版本轮次校验
-     */
-    public void validationVersion(RfxHeader rfxHeaderParam) {
-        if (!this.getObjectVersionNumber().equals(rfxHeaderParam.getObjectVersionNumber()) ||
-                !this.roundNumber.equals(rfxHeaderParam.getRoundNumber())) {
-            throw new CommonException(SourceConstants.ErrorCode.VERSION_OR_ROTATION_ERROR);
-        }
-
-    }
-
-    /**
-     * 校验询价单截止时间
-     */
-    public void validationQuotationEndDate() {
-        if (ShareConstants.RoundHeaderStatus.ROUNDCHECKING.equals(this.getRoundHeaderStatus()) ||
-                ShareConstants.RoundHeaderStatus.ROUNDSCORING.equals(this.getRoundHeaderStatus()) ||
-                SourceConstants.BargainStatus.BARGAINING_ONLINE.equals(this.bargainStatus) ||
-                SourceConstants.BargainStatus.BARGAIN_ONLINE.equals(this.bargainStatus)||
-                SourceConstants.BargainStatus.BARGAINING_OFFLINE.equals(this.bargainStatus)) {
-            return;
-        }
-        if (this.getQuotationEndDate() != null && new Date().compareTo(this.getQuotationEndDate()) > 0) {
-            throw new CommonException(SourceConstants.ErrorCode.QUOTATION_END_ERROR);
-        }
-    }
-
-    /**
-     * 当询价头状态为暂停和报价中才可以参与或放弃
-     */
-    public void validationStatus() {
-        if (!SourceConstants.RfxStatus.IN_QUOTATION.equals(this.rfxStatus) &&
-                !SourceConstants.RfxStatus.PAUSED.equals(this.rfxStatus) && !SourceConstants.RfxStatus.NOT_START.equals(this.rfxStatus)) {
-            throw new CommonException(SourceConstants.ErrorCode.CURRENT_STATUS_QUOTATION_ERROR);
-        }
-    }
-
-    /**
-     * 发布时状态校验，新建和发布审批拒绝状态才能发布
-     *
-     * @param rfxFullHeader
-     * @param sourceTemplate 寻源模板
-     */
-    public void beforeReleaseCheck(RfxFullHeader rfxFullHeader, SourceTemplate sourceTemplate) {
-//		RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
-//		switch (rfxHeader.getRfxStatus()) {
-//			case SourceConstants.RfxStatus.NEW:
-//				break;
-//			case SourceConstants.RfxStatus.RELEASE_APPROVING:
-//				break;
-//			case SourceConstants.RfxStatus.ROUNDED:
-//				break;
-//			case SourceConstants.RfxStatus.RELEASE_REJECTED:
-//				break;
-//			default:
-//				throw new CommonException(SourceConstants.ErrorCode.ERROR_RELEASE_STATUS);
-//		}
-//		if (CollectionUtils.isEmpty(rfxFullHeader.getRfxLineItemList())) {
-//			throw new CommonException(SourceConstants.ErrorCode.ERROR_ITEM_LINE_LEAST_ONE);
-//		}
-//		if (!rfxHeader.getRfxHeaderId().equals(rfxFullHeader.getRfxLineItemList().get(0).getRfxHeaderId())) {
-//			throw new CommonException(SourceConstants.ErrorCode.ERROR_ITEM_LINE_LEAST_ONE);
-//		}
-//		this.checkVendorNumber(rfxFullHeader, sourceTemplate);
-    }
-
-    /**
-     * 密封报价校验
-     */
-    public void sealedQuotationCheck() {
-        if (ShareConstants.RoundHeaderStatus.ROUNDCHECKING.equals(this.getRoundHeaderStatus()) ||
-                ShareConstants.RoundHeaderStatus.ROUNDSCORING.equals(this.getRoundHeaderStatus()) ||
-                SourceConstants.BargainStatus.BARGAINING_ONLINE.equals(this.bargainStatus) ||
-                SourceConstants.BargainStatus.BARGAIN_ONLINE.equals(this.bargainStatus)||
-                SourceConstants.BargainStatus.BARGAINING_OFFLINE.equals(this.bargainStatus)) {
-            return;
-        }
-        if (BaseConstants.Flag.YES.equals(this.getSealedQuotationFlag())) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_SEALED_QUOTATION);
-        }
-        this.validationQuotationEndDate();
-    }
-
-    /**
-     * 发布设置报价中、发布人、发布日期
-     *
-     * @param resultApproveType
-     * @return 询价单信息
-     */
-    public RfxHeader initRfxReleaseInfo(String resultApproveType) {
-        this.releasedDate = new Date();
-        this.releasedBy = DetailsHelper.getUserDetails().getUserId();
-        if (ShareConstants.SourceTemplate.ReleaseApproveType.SELF.equals(resultApproveType)) {
-            this.rfxStatus = SourceConstants.RfxStatus.IN_QUOTATION;
-        } else {
-            this.rfxStatus = SourceConstants.RfxStatus.RELEASE_APPROVING;
-        }
-        if (ShareConstants.SourceTemplate.ReleaseApproveType.SELF.equals(resultApproveType)) {
-            this.approvedDate = this.releasedDate;
-            this.approvedBy = DetailsHelper.getUserDetails().getUserId();
-        }
-        if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory))
-                && Objects.nonNull(this.quotationStartDate) && Objects.nonNull(this.quotationEndDate)) {
-            this.startQuotationRunningDuration = new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000);
-        }
-        return this;
-    }
-
-    /**
-     * 校验供应商数量范围
-     *
-     * @param rfxFullHeader
-     * @param sourceTemplate 寻源模板
-     */
-    public void checkVendorNumber(RfxFullHeader rfxFullHeader, SourceTemplate sourceTemplate) {
-        if (SourceConstants.RfxType.INVITE.equals(rfxFullHeader.getRfxHeader().getSourceMethod())) {
-            long supplierSize = rfxFullHeader.getRfxLineSupplierList().size();
-            this.validateVendorNumber(supplierSize, sourceTemplate.getMinVendorNumber(), sourceTemplate.getMaxVendorQuantity());
-        }
-    }
-
-    /**
-     * 校验供应商范围
-     *
-     * @param vendorNumber
-     * @param minVendorNumber
-     * @param maxVendorNumber
-     */
-    public void validateVendorNumber(Long vendorNumber, Long minVendorNumber, Long maxVendorNumber) {
-        if (minVendorNumber != null && vendorNumber < minVendorNumber) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_QUOTATION_MIN_VENDOR_NUMBER, minVendorNumber);
-        }
-        if (maxVendorNumber != null && vendorNumber > maxVendorNumber) {
-            throw new CommonException(SourceConstants.ErrorCode.ERROR_QUOTATION_MAX_VENDOR_NUMBER, maxVendorNumber);
-        }
-    }
-
-    /**
-     * 校验询价单状态
-     * 实际展示状态为报价中的询价单才能报价，如果不为报价中就报错提示
-     *
-     * @param rfqHeaderStatus
-     */
-    public static void verifyRFXStatus(String rfqHeaderStatus) {
-
-        if (StringUtils.isEmpty(rfqHeaderStatus)) {
-            throw new CommonException(BaseConstants.ErrorCode.NOT_FOUND);
-        }
-
-        if (!SourceConstants.RfxStatus.IN_QUOTATION.equals(rfqHeaderStatus)) {
-            throw new CommonException(SourceConstants.ErrorCode.INQUIRY_SHEET_IS_QUOTED_ONLY_IN_QUOTATION);
-        }
-
-    }
-
-    /**
-     * 清空竞价信息
-     */
-    public void clearAuctionRule() {
-        this.openRule = null;
-        this.auctionRule = null;
-        this.auctionRanking = null;
-        this.autoDeferFlag = BaseConstants.Digital.ZERO;
-        this.autoDeferDuration = null;
-        this.quotationRunningDuration = null;
-        this.quotationInterval = null;
-    }
-
-    /**
-     * 询价单再次询价，清空报价时间
-     */
-    public void cleanRfxQuotationDate() {
-        this.quotationStartDate = null;
-        this.quotationEndDate = null;
-        this.quotationRunningDuration = null;
-        this.startQuotationRunningDuration = null;
-        this.timeAdjustedDate = null;
-        this.handDownDate = null;
-        this.latestQuotationEndDate = null;
-    }
-
-    /**
-     * 初始化时间
-     */
-    public void initCurrentDate() {
-        this.currentDateTime = new Date();
-        if (SourceConstants.BargainStatus.BARGAINING_ONLINE.equals(this.bargainStatus)) {
-            if (Objects.nonNull(this.bargainEndDate)) {
-                this.bargainClosedFlag = DateUtil.beforeNow(this.bargainEndDate, null) ? BaseConstants.Flag.NO : BaseConstants.Flag.YES;
-            } else {
-                this.bargainClosedFlag = BaseConstants.Flag.YES;
-            }
-        } else {
-            this.bargainClosedFlag = BaseConstants.Flag.YES;
-        }
-    }
-
-    public void initScoringProgress() {
-        if (SourceConstants.OpenBidOrder.SYNC.equals(this.openBidOrder)) {
-            this.scoringProgress = ShareConstants.Expert.ExpertCategory.BUSINESS_TECHNOLOGY;
-        } else if ((SourceConstants.OpenBidOrder.BUSINESS_FIRST.equals(this.openBidOrder)
-                && BaseConstants.Digital.ONE == this.currentSequenceNum)
-                || (SourceConstants.OpenBidOrder.TECH_FIRST.equals(this.openBidOrder)
-                && BaseConstants.Digital.TWO == this.currentSequenceNum)) {
-            this.scoringProgress = ShareConstants.Expert.ExpertCategory.BUSINESS;
-        } else {
-            this.scoringProgress = ShareConstants.Expert.ExpertCategory.TECHNOLOGY;
-        }
-    }
-
-    //
-    // 非数据库字段
-    // ------------------------------------------------------------------------------
-
     @Transient
-    @NotNull(groups = Quotation.class)
+    @NotNull(
+            groups = {RfxHeader.Quotation.class}
+    )
     @Encrypt
     private Long supplierCompanyId;
-
     @Transient
     private String supplierCompanyName;
-
     @Transient
     private Long supplierCompanyTenantId;
-
     @Transient
-    @NotBlank(groups = Abandon.class)
+    @NotBlank(
+            groups = {RfxHeader.Abandon.class}
+    )
     private String abandonRemark;
-
     @Transient
     private String purOrganizationName;
-
     @Transient
     private String templateName;
-
     @Transient
     private String templateNum;
-
     @Transient
     private String processStatus;
-
     @Transient
     private Integer openerFlag;
-
     @Transient
     private Integer openedFlag;
-
     @Transient
     private String sourceCategoryMeaning;
     @Transient
@@ -1528,19 +719,713 @@ public class RfxHeader extends ExpandDomain {
     @Transient
     private String supplierName;
     @Transient
-    private Long supplierTenantId ;
+    private Long supplierTenantId;
     @Transient
     private Integer fastBidding;
     @Transient
-    @ApiModelProperty(value = "议价阶段")
+    @ApiModelProperty("议价阶段")
     private String bargainingStage;
-    //
-    // getter/setter
-    // ------------------------------------------------------------------------------
 
+    public RfxHeader() {
+    }
+
+    public RfxHeader(Integer quotationFlag) {
+        this.quotationFlag = quotationFlag;
+    }
+
+    public RfxHeader(CheckPriceHeaderDTO checkPriceHeaderDTO) {
+        this.setObjectVersionNumber(checkPriceHeaderDTO.getObjectVersionNumber());
+        this.rfxHeaderId = checkPriceHeaderDTO.getRfxHeaderId();
+        this.totalCost = checkPriceHeaderDTO.getTotalCost();
+        this.costRemark = checkPriceHeaderDTO.getCostRemark();
+        this.checkAttachmentUuid = checkPriceHeaderDTO.getCheckAttachmentUuid();
+        this.checkRemark = checkPriceHeaderDTO.getCheckRemark();
+    }
+
+    public RfxHeader(Long tenantId, Long rfxHeaderId) {
+        this.tenantId = tenantId;
+        this.rfxHeaderId = rfxHeaderId;
+    }
+
+    public void initTotalCoast(List<RfxLineItem> rfxLineItemList) {
+        this.totalCost = new BigDecimal(0);
+        rfxLineItemList.stream().filter((lineItem) -> {
+            return null != lineItem.getCostPrice() && lineItem.getCostPrice().compareTo(new BigDecimal(0)) > 0;
+        }).forEach((lineItem) -> {
+            this.totalCost = this.totalCost.add(lineItem.getCostPrice().multiply(lineItem.getRfxQuantity()));
+        });
+        if ((new BigDecimal(0)).compareTo(this.totalCost) == 0) {
+            this.totalCost = this.totalCost.setScale(2, RoundingMode.HALF_UP);
+        }
+
+    }
+
+    public void validResume() {
+        if (!"PAUSED".equals(this.rfxStatus)) {
+            throw new CommonException("error.operate_status", new Object[0]);
+        }
+    }
+
+    public void validClose() {
+        String var1 = this.rfxStatus;
+        byte var2 = -1;
+        switch (var1.hashCode()) {
+            case -771918317:
+                if (var1.equals("CHECK_APPROVING")) {
+                    var2 = 4;
+                }
+                break;
+            case 77184:
+                if (var1.equals("NEW")) {
+                    var2 = 0;
+                }
+                break;
+            case 108966002:
+                if (var1.equals("FINISHED")) {
+                    var2 = 2;
+                }
+                break;
+            case 998689362:
+                if (var1.equals("RELEASE_APPROVING")) {
+                    var2 = 3;
+                }
+                break;
+            case 1990776172:
+                if (var1.equals("CLOSED")) {
+                    var2 = 1;
+                }
+        }
+
+        switch (var2) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                throw new CommonException("error.operate_status", new Object[0]);
+            default:
+        }
+    }
+
+    public void initClose(String terminatedRemark) {
+        this.rfxStatus = "CLOSED";
+        this.closedFlag = BaseConstants.Flag.YES;
+        this.terminatedBy = DetailsHelper.getUserDetails().getUserId();
+        this.terminatedDate = new Date();
+        this.terminatedRemark = terminatedRemark;
+    }
+
+    public void validAuctionRule(SourceTemplate sourceTemplate) {
+        if ("RFA".equals(this.sourceCategory)) {
+            if (BaseConstants.Flag.YES.equals(this.getStartFlag()) && BaseConstants.Flag.YES.equals(sourceTemplate.getFastBidding())) {
+                throw new CommonException("error.rfa_start_flag_disable", new Object[0]);
+            }
+
+            if ("NONE".equals(this.auctionDirection)) {
+                throw new CommonException("error.rfa_auction_direction", new Object[0]);
+            }
+
+            if (this.quotationRunningDuration == null) {
+                throw new CommonException("error.quotation_running_duration_is_null", new Object[0]);
+            }
+
+            if ("PARALLEL".equals(this.quotationOrderType)) {
+                this.quotationInterval = null;
+            } else if (this.quotationInterval == null) {
+                throw new CommonException("error.quotation_interval_is_null", new Object[0]);
+            }
+
+            if (!"INVITE".equals(this.sourceMethod) && "WEIGHT_PRICE".equals(this.rankRule)) {
+                throw new CommonException("error.weight_price_invite", new Object[0]);
+            }
+
+            if (BaseConstants.Flag.YES.equals(sourceTemplate.getFastBidding()) && this.estimatedStartTime == null) {
+                throw new CommonException("error.estimated_start_time_is_null", new Object[0]);
+            }
+        }
+
+    }
+
+    public void initAuctionRule(SourceTemplate sourceTemplate) {
+        if ("RFA".equals(sourceTemplate.getSourceCategory())) {
+            this.openRule = sourceTemplate.getOpenRule();
+            this.auctionRule = sourceTemplate.getAuctionRule();
+            this.auctionRanking = sourceTemplate.getAuctionRanking();
+            this.autoDeferFlag = sourceTemplate.getAutoDeferFlag();
+            this.autoDeferDuration = sourceTemplate.getAutoDeferDuration();
+            this.rankRule = sourceTemplate.getRankRule();
+        }
+
+    }
+
+    public void initAdjustDate() {
+        this.timeAdjustedBy = DetailsHelper.getUserDetails().getUserId();
+        this.timeAdjustedDate = new Date();
+    }
+
+    public void validateOpener(SourceTemplate sourceTemplate, RfxMemberRepository rfxMemberRepository) {
+        if (BaseConstants.Flag.YES.equals(this.sealedQuotationFlag) && BaseConstants.Flag.YES.equals(sourceTemplate.getOpenerFlag())) {
+            List<RfxMember> rfxOpenerMembers = rfxMemberRepository.select(new RfxMember(this.tenantId, this.rfxHeaderId, "OPENED_BY", (Integer) null));
+            if (CollectionUtils.isEmpty(rfxOpenerMembers)) {
+                throw new CommonException("error.opener_not_null", new Object[0]);
+            }
+        }
+
+    }
+
+    public void adjustDate(RfxHeaderRepository rfxHeaderRepository, RfxHeader realRfxHeader) {
+        Date now = new Date();
+        if (realRfxHeader.getQuotationStartDate() != null && DateUtil.beforeStartDate(realRfxHeader.getQuotationStartDate(), now, "")) {
+            if (DateUtil.beforeStartDate(now, this.quotationStartDate == null ? realRfxHeader.getQuotationStartDate() : this.quotationStartDate, "")) {
+                throw new CommonException("error.start_time_earlier_then_current_time", new Object[0]);
+            }
+
+            if (Objects.nonNull(realRfxHeader.getQuotationEndDate())) {
+                if (DateUtil.beforeStartDate(now, realRfxHeader.getQuotationEndDate(), "")) {
+                    throw new CommonException("error.end_time_earlier_then_current_time", new Object[0]);
+                }
+
+                if (DateUtil.beforeStartDate(this.quotationStartDate == null ? realRfxHeader.getQuotationStartDate() : this.quotationStartDate, realRfxHeader.getQuotationEndDate(), "")) {
+                    throw new CommonException("error.end_time_earlier_then_start_time", new Object[0]);
+                }
+            }
+
+            if (realRfxHeader.getPrequalEndDate() != null && DateUtil.beforeStartDate(realRfxHeader.getPrequalEndDate(), this.quotationStartDate, (String) null)) {
+                throw new CommonException("error.prequal_end_date_bigger_or_smaller", new Object[0]);
+            }
+        }
+
+        String realStatus = realRfxHeader.getRfxStatus();
+        if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(realRfxHeader.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCBJ.equals(realRfxHeader.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZB.equals(realRfxHeader.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZW.equals(realRfxHeader.getSourceCategory()))) {
+            if ("NOT_START".equals(realStatus) || "PENDING_PREQUAL".equals(realStatus)) {
+                realRfxHeader.setQuotationStartDate(this.quotationStartDate);
+                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
+                realRfxHeader.setHandDownDate(this.quotationEndDate);
+                CustomizeHelper.ignore(() -> {
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "timeAdjustedBy", "quotationEndDate", "timeAdjustedDate", "timeAdjustedRemark"});
+                });
+            }
+
+            if ("IN_QUOTATION".equals(realStatus) || "LACK_QUOTED".equals(realStatus) || realRfxHeader.getQuotationEndDateChangeFlag() == BaseConstants.Flag.YES && "OPEN_BID_PENDING".equals(realStatus)) {
+                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
+                realRfxHeader.setHandDownDate(this.quotationEndDate);
+                this.rfxStatus = "IN_QUOTATION";
+                CustomizeHelper.ignore(() -> {
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationEndDate", "timeAdjustedBy", "rfxStatus", "timeAdjustedDate", "timeAdjustedRemark"});
+                });
+            }
+
+            if ("IN_PREQUAL".equals(realStatus)) {
+                realRfxHeader.setQuotationStartDate(this.getQuotationStartDate());
+                CustomizeHelper.ignore(() -> {
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "timeAdjustedBy", "timeAdjustedDate", "timeAdjustedRemark"});
+                });
+            }
+        }
+
+        if ("RFA".equals(realRfxHeader.getSourceCategory())) {
+            if ("NOT_START".equals(realStatus) || "PENDING_PREQUAL".equals(realStatus)) {
+                realRfxHeader.setQuotationStartDate(this.quotationStartDate);
+                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
+                realRfxHeader.setQuotationInterval(this.quotationInterval);
+                realRfxHeader.setQuotationRunningDuration(this.quotationRunningDuration);
+                this.dealWithRfqQuotationEndDate();
+                realRfxHeader.setHandDownDate(this.quotationEndDate);
+                CustomizeHelper.ignore(() -> {
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "quotationRunningDuration", "quotationInterval", "timeAdjustedBy", "timeAdjustedDate", "quotationEndDate", "timeAdjustedRemark"});
+                });
+            }
+
+            if ("IN_QUOTATION".equals(realStatus)) {
+                throw new CommonException("error.operate_status", new Object[0]);
+            }
+
+            if ("IN_PREQUAL".equals(realStatus)) {
+                realRfxHeader.setQuotationStartDate(this.getQuotationStartDate());
+                this.dealWithRfqQuotationEndDate();
+                realRfxHeader.setQuotationEndDate(this.quotationEndDate);
+                realRfxHeader.setHandDownDate(this.quotationEndDate);
+                CustomizeHelper.ignore(() -> {
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "quotationRunningDuration", "quotationInterval", "timeAdjustedBy", "timeAdjustedDate", "quotationEndDate", "timeAdjustedRemark"});
+                });
+            }
+        }
+
+        this.latestQuotationEndDate = realRfxHeader.getQuotationEndDate();
+        this.handDownDate = realRfxHeader.getQuotationEndDate();
+        CustomizeHelper.ignore(() -> {
+            return rfxHeaderRepository.updateOptional(this, new String[]{"latestQuotationEndDate", "handDownDate"});
+        });
+    }
+
+    private void dealWithRfqQuotationEndDate() {
+        if (Objects.nonNull(this.day)) {
+            this.quotationEndDate = DateUtil.addDay(this.quotationStartDate, this.day.intValue());
+        }
+
+        if (Objects.nonNull(this.hour)) {
+            this.quotationEndDate = DateUtil.addHourOrMin(this.quotationStartDate, this.hour.intValue(), 11);
+        }
+
+        if (Objects.nonNull(this.minute)) {
+            this.quotationEndDate = DateUtil.addHourOrMin(this.quotationStartDate, this.minute.intValue(), 12);
+        }
+
+    }
+
+    public void initPretrialUser(SourceTemplate sourceTemplate) {
+        if (BaseConstants.Flag.YES.equals(sourceTemplate.getPretrialFlag())) {
+            this.pretrialUserId = DetailsHelper.getUserDetails().getUserId();
+            this.pretrialStatus = "NO_TRIAL";
+        }
+
+    }
+
+    public void initPreQualificationFlag(SourceTemplate sourceTemplate) {
+        this.preQualificationFlag = !"PRE".equals(sourceTemplate.getQualificationType()) && !"PRE_POST".equals(sourceTemplate.getQualificationType()) ? 0 : 1;
+    }
+
+    public void preRfxHeader(SourceTemplate sourceTemplate, PrLineVO prLineVO, Long organizationId) {
+        this.templateId = sourceTemplate.getTemplateId();
+        this.companyId = prLineVO.getCompanyId();
+        this.companyName = prLineVO.getCompanyName();
+        this.currencyCode = prLineVO.getCurrencyCode() == null ? "CNY" : prLineVO.getCurrencyCode();
+        this.timeAdjustedBy = 1L;
+        this.rfxStatus = "NEW";
+        this.tenantId = organizationId;
+        this.rfxTitle = " ";
+        this.sourceMethod = sourceTemplate.getSourceMethod();
+        this.sourceType = sourceTemplate.getSourceType();
+        this.priceCategory = "STANDARD";
+        this.sourceFrom = "DEMAND_POOL";
+        this.sourceCategory = sourceTemplate.getSourceCategory();
+        this.quotationType = sourceTemplate.getQuotationType();
+        this.auctionDirection = sourceTemplate.getAuctionDirection();
+        this.quotationScope = sourceTemplate.getQuotationScope();
+        this.purchaserId = prLineVO.getPurchaseAgentId();
+    }
+
+    public void validQuotationType() {
+        if ("OFFLINE".equals(this.quotationType) && "INVITE".equals(this.sourceMethod)) {
+            throw new CommonException("error.offline_source_method", new Object[0]);
+        }
+    }
+
+    public void initQuotationEndDateByItem(RfxHeaderRepository rfxHeaderRepository, List<RfxLineItem> rfxLineItems) {
+        Optional<RfxLineItem> itemOptional = rfxLineItems.stream().max(Comparator.comparing(RfxLineItem::getRfxLineItemNum));
+        itemOptional.ifPresent((rfxLineItem) -> {
+            this.quotationEndDate = rfxLineItem.getQuotationEndDate();
+            CustomizeHelper.ignore(() -> {
+                return rfxHeaderRepository.updateOptional(this, new String[]{"quotationEndDate"});
+            });
+        });
+    }
+
+    public void pretrialSubmit() {
+        this.rfxStatus = "CHECK_PENDING";
+        this.pretrialStatus = "SUBMITED";
+    }
+
+    public void pretrialBack() {
+        this.rfxStatus = "PRETRIAL_PENDING";
+        this.pretrialStatus = "NO_TRIAL";
+    }
+
+    public void initRankRule(SourceTemplate sourceTemplate) {
+        if (this.openRule != null) {
+            sourceTemplate.setOpenRule(this.openRule);
+        }
+
+        if (this.auctionDirection != null) {
+            sourceTemplate.setAuctionDirection(this.auctionDirection);
+        }
+
+        if (this.autoDeferFlag != null) {
+            sourceTemplate.setAutoDeferFlag(this.autoDeferFlag);
+        }
+
+        if (this.quotationOrderType != null) {
+            sourceTemplate.setQuotationOrderType(this.quotationOrderType);
+        }
+
+        sourceTemplate.setRoundNumber(this.roundNumber);
+        sourceTemplate.setRfxHeaderId(this.rfxHeaderId);
+        sourceTemplate.setRankRule(this.rankRule);
+        sourceTemplate.setRfxNum(this.rfxNum);
+    }
+
+    public void validQuotationTime(SourceTemplate sourceTemplate) {
+        BigDecimal startQuotationRunningDuration = this.getStartQuotationRunningDuration();
+        if (startQuotationRunningDuration != null && startQuotationRunningDuration.equals(BigDecimal.ZERO)) {
+            this.startQuotationRunningDuration = null;
+        }
+
+        String categroyType = sourceTemplate.getSourceCategory();
+        Integer quotationEndDateFlag = sourceTemplate.getQuotationEndDateFlag();
+        Date now = new Date();
+        if (this.startFlag != null && !BaseConstants.Flag.NO.equals(this.startFlag)) {
+            this.quotationStartDate = null;
+        } else if (BaseConstants.Flag.NO.equals(sourceTemplate.getFastBidding())) {
+            Assert.notNull(this.quotationStartDate, "error.quotation_start_time_not_found");
+            Assert.isTrue(this.quotationStartDate.compareTo(now) >= 0, "error.start_time_earlier_then_current_time");
+            if (BaseConstants.Flag.YES.equals(quotationEndDateFlag) &&
+                    (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(categroyType)
+                            || RcwlShareConstants.CategoryType.RCBJ.equals(categroyType)
+                            || RcwlShareConstants.CategoryType.RCZB.equals(categroyType)
+                            || RcwlShareConstants.CategoryType.RCZW.equals(categroyType))) {
+                Assert.isTrue(this.startQuotationRunningDuration != null || this.quotationEndDate != null, "error.quotation_end_date_or_running_time_one_exist");
+                Assert.isTrue(this.quotationEndDate == null || this.quotationEndDate.compareTo(now) >= 0, "error.end_time_earlier_then_current_time");
+                Assert.isTrue(this.quotationEndDate == null || this.quotationEndDate.compareTo(this.quotationStartDate) > 0, "error.end_time_earlier_then_start_time");
+            }
+        }
+
+        if (BaseConstants.Flag.NO.equals(quotationEndDateFlag)) {
+            this.quotationEndDate = null;
+            this.startQuotationRunningDuration = null;
+        }
+
+    }
+
+    public void initAfterApproval() {
+        this.sourceType = (String) Optional.ofNullable(this.sourceType).orElse("NORMAL");
+        this.approvedBy = DetailsHelper.getUserDetails().getUserId();
+        this.approvedDate = new Date();
+        if (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
+                        || RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
+                        || RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
+                        || RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory)) {
+            this.startQuotationRunningDuration = this.quotationEndDate == null ? null : new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000L);
+        }
+
+        this.latestQuotationEndDate = this.quotationEndDate;
+        this.handDownDate = this.quotationEndDate;
+        if (!Objects.isNull(this.bargainRule) && !"NONE".equals(this.bargainRule)) {
+            this.bargainStatus = "INITIATE";
+        } else {
+            this.bargainStatus = "CLOSE";
+        }
+
+    }
+
+    public void initUnitInfo(List<PrLineVO> prLineVOList) {
+        if (!CollectionUtils.isEmpty(prLineVOList)) {
+            if (1 == ((Set) prLineVOList.stream().map(PrLineVO::getUnitId).collect(Collectors.toSet())).size()) {
+                this.unitId = ((PrLineVO) prLineVOList.get(0)).getUnitId();
+            }
+        }
+    }
+
+    public void validationQuotationStartDate() {
+        if (!Objects.isNull(this.quotationStartDate)) {
+            if (this.quotationStartDate.before(super.getCreationDate())) {
+                throw new CommonException("quotation.quotation_start_date.error", new Object[0]);
+            }
+        }
+    }
+
+    public void resetBargainStatus() {
+        if (Objects.equals("PRE_EVALUATION_PENDING", this.rfxStatus)) {
+            if (Objects.equals("BARGAINING_ONLINE", this.bargainStatus)) {
+                this.bargainStatus = "BARGAIN_ONLINE";
+            }
+
+            if (Objects.equals("BARGAINING_OFFLINE", this.bargainStatus)) {
+                this.bargainStatus = "BARGAIN_OFFLINE";
+            }
+        }
+
+    }
+
+    public void initSentMessagePara(Map<String, String> map, SimpleDateFormat format) {
+        map.put("organizationId", String.valueOf(this.tenantId));
+        map.put("companyName", this.companyName);
+        map.put("companyId", String.valueOf(this.companyId));
+        map.put("rfxTitle", this.rfxTitle);
+        map.put("rfxNumber", this.rfxNum);
+        map.put("rfxCheckSubmitTime", format.format(new Date()));
+        map.put("sourceHeaderId", String.valueOf(this.rfxHeaderId));
+        map.put("sourceType", "RFX");
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    public List<PrChangeVO> initPrChangeVOS(List<RfxLineItem> rfxLineItems) {
+        if (CollectionUtils.isEmpty(rfxLineItems)) {
+            return null;
+        } else {
+            List<PrChangeVO> prChangeVOS = new ArrayList();
+            rfxLineItems.forEach((rfxLineItem) -> {
+                if (null != rfxLineItem.getPrHeaderId() && null != rfxLineItem.getPrLineId()) {
+                    prChangeVOS.add(new PrChangeVO(rfxLineItem.getPrHeaderId(), rfxLineItem.getPrLineId(), "SOURCE_RFX", rfxLineItem.getRfxHeaderId(), rfxLineItem.getRfxLineItemId(), String.valueOf(rfxLineItem.getRfxLineItemNum()), this.rfxNum, (String) null, rfxLineItem.getRfxQuantity(), DetailsHelper.getUserDetails().getUserId()));
+                }
+
+            });
+            return prChangeVOS;
+        }
+    }
+
+    public void prequalData(Long quotationHeaderId, RfxLineSupplier rfxLineSupplier) {
+        this.quotationHeaderId = quotationHeaderId;
+        this.docCategory = "RFX_PREQUAL_DOC_CATEGORY";
+        this.publishedDate = new Date();
+        this.supplierCompanyId = rfxLineSupplier.getSupplierCompanyId();
+        this.supplierName = rfxLineSupplier.getSupplierCompanyName();
+        this.supplierTenantId = rfxLineSupplier.getSupplierTenantId();
+    }
+
+    public void initDataBeforeUpdate() {
+        this.centralPurchaseFlag = this.centralPurchaseFlag == null ? BaseConstants.Flag.NO : this.centralPurchaseFlag;
+        this.checkedBy = this.checkedBy == null ? (this.getCreatedBy() == null ? DetailsHelper.getUserDetails().getUserId() : this.getCreatedBy()) : this.checkedBy;
+        this.lackQuotedSendFlag = this.lackQuotedSendFlag == null ? BaseConstants.Flag.NO : this.lackQuotedSendFlag;
+        this.bidBond = this.bidBond == null ? new BigDecimal(0.0D) : this.bidBond;
+        this.budgetAmountFlag = this.budgetAmountFlag == null ? BaseConstants.Flag.NO : this.budgetAmountFlag;
+    }
+
+    public void initCustomizeField(CheckPriceHeaderDTO checkPriceHeaderDTO) {
+        String priceEffectiveDate = checkPriceHeaderDTO.getPriceEffectiveDate();
+        String priceExpiryDate = checkPriceHeaderDTO.getPriceExpiryDate();
+        if (!StringUtils.isBlank(priceEffectiveDate) || !StringUtils.isBlank(priceExpiryDate)) {
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                this.priceEffectiveDate = priceEffectiveDate == null ? null : simpleDateFormat.parse(priceEffectiveDate);
+                this.priceExpiryDate = priceExpiryDate == null ? null : simpleDateFormat.parse(priceExpiryDate);
+                if (priceEffectiveDate != null && priceExpiryDate != null) {
+                    Assert.isTrue(this.priceExpiryDate.after(this.priceEffectiveDate), "error.effective_date_not_valid");
+                }
+            } catch (ParseException var5) {
+            }
+
+        }
+    }
+
+    public void initCalMergeRuleProperties(PreSourceHeaderDTO preSourceHeaderDTO) {
+        this.purOrganizationId = preSourceHeaderDTO.getCalPurchaseOrgId();
+        this.purchaserId = preSourceHeaderDTO.getCalPurchaseAgentId();
+        this.currencyCode = preSourceHeaderDTO.getCalCurrencyCode();
+        this.unitId = preSourceHeaderDTO.getCalUnitId();
+    }
+
+    public String[] buildConfigCenterParameters() {
+        String companyId = this.companyId == null ? null : this.companyId.toString();
+        String createdBy = this.getCreatedBy() == null ? null : this.getCreatedBy().toString();
+        String createdUnitId = this.createdUnitId == null ? null : this.createdUnitId.toString();
+        String purOrganizationId = this.purOrganizationId == null ? null : this.purOrganizationId.toString();
+        String unitId = this.unitId == null ? null : this.unitId.toString();
+        String templateId = this.templateId == null ? null : this.templateId.toString();
+        return new String[]{companyId, createdBy, createdUnitId, purOrganizationId, unitId, templateId, this.sourceCategory};
+    }
+
+    public void referenceSourceProject(SourceProjectDTO sourceProject) {
+        this.rfxTitle = null;
+        if (StringUtils.isNotBlank(sourceProject.getSourceMethod())) {
+            this.sourceMethod = sourceProject.getSourceMethod();
+        }
+
+        if (StringUtils.isNotBlank(sourceProject.getSourceCategory())) {
+            this.sourceCategory = sourceProject.getSourceCategory();
+        }
+
+        if (StringUtils.isNotBlank(sourceProject.getCompanyName())) {
+            this.companyName = sourceProject.getCompanyName();
+        }
+
+        if (StringUtils.isNotBlank(sourceProject.getContactMail())) {
+            this.purEmail = sourceProject.getContactMail();
+        }
+
+        if (StringUtils.isNotBlank(sourceProject.getContactMobilephone())) {
+            this.purPhone = sourceProject.getContactMobilephone();
+        }
+
+        if (StringUtils.isNotBlank(sourceProject.getPurAgent())) {
+            this.purName = sourceProject.getPurAgent();
+        }
+
+        if (sourceProject.getCompanyId() != null) {
+            this.companyId = sourceProject.getCompanyId();
+        }
+
+        if (sourceProject.getBudgetAmount() != null) {
+            this.budgetAmount = sourceProject.getBudgetAmount();
+        }
+
+        if (sourceProject.getDepositAmount() != null) {
+            this.bidBond = sourceProject.getDepositAmount();
+        }
+
+        if (sourceProject.getPaymentTypeId() != null) {
+            this.paymentTypeId = sourceProject.getPaymentTypeId();
+        }
+
+        if (sourceProject.getPaymentTermId() != null) {
+            this.paymentTermId = sourceProject.getPaymentTermId();
+        }
+
+        if (sourceProject.getUnitId() != null) {
+            this.unitId = sourceProject.getUnitId();
+        }
+
+        this.sourceFrom = "PROJECT";
+        this.sourceProjectId = sourceProject.getSourceProjectId();
+        this.subjectMatterRule = sourceProject.getSubjectMatterRule();
+        if (CollectionUtils.isNotEmpty(sourceProject.getProjectLineSections())) {
+            this.projectLineSectionId = ((ProjectLineSection) sourceProject.getProjectLineSections().get(0)).getProjectLineSectionId();
+        }
+
+        if ("PACK".equals(this.subjectMatterRule)) {
+            this.quotationScope = "ALL_QUOTATION";
+            this.onlyAllowAllWinBids = BaseConstants.Flag.YES;
+        }
+
+    }
+
+    public void closeBargain(RfxHeader tempHeader) {
+        if ("BARGAINING_ONLINE".equals(this.bargainStatus) || "BARGAINING_OFFLINE".equals(this.bargainStatus)) {
+            tempHeader.setBargainEndDate(tempHeader.getCheckFinishedDate());
+            tempHeader.setBargainStatus("CLOSE");
+        }
+
+    }
+
+    public void validationCheckPriceStatus() {
+        if (!"IN_QUOTATION".equals(this.rfxStatus) && !"BARGAINING".equals(this.rfxStatus) && !"CHECK_PENDING".equals(this.rfxStatus) && !"CHECK_REJECTED".equals(this.rfxStatus)) {
+            throw new CommonException("error.check_price_rfx_status", new Object[0]);
+        }
+    }
+
+    public void validationVersion(RfxHeader rfxHeaderParam) {
+        if (!this.getObjectVersionNumber().equals(rfxHeaderParam.getObjectVersionNumber()) || !this.roundNumber.equals(rfxHeaderParam.getRoundNumber())) {
+            throw new CommonException("error.version_or_rotation", new Object[0]);
+        }
+    }
+
+    public void validationQuotationEndDate() {
+        if (!"ROUND_CHECKING".equals(this.getRoundHeaderStatus()) && !"ROUND_SCORING".equals(this.getRoundHeaderStatus()) && !"BARGAINING_ONLINE".equals(this.bargainStatus) && !"BARGAIN_ONLINE".equals(this.bargainStatus) && !"BARGAINING_OFFLINE".equals(this.bargainStatus)) {
+            if (this.getQuotationEndDate() != null && (new Date()).compareTo(this.getQuotationEndDate()) > 0) {
+                throw new CommonException("error.quotation_end_date", new Object[0]);
+            }
+        }
+    }
+
+    public void validationStatus() {
+        if (!"IN_QUOTATION".equals(this.rfxStatus) && !"PAUSED".equals(this.rfxStatus) && !"NOT_START".equals(this.rfxStatus)) {
+            throw new CommonException("error.current_status_quotation", new Object[0]);
+        }
+    }
+
+    public void beforeReleaseCheck(RfxFullHeader rfxFullHeader, SourceTemplate sourceTemplate) {
+    }
+
+    public void sealedQuotationCheck() {
+        if (!"ROUND_CHECKING".equals(this.getRoundHeaderStatus()) && !"ROUND_SCORING".equals(this.getRoundHeaderStatus()) && !"BARGAINING_ONLINE".equals(this.bargainStatus) && !"BARGAIN_ONLINE".equals(this.bargainStatus) && !"BARGAINING_OFFLINE".equals(this.bargainStatus)) {
+            if (BaseConstants.Flag.YES.equals(this.getSealedQuotationFlag())) {
+                throw new CommonException("quotation.sealed_quotation.error", new Object[0]);
+            } else {
+                this.validationQuotationEndDate();
+            }
+        }
+    }
+
+    public RfxHeader initRfxReleaseInfo(String resultApproveType) {
+        this.releasedDate = new Date();
+        this.releasedBy = DetailsHelper.getUserDetails().getUserId();
+        if ("SELF".equals(resultApproveType)) {
+            this.rfxStatus = "IN_QUOTATION";
+        } else {
+            this.rfxStatus = "RELEASE_APPROVING";
+        }
+
+        if ("SELF".equals(resultApproveType)) {
+            this.approvedDate = this.releasedDate;
+            this.approvedBy = DetailsHelper.getUserDetails().getUserId();
+        }
+
+        if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
+                ||RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
+                ||RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
+                ||RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory))&& Objects.nonNull(this.quotationStartDate) && Objects.nonNull(this.quotationEndDate)) {
+            this.startQuotationRunningDuration = new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000L);
+        }
+
+        return this;
+    }
+
+    public void checkVendorNumber(RfxFullHeader rfxFullHeader, SourceTemplate sourceTemplate) {
+        if ("INVITE".equals(rfxFullHeader.getRfxHeader().getSourceMethod())) {
+            long supplierSize = (long) rfxFullHeader.getRfxLineSupplierList().size();
+            this.validateVendorNumber(supplierSize, sourceTemplate.getMinVendorNumber(), sourceTemplate.getMaxVendorQuantity());
+        }
+
+    }
+
+    public void validateVendorNumber(Long vendorNumber, Long minVendorNumber, Long maxVendorNumber) {
+        if (minVendorNumber != null && vendorNumber < minVendorNumber) {
+            throw new CommonException("quotation.min_vendor_number.error", new Object[]{minVendorNumber});
+        } else if (maxVendorNumber != null && vendorNumber > maxVendorNumber) {
+            throw new CommonException("quotation.max_vendor_number.error", new Object[]{maxVendorNumber});
+        }
+    }
+
+    public static void verifyRFXStatus(String rfqHeaderStatus) {
+        if (StringUtils.isEmpty(rfqHeaderStatus)) {
+            throw new CommonException("error.not_found", new Object[0]);
+        } else if (!"IN_QUOTATION".equals(rfqHeaderStatus)) {
+            throw new CommonException("inquiry.sheet.is.quoted.only.in.quotation", new Object[0]);
+        }
+    }
+
+    public void clearAuctionRule() {
+        this.openRule = null;
+        this.auctionRule = null;
+        this.auctionRanking = null;
+        this.autoDeferFlag = 0;
+        this.autoDeferDuration = null;
+        this.quotationRunningDuration = null;
+        this.quotationInterval = null;
+    }
+
+    public void cleanRfxQuotationDate() {
+        this.quotationStartDate = null;
+        this.quotationEndDate = null;
+        this.quotationRunningDuration = null;
+        this.startQuotationRunningDuration = null;
+        this.timeAdjustedDate = null;
+        this.handDownDate = null;
+        this.latestQuotationEndDate = null;
+    }
+
+    public void initCurrentDate() {
+        this.currentDateTime = new Date();
+        if ("BARGAINING_ONLINE".equals(this.bargainStatus)) {
+            if (Objects.nonNull(this.bargainEndDate)) {
+                this.bargainClosedFlag = DateUtil.beforeNow(this.bargainEndDate, (String) null) ? BaseConstants.Flag.NO : BaseConstants.Flag.YES;
+            } else {
+                this.bargainClosedFlag = BaseConstants.Flag.YES;
+            }
+        } else {
+            this.bargainClosedFlag = BaseConstants.Flag.YES;
+        }
+
+    }
+
+    public void initScoringProgress() {
+        if ("SYNC".equals(this.openBidOrder)) {
+            this.scoringProgress = "BUSINESS_TECHNOLOGY";
+        } else if ((!"BUSINESS_FIRST".equals(this.openBidOrder) || 1 != this.currentSequenceNum) && (!"TECH_FIRST".equals(this.openBidOrder) || 2 != this.currentSequenceNum)) {
+            this.scoringProgress = "TECHNOLOGY";
+        } else {
+            this.scoringProgress = "BUSINESS";
+        }
+
+    }
 
     public String getBargainingStage() {
-        return bargainingStage;
+        return this.bargainingStage;
     }
 
     public void setBargainingStage(String bargainingStage) {
@@ -1548,7 +1433,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getTotalPrice() {
-        return totalPrice;
+        return this.totalPrice;
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
@@ -1556,16 +1441,15 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getFastBidding() {
-        return fastBidding;
+        return this.fastBidding;
     }
 
     public void setFastBidding(Integer fastBidding) {
         this.fastBidding = fastBidding;
     }
 
-
     public BigDecimal getBusinessWeight() {
-        return businessWeight;
+        return this.businessWeight;
     }
 
     public void setBusinessWeight(BigDecimal businessWeight) {
@@ -1573,7 +1457,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getTechnologyWeight() {
-        return technologyWeight;
+        return this.technologyWeight;
     }
 
     public void setTechnologyWeight(BigDecimal technologyWeight) {
@@ -1581,7 +1465,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public int getChangeValue() {
-        return changeValue;
+        return this.changeValue;
     }
 
     public void setChangeValue(int changeValue) {
@@ -1589,7 +1473,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getChangeDirection() {
-        return changeDirection;
+        return this.changeDirection;
     }
 
     public void setChangeDirection(String changeDirection) {
@@ -1597,7 +1481,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getQuotationChange() {
-        return quotationChange;
+        return this.quotationChange;
     }
 
     public void setQuotationChange(String quotationChange) {
@@ -1605,7 +1489,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getItemGeneratePolicy() {
-        return itemGeneratePolicy;
+        return this.itemGeneratePolicy;
     }
 
     public void setItemGeneratePolicy(String itemGeneratePolicy) {
@@ -1613,7 +1497,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getRankRule() {
-        return rankRule;
+        return this.rankRule;
     }
 
     public void setRankRule(String rankRule) {
@@ -1621,7 +1505,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getRankRuleMeaning() {
-        return rankRuleMeaning;
+        return this.rankRuleMeaning;
     }
 
     public void setRankRuleMeaning(String rankRuleMeaning) {
@@ -1629,7 +1513,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getCheckFinishedDate() {
-        return checkFinishedDate;
+        return this.checkFinishedDate;
     }
 
     public void setCheckFinishedDate(Date checkFinishedDate) {
@@ -1637,7 +1521,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPurName() {
-        return purName;
+        return this.purName;
     }
 
     public void setPurName(String purName) {
@@ -1645,7 +1529,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPurEmail() {
-        return purEmail;
+        return this.purEmail;
     }
 
     public void setPurEmail(String purEmail) {
@@ -1653,7 +1537,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPurPhone() {
-        return purPhone;
+        return this.purPhone;
     }
 
     public void setPurPhone(String purPhone) {
@@ -1661,7 +1545,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public SourceTemplate getSourceTemplate() {
-        return sourceTemplate;
+        return this.sourceTemplate;
     }
 
     public void setSourceTemplate(SourceTemplate sourceTemplate) {
@@ -1669,7 +1553,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getOuBusiness() {
-        return ouBusiness;
+        return this.ouBusiness;
     }
 
     public void setOuBusiness(String ouBusiness) {
@@ -1677,7 +1561,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getInventoryClassify() {
-        return inventoryClassify;
+        return this.inventoryClassify;
     }
 
     public void setInventoryClassify(String inventoryClassify) {
@@ -1685,7 +1569,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getItemType() {
-        return itemType;
+        return this.itemType;
     }
 
     public void setItemType(String itemType) {
@@ -1693,7 +1577,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getPublishedDate() {
-        return publishedDate;
+        return this.publishedDate;
     }
 
     public void setPublishedDate(Date publishedDate) {
@@ -1701,7 +1585,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getDocCategory() {
-        return docCategory;
+        return this.docCategory;
     }
 
     public void setDocCategory(String docCategory) {
@@ -1709,7 +1593,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSupplierName() {
-        return supplierName;
+        return this.supplierName;
     }
 
     public void setSupplierName(String supplierName) {
@@ -1717,7 +1601,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getSupplierTenantId() {
-        return supplierTenantId;
+        return this.supplierTenantId;
     }
 
     public void setSupplierTenantId(Long supplierTenantId) {
@@ -1725,7 +1609,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPretrialUuid() {
-        return pretrialUuid;
+        return this.pretrialUuid;
     }
 
     public void setPretrialUuid(String pretrialUuid) {
@@ -1733,7 +1617,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getPurchaserId() {
-        return purchaserId;
+        return this.purchaserId;
     }
 
     public void setPurchaserId(Long purchaserId) {
@@ -1741,11 +1625,11 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getServerName() {
-        return serverName;
+        return this.serverName;
     }
 
     public String getQuotationScopeMeaning() {
-        return quotationScopeMeaning;
+        return this.quotationScopeMeaning;
     }
 
     public void setQuotationScopeMeaning(String quotationScopeMeaning) {
@@ -1753,7 +1637,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getQuotationHeaderId() {
-        return quotationHeaderId;
+        return this.quotationHeaderId;
     }
 
     public void setQuotationHeaderId(Long quotationHeaderId) {
@@ -1761,7 +1645,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getMatchRestrictFlag() {
-        return matchRestrictFlag;
+        return this.matchRestrictFlag;
     }
 
     public void setMatchRestrictFlag(Integer matchRestrictFlag) {
@@ -1769,7 +1653,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getRoundHeaderStatus() {
-        return roundHeaderStatus;
+        return this.roundHeaderStatus;
     }
 
     public void setRoundHeaderStatus(String roundHeaderStatus) {
@@ -1777,7 +1661,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getRoundQuotationRule() {
-        return roundQuotationRule;
+        return this.roundQuotationRule;
     }
 
     public void setRoundQuotationRule(String roundQuotationRule) {
@@ -1785,7 +1669,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getRoundQuotationEndDate() {
-        return roundQuotationEndDate;
+        return this.roundQuotationEndDate;
     }
 
     public void setRoundQuotationEndDate(Date roundQuotationEndDate) {
@@ -1793,7 +1677,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getQuotationRoundNumber() {
-        return quotationRoundNumber;
+        return this.quotationRoundNumber;
     }
 
     public void setQuotationRoundNumber(Long quotationRoundNumber) {
@@ -1801,7 +1685,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getHandDownDate() {
-        return handDownDate;
+        return this.handDownDate;
     }
 
     public void setHandDownDate(Date handDownDate) {
@@ -1809,7 +1693,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getExpertScoreType() {
-        return expertScoreType;
+        return this.expertScoreType;
     }
 
     public void setExpertScoreType(String expertScoreType) {
@@ -1817,7 +1701,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getAuctionDirectionMeaning() {
-        return auctionDirectionMeaning;
+        return this.auctionDirectionMeaning;
     }
 
     public void setAuctionDirectionMeaning(String auctionDirectionMeaning) {
@@ -1825,7 +1709,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getPriceEffectiveDate() {
-        return priceEffectiveDate;
+        return this.priceEffectiveDate;
     }
 
     public void setPriceEffectiveDate(Date priceEffectiveDate) {
@@ -1833,7 +1717,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getPriceExpiryDate() {
-        return priceExpiryDate;
+        return this.priceExpiryDate;
     }
 
     public void setPriceExpiryDate(Date priceExpiryDate) {
@@ -1841,7 +1725,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSourceMethodMeaning() {
-        return sourceMethodMeaning;
+        return this.sourceMethodMeaning;
     }
 
     public void setSourceMethodMeaning(String sourceMethodMeaning) {
@@ -1849,7 +1733,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSourceCategoryMeaning() {
-        return sourceCategoryMeaning;
+        return this.sourceCategoryMeaning;
     }
 
     public void setSourceCategoryMeaning(String sourceCategoryMeaning) {
@@ -1857,7 +1741,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getPretrialFlag() {
-        return pretrialFlag;
+        return this.pretrialFlag;
     }
 
     public void setPretrialFlag(Integer pretrialFlag) {
@@ -1865,7 +1749,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPrequalStatus() {
-        return prequalStatus;
+        return this.prequalStatus;
     }
 
     public void setPrequalStatus(String prequalStatus) {
@@ -1873,7 +1757,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getOpenedFlag() {
-        return openedFlag;
+        return this.openedFlag;
     }
 
     public void setOpenedFlag(Integer openedFlag) {
@@ -1881,7 +1765,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getOpenerFlag() {
-        return openerFlag;
+        return this.openerFlag;
     }
 
     public void setOpenerFlag(Integer openerFlag) {
@@ -1889,7 +1773,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getProcessStatus() {
-        return processStatus;
+        return this.processStatus;
     }
 
     public void setProcessStatus(String processStatus) {
@@ -1897,7 +1781,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPurOrganizationName() {
-        return purOrganizationName;
+        return this.purOrganizationName;
     }
 
     public void setPurOrganizationName(String purOrganizationName) {
@@ -1905,7 +1789,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getTemplateName() {
-        return templateName;
+        return this.templateName;
     }
 
     public void setTemplateName(String templateName) {
@@ -1913,7 +1797,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getAbandonRemark() {
-        return abandonRemark;
+        return this.abandonRemark;
     }
 
     public void setAbandonRemark(String abandonRemark) {
@@ -1921,7 +1805,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getSupplierCompanyId() {
-        return supplierCompanyId;
+        return this.supplierCompanyId;
     }
 
     public void setSupplierCompanyId(Long supplierCompanyId) {
@@ -1929,7 +1813,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSupplierCompanyName() {
-        return supplierCompanyName;
+        return this.supplierCompanyName;
     }
 
     public void setSupplierCompanyName(String supplierCompanyName) {
@@ -1937,7 +1821,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getSupplierCompanyTenantId() {
-        return supplierCompanyTenantId;
+        return this.supplierCompanyTenantId;
     }
 
     public void setSupplierCompanyTenantId(Long supplierCompanyTenantId) {
@@ -1945,7 +1829,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public List<RoundHeaderDate> getRoundHeaderDates() {
-        return roundHeaderDates;
+        return this.roundHeaderDates;
     }
 
     public void setRoundHeaderDates(List<RoundHeaderDate> roundHeaderDates) {
@@ -1953,7 +1837,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getSourceProjectId() {
-        return sourceProjectId;
+        return this.sourceProjectId;
     }
 
     public void setSourceProjectId(Long sourceProjectId) {
@@ -1961,7 +1845,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getProjectLineSectionId() {
-        return projectLineSectionId;
+        return this.projectLineSectionId;
     }
 
     public void setProjectLineSectionId(Long projectLineSectionId) {
@@ -1969,7 +1853,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSubjectMatterRule() {
-        return subjectMatterRule;
+        return this.subjectMatterRule;
     }
 
     public void setSubjectMatterRule(String subjectMatterRule) {
@@ -1977,7 +1861,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSectionCode() {
-        return sectionCode;
+        return this.sectionCode;
     }
 
     public void setSectionCode(String sectionCode) {
@@ -1985,7 +1869,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSectionName() {
-        return sectionName;
+        return this.sectionName;
     }
 
     public void setSectionName(String sectionName) {
@@ -1993,7 +1877,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSourceProjectNum() {
-        return sourceProjectNum;
+        return this.sourceProjectNum;
     }
 
     public void setSourceProjectNum(String sourceProjectNum) {
@@ -2001,7 +1885,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSourceProjectName() {
-        return sourceProjectName;
+        return this.sourceProjectName;
     }
 
     public void setSourceProjectName(String sourceProjectName) {
@@ -2009,51 +1893,39 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public List<Long> getItemList() {
-        return itemList;
+        return this.itemList;
     }
 
     public void setItemList(List<Long> itemList) {
         this.itemList = itemList;
     }
 
-    /**
-     * @return 表ID，主键，供其他表做外键
-     */
     public Long getRfxHeaderId() {
-        return rfxHeaderId;
+        return this.rfxHeaderId;
     }
 
     public void setRfxHeaderId(Long rfxHeaderId) {
         this.rfxHeaderId = rfxHeaderId;
     }
 
-    /**
-     * @return 所属租户ID，hpfm_tenant.tenant_id
-     */
     public Long getTenantId() {
-        return tenantId;
+        return this.tenantId;
     }
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
 
-    /**
-     * @return 询价单单号
-     */
     public String getRfxNum() {
-        return rfxNum;
+        return this.rfxNum;
     }
 
     public void setRfxNum(String rfxNum) {
         this.rfxNum = rfxNum;
     }
 
-    /**
-     * @return 询价单状态SourceConstants.RfxStatus(NEW / 新建 | RELEASE_APPROVING / 发布审批中 | RELEASE_REJECTED / 发布审批拒绝 | NOT_START / 未开始 | IN_PREQUAL / 资格预审中 | PREQUAL_CUTOFF / 资格预审截止 | IN_QUOTATION / 报价中 | OPEN_BID_PENDING / 待开标 | PRETRIAL_PENDING / 待初审 | SCORING / 评分中 | CHECK_PENDING / 待核价 | CHECK_APPROVING / 核价审批中 | CHECK_REJECTED / 核价审批拒绝 | FINISHED / 完成 | PAUSED / 暂停 | CLOSED / 关闭 | ROUNDED / 再次询价 | IN_POSTQUAL / 资格后审中 | POSTQUAL_CUTOFF / 资格后审截止)
-     */
     public String getRfxStatus() {
-        return rfxStatus;
+        return this.rfxStatus;
     }
 
     public void setRfxStatus(String rfxStatus) {
@@ -2061,62 +1933,47 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getStartQuotationRunningDuration() {
-        return startQuotationRunningDuration;
+        return this.startQuotationRunningDuration;
     }
 
     public void setStartQuotationRunningDuration(BigDecimal startQuotationRunningDuration) {
         this.startQuotationRunningDuration = startQuotationRunningDuration;
     }
 
-    /**
-     * @return 询价单标题
-     */
     public String getRfxTitle() {
-        return rfxTitle;
+        return this.rfxTitle;
     }
 
     public void setRfxTitle(String rfxTitle) {
         this.rfxTitle = rfxTitle;
     }
 
-    /**
-     * @return 寻源模板ID
-     */
     public Long getTemplateId() {
-        return templateId;
+        return this.templateId;
     }
 
     public void setTemplateId(Long templateId) {
         this.templateId = templateId;
     }
 
-    /**
-     * @return 寻源类别SSRC.SOURCE_CATEGORY(RFQ / 询价 | RFA / 竞价 | BID / 招投标)
-     */
     public String getSourceCategory() {
-        return sourceCategory;
+        return this.sourceCategory;
     }
 
     public void setSourceCategory(String sourceCategory) {
         this.sourceCategory = sourceCategory;
     }
 
-    /**
-     * @return 询价方式SSRC.SOURCE_METHOD(INVITE / 邀请 | OPEN / 合作伙伴公开 | ALL_OPEN / 全平台公开)
-     */
     public String getSourceMethod() {
-        return sourceMethod;
+        return this.sourceMethod;
     }
 
     public void setSourceMethod(String sourceMethod) {
         this.sourceMethod = sourceMethod;
     }
 
-    /**
-     * @return 采购方采购组织ID
-     */
     public Long getPurOrganizationId() {
-        return purOrganizationId;
+        return this.purOrganizationId;
     }
 
     public void setPurOrganizationId(Long purOrganizationId) {
@@ -2124,128 +1981,95 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getCentralPurchaseFlag() {
-        return centralPurchaseFlag;
+        return this.centralPurchaseFlag;
     }
 
     public void setCentralPurchaseFlag(Integer centralPurchaseFlag) {
         this.centralPurchaseFlag = centralPurchaseFlag;
     }
 
-    /**
-     * @return 采购方企业ID
-     */
     public Long getCompanyId() {
-        return companyId;
+        return this.companyId;
     }
 
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
     }
 
-    /**
-     * @return 采购方企业名称
-     */
     public String getCompanyName() {
-        return companyName;
+        return this.companyName;
     }
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
 
-    /**
-     * @return 竞价方向SSRC.SOURCE_AUCTION_DIRECTION(FORWARD / 正向 | REVERSE / 反向)
-     */
     public String getAuctionDirection() {
-        return auctionDirection;
+        return this.auctionDirection;
     }
 
     public void setAuctionDirection(String auctionDirection) {
         this.auctionDirection = auctionDirection;
     }
 
-    /**
-     * @return 预算金额
-     */
     public BigDecimal getBudgetAmount() {
-        return budgetAmount;
+        return this.budgetAmount;
     }
 
     public void setBudgetAmount(BigDecimal budgetAmount) {
         this.budgetAmount = budgetAmount;
     }
 
-    /**
-     * @return 含税标识
-     */
     public Integer getTaxIncludedFlag() {
-        return taxIncludedFlag;
+        return this.taxIncludedFlag;
     }
 
     public void setTaxIncludedFlag(Integer taxIncludedFlag) {
         this.taxIncludedFlag = taxIncludedFlag;
     }
 
-    /**
-     * @return 税率ID
-     */
     public Long getTaxId() {
-        return taxId;
+        return this.taxId;
     }
 
     public void setTaxId(Long taxId) {
         this.taxId = taxId;
     }
 
-    /**
-     * @return 税率
-     */
     public BigDecimal getTaxRate() {
-        return taxRate;
+        return this.taxRate;
     }
 
     public void setTaxRate(BigDecimal taxRate) {
         this.taxRate = taxRate;
     }
 
-    /**
-     * @return 币种
-     */
     public String getCurrencyCode() {
-        return currencyCode;
+        return this.currencyCode;
     }
 
     public void setCurrencyCode(String currencyCode) {
         this.currencyCode = currencyCode;
     }
 
-    /**
-     * @return 汇率
-     */
     public Long getExchangeRateId() {
-        return exchangeRateId;
+        return this.exchangeRateId;
     }
 
     public void setExchangeRateId(Long exchangeRateId) {
         this.exchangeRateId = exchangeRateId;
     }
 
-    /**
-     * @return 汇率类型
-     */
     public String getExchangeRateType() {
-        return exchangeRateType;
+        return this.exchangeRateType;
     }
 
     public void setExchangeRateType(String exchangeRateType) {
         this.exchangeRateType = exchangeRateType;
     }
 
-    /**
-     * @return 汇率日期
-     */
     public Date getExchangeRateDate() {
-        return exchangeRateDate;
+        return this.exchangeRateDate;
     }
 
     public void setExchangeRateDate(Date exchangeRateDate) {
@@ -2253,7 +2077,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getQuotationType() {
-        return quotationType;
+        return this.quotationType;
     }
 
     public void setQuotationType(String quotationType) {
@@ -2261,7 +2085,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getQuotationTypeMeaning() {
-        return quotationTypeMeaning;
+        return this.quotationTypeMeaning;
     }
 
     public void setQuotationTypeMeaning(String quotationTypeMeaning) {
@@ -2269,7 +2093,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getBidBond() {
-        return bidBond;
+        return this.bidBond;
     }
 
     public void setBidBond(BigDecimal bidBond) {
@@ -2277,51 +2101,39 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getBidFileExpense() {
-        return bidFileExpense;
+        return this.bidFileExpense;
     }
 
     public void setBidFileExpense(BigDecimal bidFileExpense) {
         this.bidFileExpense = bidFileExpense;
     }
 
-    /**
-     * @return 汇率期间
-     */
     public String getExchangeRatePeriod() {
-        return exchangeRatePeriod;
+        return this.exchangeRatePeriod;
     }
 
     public void setExchangeRatePeriod(String exchangeRatePeriod) {
         this.exchangeRatePeriod = exchangeRatePeriod;
     }
 
-    /**
-     * @return 汇率
-     */
     public BigDecimal getExchangeRate() {
-        return exchangeRate;
+        return this.exchangeRate;
     }
 
     public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
     }
 
-    /**
-     * @return 备注
-     */
     public String getRfxRemark() {
-        return rfxRemark;
+        return this.rfxRemark;
     }
 
     public void setRfxRemark(String rfxRemark) {
         this.rfxRemark = rfxRemark;
     }
 
-    /**
-     * @return 报价开始时间
-     */
     public Date getQuotationStartDate() {
-        return quotationStartDate;
+        return this.quotationStartDate;
     }
 
     public void setQuotationStartDate(Date quotationStartDate) {
@@ -2329,29 +2141,23 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getLatestQuotationEndDate() {
-        return latestQuotationEndDate;
+        return this.latestQuotationEndDate;
     }
 
     public void setLatestQuotationEndDate(Date latestQuotationEndDate) {
         this.latestQuotationEndDate = latestQuotationEndDate;
     }
 
-    /**
-     * @return 报价截止时间
-     */
     public Date getQuotationEndDate() {
-        return quotationEndDate;
+        return this.quotationEndDate;
     }
 
     public void setQuotationEndDate(Date quotationEndDate) {
         this.quotationEndDate = quotationEndDate;
     }
 
-    /**
-     * @return 密封报价标志
-     */
     public Integer getSealedQuotationFlag() {
-        return sealedQuotationFlag;
+        return this.sealedQuotationFlag;
     }
 
     public void setSealedQuotationFlag(Integer sealedQuotationFlag) {
@@ -2359,106 +2165,79 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getSealedQuotationFlagMeaning() {
-        return sealedQuotationFlagMeaning;
+        return this.sealedQuotationFlagMeaning;
     }
 
     public void setSealedQuotationFlagMeaning(String sealedQuotationFlagMeaning) {
         this.sealedQuotationFlagMeaning = sealedQuotationFlagMeaning;
     }
 
-    /**
-     * @return 公开规则SSRC.RFA_OPEN_RULE(HIDE_IDENTITY_HIDE_QUOTE / 隐藏身份隐藏报价 | HIDE_IDENTITY_OPEN_QUOTE / 隐藏身份公开报价 | OPEN_IDENTITY_HIDE_QUOTE / 公开身份隐藏报价 | OPEN_IDENTITY_OPEN_QUOTE / 公开身份公开报价)
-     */
     public String getOpenRule() {
-        return openRule;
+        return this.openRule;
     }
 
     public void setOpenRule(String openRule) {
         this.openRule = openRule;
     }
 
-    /**
-     * @return 竞价排名SSRC.RFA_AUCTION_RANKING(OPEN_COUNT_OPEN_RANK显示参与者数目和当前排名 | OPEN_COUNT_HIDE_RANK / 显示参与者数目隐藏当前排名 | HIDE_COUNT_OPEN_RANK / 隐藏参与者数目显示当前排名 | HIDE_COUNT_HIDE_RANK / 隐藏参与者数目和当前排名)
-     */
     public String getAuctionRanking() {
-        return auctionRanking;
+        return this.auctionRanking;
     }
 
     public void setAuctionRanking(String auctionRanking) {
         this.auctionRanking = auctionRanking;
     }
 
-    /**
-     * @return 寻源类型SSRC.SOURCE_TYPE(常规 | OEM | 项目 | 外协 | 寄售)
-     */
     public String getSourceType() {
-        return sourceType;
+        return this.sourceType;
     }
 
     public void setSourceType(String sourceType) {
         this.sourceType = sourceType;
     }
 
-    /**
-     * @return 价格类型SSRC.SOURCE_PRICE_CATEGORY(STANDARD / 标准 | SAMPLE / 样品)
-     */
     public String getPriceCategory() {
-        return priceCategory;
+        return this.priceCategory;
     }
 
     public void setPriceCategory(String priceCategory) {
         this.priceCategory = priceCategory;
     }
 
-    /**
-     * @return 付款方式ID
-     */
     public Long getPaymentTypeId() {
-        return paymentTypeId;
+        return this.paymentTypeId;
     }
 
     public void setPaymentTypeId(Long paymentTypeId) {
         this.paymentTypeId = paymentTypeId;
     }
 
-    /**
-     * @return 付款条款
-     */
     public Long getPaymentTermId() {
-        return paymentTermId;
+        return this.paymentTermId;
     }
 
     public void setPaymentTermId(Long paymentTermId) {
         this.paymentTermId = paymentTermId;
     }
 
-    /**
-     * @return 轮次
-     */
     public Long getRoundNumber() {
-        return roundNumber;
+        return this.roundNumber;
     }
 
     public void setRoundNumber(Long roundNumber) {
         this.roundNumber = roundNumber;
     }
 
-    /**
-     * @return 版本
-     */
     public Long getVersionNumber() {
-        return versionNumber;
+        return this.versionNumber;
     }
 
     public void setVersionNumber(Long versionNumber) {
         this.versionNumber = versionNumber;
     }
 
-    /**
-     * @return 报价次序SSRC.QUOTATION_ORDER_TYPE(SEQUENCE / 序列 | STAGGER / 交错 | PARALLEL / 并行)
-     */
     public String getQuotationOrderType() {
-        return quotationOrderType;
+        return this.quotationOrderType;
     }
 
     public void setQuotationOrderType(String quotationOrderType) {
@@ -2466,95 +2245,71 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getQualificationType() {
-        return qualificationType;
+        return this.qualificationType;
     }
 
     public void setQualificationType(String qualificationType) {
         this.qualificationType = qualificationType;
     }
 
-    /**
-     * @return 报价运行时间
-     */
     public BigDecimal getQuotationRunningDuration() {
-        return quotationRunningDuration;
+        return this.quotationRunningDuration;
     }
 
     public void setQuotationRunningDuration(BigDecimal quotationRunningDuration) {
         this.quotationRunningDuration = quotationRunningDuration;
     }
 
-    /**
-     * @return 报价时间间隔
-     */
     public BigDecimal getQuotationInterval() {
-        return quotationInterval;
+        return this.quotationInterval;
     }
 
     public void setQuotationInterval(BigDecimal quotationInterval) {
         this.quotationInterval = quotationInterval;
     }
 
-    /**
-     * @return 竞价规则SSRC.RFA_AUCTION_RULE(NONE / 所有排名允许报相同价格 | ALL / 所有排名不允许报相同价格 | TOP_THREE前三名不允许报相同价格)
-     */
     public String getAuctionRule() {
-        return auctionRule;
+        return this.auctionRule;
     }
 
     public void setAuctionRule(String auctionRule) {
         this.auctionRule = auctionRule;
     }
 
-    /**
-     * @return 是否启用自动延时
-     */
     public Integer getAutoDeferFlag() {
-        return autoDeferFlag;
+        return this.autoDeferFlag;
     }
 
     public void setAutoDeferFlag(Integer autoDeferFlag) {
         this.autoDeferFlag = autoDeferFlag;
     }
 
-    /**
-     * @return 延时时长
-     */
     public BigDecimal getAutoDeferDuration() {
-        return autoDeferDuration;
+        return this.autoDeferDuration;
     }
 
     public void setAutoDeferDuration(BigDecimal autoDeferDuration) {
         this.autoDeferDuration = autoDeferDuration;
     }
 
-    /**
-     * @return 发布日期
-     */
     public Date getReleasedDate() {
-        return releasedDate;
+        return this.releasedDate;
     }
 
     public void setReleasedDate(Date releasedDate) {
         this.releasedDate = releasedDate;
     }
 
-    /**
-     * @return 发布人
-     */
     public Long getReleasedBy() {
-        return releasedBy;
+        return this.releasedBy;
     }
 
     public void setReleasedBy(Long releasedBy) {
         this.releasedBy = releasedBy;
     }
 
-    /**
-     * @return 终止时间
-     */
     public Date getTerminatedDate() {
-        return terminatedDate;
+        return this.terminatedDate;
     }
 
     public void setTerminatedDate(Date terminatedDate) {
@@ -2562,7 +2317,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getPrequalHeaderId() {
-        return prequalHeaderId;
+        return this.prequalHeaderId;
     }
 
     public void setPrequalHeaderId(Long prequalHeaderId) {
@@ -2570,243 +2325,175 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getPrequalEndDate() {
-        return prequalEndDate;
+        return this.prequalEndDate;
     }
 
     public void setPrequalEndDate(Date prequalEndDate) {
         this.prequalEndDate = prequalEndDate;
     }
 
-    /**
-     * @return 终止人
-     */
     public Long getTerminatedBy() {
-        return terminatedBy;
+        return this.terminatedBy;
     }
 
     public void setTerminatedBy(Long terminatedBy) {
         this.terminatedBy = terminatedBy;
     }
 
-    /**
-     * @return 终止原因
-     */
     public String getTerminatedRemark() {
-        return terminatedRemark;
+        return this.terminatedRemark;
     }
 
     public void setTerminatedRemark(String terminatedRemark) {
         this.terminatedRemark = terminatedRemark;
     }
 
-    /**
-     * @return 审批日期
-     */
     public Date getApprovedDate() {
-        return approvedDate;
+        return this.approvedDate;
     }
 
     public void setApprovedDate(Date approvedDate) {
         this.approvedDate = approvedDate;
     }
 
-
     public Integer getStartFlag() {
-        return startFlag;
+        return this.startFlag;
     }
 
     public void setStartFlag(Integer startFlag) {
         this.startFlag = startFlag;
     }
 
-    /**
-     * @return 审批人
-     */
     public Long getApprovedBy() {
-        return approvedBy;
+        return this.approvedBy;
     }
 
     public void setApprovedBy(Long approvedBy) {
         this.approvedBy = approvedBy;
     }
 
-    /**
-     * @return 审批备注
-     */
     public String getApprovedRemark() {
-        return approvedRemark;
+        return this.approvedRemark;
     }
 
     public void setApprovedRemark(String approvedRemark) {
         this.approvedRemark = approvedRemark;
     }
 
-    /**
-     * @return 调整时间日期
-     */
     public Date getTimeAdjustedDate() {
-        return timeAdjustedDate;
+        return this.timeAdjustedDate;
     }
 
     public void setTimeAdjustedDate(Date timeAdjustedDate) {
         this.timeAdjustedDate = timeAdjustedDate;
     }
 
-    /**
-     * @return 调整时间人
-     */
     public Long getTimeAdjustedBy() {
-        return timeAdjustedBy;
+        return this.timeAdjustedBy;
     }
 
     public void setTimeAdjustedBy(Long timeAdjustedBy) {
         this.timeAdjustedBy = timeAdjustedBy;
     }
 
-    /**
-     * @return 调整时间原因
-     */
     public String getTimeAdjustedRemark() {
-        return timeAdjustedRemark;
+        return this.timeAdjustedRemark;
     }
 
     public void setTimeAdjustedRemark(String timeAdjustedRemark) {
         this.timeAdjustedRemark = timeAdjustedRemark;
     }
 
-    /**
-     * @return 关闭标识
-     */
     public Integer getClosedFlag() {
-        return closedFlag;
+        return this.closedFlag;
     }
 
     public void setClosedFlag(Integer closedFlag) {
         this.closedFlag = closedFlag;
     }
 
-    /**
-     * @return 单据来源(MANUAL / 手工创建 | DEMAND_POOL / 需求池 | COPY / 复制)
-     */
     public String getSourceFrom() {
-        return sourceFrom;
+        return this.sourceFrom;
     }
 
     public void setSourceFrom(String sourceFrom) {
         this.sourceFrom = sourceFrom;
     }
 
-    /**
-     * @return 初审备注
-     */
     public String getPretrailRemark() {
-        return pretrailRemark;
+        return this.pretrailRemark;
     }
 
     public void setPretrailRemark(String pretrailRemark) {
         this.pretrailRemark = pretrailRemark;
     }
 
-    /**
-     * @return 总成本
-     */
     public BigDecimal getTotalCost() {
-        return totalCost;
+        return this.totalCost;
     }
 
     public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
     }
 
-    /**
-     * @return 成本备注
-     */
     public String getCostRemark() {
-        return costRemark;
+        return this.costRemark;
     }
 
     public void setCostRemark(String costRemark) {
         this.costRemark = costRemark;
     }
 
-
-    /**
-     * @return 退回至初审备注
-     */
     public String getBackPretrialRemark() {
-        return backPretrialRemark;
+        return this.backPretrialRemark;
     }
 
     public void setBackPretrialRemark(String backPretrialRemark) {
         this.backPretrialRemark = backPretrialRemark;
     }
 
-    /**
-     * @return 技术附件UUID
-     */
     public String getTechAttachmentUuid() {
-        return techAttachmentUuid;
+        return this.techAttachmentUuid;
     }
 
     public void setTechAttachmentUuid(String techAttachmentUuid) {
         this.techAttachmentUuid = techAttachmentUuid;
     }
 
-    /**
-     * @return 商务附件UUID
-     */
     public String getBusinessAttachmentUuid() {
-        return businessAttachmentUuid;
+        return this.businessAttachmentUuid;
     }
 
     public void setBusinessAttachmentUuid(String businessAttachmentUuid) {
         this.businessAttachmentUuid = businessAttachmentUuid;
     }
 
-    /**
-     * @return 核价附件UUID
-     */
     public String getCheckAttachmentUuid() {
-        return checkAttachmentUuid;
+        return this.checkAttachmentUuid;
     }
 
     public void setCheckAttachmentUuid(String checkAttachmentUuid) {
         this.checkAttachmentUuid = checkAttachmentUuid;
     }
 
-    /**
-     * 初审人
-     *
-     * @return
-     */
     public Long getPretrialUserId() {
-        return pretrialUserId;
+        return this.pretrialUserId;
     }
 
     public void setPretrialUserId(Long pretrialUserId) {
         this.pretrialUserId = pretrialUserId;
     }
 
-    /**
-     * 初审状态
-     *
-     * @return
-     */
     public String getPretrialStatus() {
-        return pretrialStatus;
+        return this.pretrialStatus;
     }
 
     public void setPretrialStatus(String pretrialStatus) {
         this.pretrialStatus = pretrialStatus;
     }
 
-    /**
-     * 初审转交人
-     *
-     * @return
-     */
     public Long getDeliverUserId() {
-        return deliverUserId;
+        return this.deliverUserId;
     }
 
     public void setDeliverUserId(Long deliverUserId) {
@@ -2814,7 +2501,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getOpenDeliverUserId() {
-        return openDeliverUserId;
+        return this.openDeliverUserId;
     }
 
     public void setOpenDeliverUserId(Long openDeliverUserId) {
@@ -2822,7 +2509,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getCurrentSequenceNum() {
-        return currentSequenceNum;
+        return this.currentSequenceNum;
     }
 
     public void setCurrentSequenceNum(Integer currentSequenceNum) {
@@ -2830,7 +2517,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getUnitId() {
-        return unitId;
+        return this.unitId;
     }
 
     public void setUnitId(Long unitId) {
@@ -2838,7 +2525,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getCreatedUnitId() {
-        return createdUnitId;
+        return this.createdUnitId;
     }
 
     public void setCreatedUnitId(Long createdUnitId) {
@@ -2846,7 +2533,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getCreatedUnitName() {
-        return createdUnitName;
+        return this.createdUnitName;
     }
 
     public void setCreatedUnitName(String createdUnitName) {
@@ -2854,7 +2541,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getCurrentQuotationRound() {
-        return currentQuotationRound;
+        return this.currentQuotationRound;
     }
 
     public void setCurrentQuotationRound(Long currentQuotationRound) {
@@ -2862,7 +2549,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getCreatedByName() {
-        return createdByName;
+        return this.createdByName;
     }
 
     public void setCreatedByName(String createdByName) {
@@ -2870,7 +2557,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getExpertScoreFlag() {
-        return expertScoreFlag;
+        return this.expertScoreFlag;
     }
 
     public void setExpertScoreFlag(Integer expertScoreFlag) {
@@ -2878,7 +2565,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPreQualificationFlagMeaning() {
-        return preQualificationFlagMeaning;
+        return this.preQualificationFlagMeaning;
     }
 
     public void setPreQualificationFlagMeaning(String preQualificationFlagMeaning) {
@@ -2886,35 +2573,32 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getExpertScoreFlagMeaning() {
-        return expertScoreFlagMeaning;
+        return this.expertScoreFlagMeaning;
     }
 
     public void setExpertScoreFlagMeaning(String expertScoreFlagMeaning) {
         this.expertScoreFlagMeaning = expertScoreFlagMeaning;
     }
 
-    /***
-     * 再次询价,初始化询价单头数据
-     */
     public void initAgainInquiryStataus() {
-        this.versionNumber++;
-        this.setRfxStatus(SourceConstants.RfxStatus.ROUNDED);
-        this.roundNumber++;
-        // 如果有初审，则重置初审状态
+        Long var2 = this.versionNumber;
+        Long var3 = this.versionNumber = this.versionNumber + 1L;
+        this.setRfxStatus("ROUNDED");
+        var2 = this.roundNumber;
+        var3 = this.roundNumber = this.roundNumber + 1L;
         if (this.pretrialStatus != null) {
-            this.pretrialStatus = SourceConstants.PretrialStatus.NO_TRIAL;
+            this.pretrialStatus = "NO_TRIAL";
         }
-        //重置当前评分序列
-        this.currentSequenceNum = BaseConstants.Digital.ONE;
+
+        this.currentSequenceNum = 1;
     }
 
     public List<RfxLineItem> getRfxLineItemList() {
-        return rfxLineItemList;
+        return this.rfxLineItemList;
     }
 
-
     public String getPriceTypeCode() {
-        return priceTypeCode;
+        return this.priceTypeCode;
     }
 
     public void setPriceTypeCode(String priceTypeCode) {
@@ -2926,7 +2610,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getPreQualificationFlag() {
-        return preQualificationFlag;
+        return this.preQualificationFlag;
     }
 
     public void setPreQualificationFlag(Integer preQualificationFlag) {
@@ -2934,7 +2618,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPreAttachmentUuid() {
-        return preAttachmentUuid;
+        return this.preAttachmentUuid;
     }
 
     public void setPreAttachmentUuid(String preAttachmentUuid) {
@@ -2942,7 +2626,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public List<RfxQuotationHeader> getRfxQuotationHeaderList() {
-        return rfxQuotationHeaderList;
+        return this.rfxQuotationHeaderList;
     }
 
     public void setRfxQuotationHeaderList(List<RfxQuotationHeader> rfxQuotationHeaderList) {
@@ -2950,7 +2634,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public List<RfxQuotationLine> getRfxQuotationLineList() {
-        return rfxQuotationLineList;
+        return this.rfxQuotationLineList;
     }
 
     public void setRfxQuotationLineList(List<RfxQuotationLine> rfxQuotationLineList) {
@@ -2958,7 +2642,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getQuotationScope() {
-        return quotationScope;
+        return this.quotationScope;
     }
 
     public void setQuotationScope(String quotationScope) {
@@ -2966,7 +2650,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getBargainStatus() {
-        return bargainStatus;
+        return this.bargainStatus;
     }
 
     public void setBargainStatus(String bargainStatus) {
@@ -2974,7 +2658,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getBargainRule() {
-        return bargainRule;
+        return this.bargainRule;
     }
 
     public void setBargainRule(String bargainRule) {
@@ -2982,7 +2666,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getBargainOfflineFlag() {
-        return bargainOfflineFlag;
+        return this.bargainOfflineFlag;
     }
 
     public void setBargainOfflineFlag(Integer bargainOfflineFlag) {
@@ -2990,7 +2674,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getCurrentDateTime() {
-        return currentDateTime;
+        return this.currentDateTime;
     }
 
     public void setCurrentDateTime(Date currentDateTime) {
@@ -2998,7 +2682,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getBargainClosedFlag() {
-        return bargainClosedFlag;
+        return this.bargainClosedFlag;
     }
 
     public void setBargainClosedFlag(Integer bargainClosedFlag) {
@@ -3006,10 +2690,11 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getBargainEndDate() {
-        return bargainEndDate;
+        return this.bargainEndDate;
     }
+
     public BigDecimal getDay() {
-        return day;
+        return this.day;
     }
 
     public void setDay(BigDecimal day) {
@@ -3017,7 +2702,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getHour() {
-        return hour;
+        return this.hour;
     }
 
     public void setHour(BigDecimal hour) {
@@ -3029,7 +2714,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getOpenBidOrder() {
-        return openBidOrder;
+        return this.openBidOrder;
     }
 
     public void setOpenBidOrder(String openBidOrder) {
@@ -3037,14 +2722,15 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getScoringProgress() {
-        return scoringProgress;
+        return this.scoringProgress;
     }
 
     public void setScoringProgress(String scoringProgress) {
         this.scoringProgress = scoringProgress;
     }
+
     public BigDecimal getMinute() {
-        return minute;
+        return this.minute;
     }
 
     public void setMinute(BigDecimal minute) {
@@ -3052,7 +2738,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getBargainAttachmentUuid() {
-        return bargainAttachmentUuid;
+        return this.bargainAttachmentUuid;
     }
 
     public void setBargainAttachmentUuid(String bargainAttachmentUuid) {
@@ -3060,7 +2746,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getMultiCurrencyFlag() {
-        return multiCurrencyFlag;
+        return this.multiCurrencyFlag;
     }
 
     public void setMultiCurrencyFlag(Integer multiCurrencyFlag) {
@@ -3068,7 +2754,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getCheckedBy() {
-        return checkedBy;
+        return this.checkedBy;
     }
 
     public void setCheckedBy(Long checkedBy) {
@@ -3076,7 +2762,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getCheckedByName() {
-        return checkedByName;
+        return this.checkedByName;
     }
 
     public void setCheckedByName(String checkedByName) {
@@ -3084,7 +2770,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getQuotationRounds() {
-        return quotationRounds;
+        return this.quotationRounds;
     }
 
     public void setQuotationRounds(Long quotationRounds) {
@@ -3092,7 +2778,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getRoundQuotationRankFlag() {
-        return roundQuotationRankFlag;
+        return this.roundQuotationRankFlag;
     }
 
     public void setRoundQuotationRankFlag(Integer roundQuotationRankFlag) {
@@ -3100,68 +2786,53 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getRoundQuotationRankRule() {
-        return roundQuotationRankRule;
+        return this.roundQuotationRankRule;
     }
 
     public void setRoundQuotationRankRule(String roundQuotationRankRule) {
         this.roundQuotationRankRule = roundQuotationRankRule;
     }
 
-    /**
-     *  立项转询价初始化
-     */
-    public void initFromProject(Long organizationId, SourceProjectDTO sourceProjectDTO, SourceTemplate sourceTemplate){
-        if(sourceProjectDTO == null || sourceTemplate == null){
-            return;
-        }
-        this.tenantId = organizationId;
-        // 模板id
-        this.templateId = sourceProjectDTO.getTemplateId();
-        // 项目名称
-//		this.rfxTitle = sourceProjectDTO.getSourceProjectName();
-        // 公司
-        this.companyId = sourceProjectDTO.getCompanyId();
-        this.companyName = sourceProjectDTO.getCompanyName();
-        // 寻源方式
-        this.sourceMethod = sourceProjectDTO.getSourceMethod();
-        // 预算总额
-        this.budgetAmount = sourceProjectDTO.getBudgetAmount();
-        //设置币种默认值
-        this.setCurrencyCode(SourceConstants.RfxConstants.CURRENCY_CODE_DEFAULT);
-        // 需求部门
-        this.unitId = sourceProjectDTO.getUnitId();
-        // 保证金
-        this.bidBond = sourceProjectDTO.getDepositAmount();
-        // 付款方式
-        this.paymentTypeId = sourceProjectDTO.getPaymentTypeId();
-        // 付款条款
-        this.paymentTermId = sourceProjectDTO.getPaymentTermId();
-        this.timeAdjustedBy = 1L;
-        this.rfxStatus = SourceConstants.RfxStatus.NEW;
-        this.sourceType = sourceTemplate.getSourceType();
-        this.priceCategory = ShareConstants.SourceTemplate.SourcePriceCategory.STANDARD;
-        this.sourceFrom = SourceConstants.SourceFrom.PROJECT;
-        this.sourceCategory = sourceTemplate.getSourceCategory();
-        this.quotationType = sourceTemplate.getQuotationType();
-        this.quotationScope = sourceTemplate.getQuotationScope();
-        this.auctionDirection = sourceTemplate.getAuctionDirection();
-        this.quotationScope = sourceTemplate.getQuotationScope();
-        this.bidFileExpense = new BigDecimal("0");
-        this.onlyAllowAllWinBids = sourceTemplate.getOnlyAllowAllWinBids();
-        this.subjectMatterRule = sourceProjectDTO.getSubjectMatterRule();
-        this.sourceProjectId = sourceProjectDTO.getSourceProjectId();
-        if (ShareConstants.SubjectMatterRule.PACK.equals(this.subjectMatterRule)) {
-            this.quotationScope = SourceConstants.QuotationScope.ALL_QUOTATION;
-            this.onlyAllowAllWinBids = BaseConstants.Flag.YES;
-            if (CollectionUtils.isNotEmpty(sourceProjectDTO.getProjectLineSections())) {
-                this.projectLineSectionId = sourceProjectDTO.getProjectLineSections().get(0).getProjectLineSectionId();
+    public void initFromProject(Long organizationId, SourceProjectDTO sourceProjectDTO, SourceTemplate sourceTemplate) {
+        if (sourceProjectDTO != null && sourceTemplate != null) {
+            this.tenantId = organizationId;
+            this.templateId = sourceProjectDTO.getTemplateId();
+            this.companyId = sourceProjectDTO.getCompanyId();
+            this.companyName = sourceProjectDTO.getCompanyName();
+            this.sourceMethod = sourceProjectDTO.getSourceMethod();
+            this.budgetAmount = sourceProjectDTO.getBudgetAmount();
+            this.setCurrencyCode("CNY");
+            this.unitId = sourceProjectDTO.getUnitId();
+            this.bidBond = sourceProjectDTO.getDepositAmount();
+            this.paymentTypeId = sourceProjectDTO.getPaymentTypeId();
+            this.paymentTermId = sourceProjectDTO.getPaymentTermId();
+            this.timeAdjustedBy = 1L;
+            this.rfxStatus = "NEW";
+            this.sourceType = sourceTemplate.getSourceType();
+            this.priceCategory = "STANDARD";
+            this.sourceFrom = "PROJECT";
+            this.sourceCategory = sourceTemplate.getSourceCategory();
+            this.quotationType = sourceTemplate.getQuotationType();
+            this.quotationScope = sourceTemplate.getQuotationScope();
+            this.auctionDirection = sourceTemplate.getAuctionDirection();
+            this.quotationScope = sourceTemplate.getQuotationScope();
+            this.bidFileExpense = new BigDecimal("0");
+            this.onlyAllowAllWinBids = sourceTemplate.getOnlyAllowAllWinBids();
+            this.subjectMatterRule = sourceProjectDTO.getSubjectMatterRule();
+            this.sourceProjectId = sourceProjectDTO.getSourceProjectId();
+            if ("PACK".equals(this.subjectMatterRule)) {
+                this.quotationScope = "ALL_QUOTATION";
+                this.onlyAllowAllWinBids = BaseConstants.Flag.YES;
+                if (CollectionUtils.isNotEmpty(sourceProjectDTO.getProjectLineSections())) {
+                    this.projectLineSectionId = ((ProjectLineSection) sourceProjectDTO.getProjectLineSections().get(0)).getProjectLineSectionId();
+                }
             }
+
         }
     }
 
-
     public Integer getQuotationFlag() {
-        return quotationFlag;
+        return this.quotationFlag;
     }
 
     public void setQuotationFlag(Integer quotationFlag) {
@@ -3169,14 +2840,15 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public BigDecimal getQuotationQuantity() {
-        return quotationQuantity;
+        return this.quotationQuantity;
     }
 
     public void setQuotationQuantity(BigDecimal quotationQuantity) {
         this.quotationQuantity = quotationQuantity;
     }
+
     public String getInternalRemark() {
-        return internalRemark;
+        return this.internalRemark;
     }
 
     public void setInternalRemark(String internalRemark) {
@@ -3184,7 +2856,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getMinQuotedSupplier() {
-        return minQuotedSupplier;
+        return this.minQuotedSupplier;
     }
 
     public void setMinQuotedSupplier(Long minQuotedSupplier) {
@@ -3192,14 +2864,15 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getLackQuotedSendFlag() {
-        return lackQuotedSendFlag;
+        return this.lackQuotedSendFlag;
     }
 
     public void setLackQuotedSendFlag(Integer lackQuotedSendFlag) {
         this.lackQuotedSendFlag = lackQuotedSendFlag;
     }
+
     public String getCheckRemark() {
-        return checkRemark;
+        return this.checkRemark;
     }
 
     public void setCheckRemark(String checkRemark) {
@@ -3207,7 +2880,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getSendMethodFlag() {
-        return sendMethodFlag;
+        return this.sendMethodFlag;
     }
 
     public void setSendMethodFlag(Integer sendMethodFlag) {
@@ -3215,7 +2888,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getPaymentTermFlag() {
-        return paymentTermFlag;
+        return this.paymentTermFlag;
     }
 
     public void setPaymentTermFlag(Integer paymentTermFlag) {
@@ -3223,7 +2896,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getMatterRequireFlag() {
-        return matterRequireFlag;
+        return this.matterRequireFlag;
     }
 
     public void setMatterRequireFlag(Integer matterRequireFlag) {
@@ -3231,7 +2904,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getMatterDetail() {
-        return matterDetail;
+        return this.matterDetail;
     }
 
     public void setMatterDetail(String matterDetail) {
@@ -3239,7 +2912,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getBudgetAmountFlag() {
-        return budgetAmountFlag;
+        return this.budgetAmountFlag;
     }
 
     public void setBudgetAmountFlag(Integer budgetAmountFlag) {
@@ -3247,7 +2920,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getPaymentClause() {
-        return paymentClause;
+        return this.paymentClause;
     }
 
     public void setPaymentClause(String paymentClause) {
@@ -3255,7 +2928,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getUnitCode() {
-        return unitCode;
+        return this.unitCode;
     }
 
     public void setUnitCode(String unitCode) {
@@ -3263,7 +2936,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getUnitName() {
-        return unitName;
+        return this.unitName;
     }
 
     public void setUnitName(String unitName) {
@@ -3271,43 +2944,55 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getCreatedUnitCode() {
-        return createdUnitCode;
+        return this.createdUnitCode;
     }
 
     public void setCreatedUnitCode(String createdUnitCode) {
         this.createdUnitCode = createdUnitCode;
     }
 
-    public Long getCopyRfxHeaderId() { return copyRfxHeaderId; }
+    public Long getCopyRfxHeaderId() {
+        return this.copyRfxHeaderId;
+    }
 
-    public void setCopyRfxHeaderId(Long copyRfxHeaderId) { this.copyRfxHeaderId = copyRfxHeaderId; }
+    public void setCopyRfxHeaderId(Long copyRfxHeaderId) {
+        this.copyRfxHeaderId = copyRfxHeaderId;
+    }
 
     public String getScoreRptFileUrl() {
-        return scoreRptFileUrl;
+        return this.scoreRptFileUrl;
     }
 
     public void setScoreRptFileUrl(String scoreRptFileUrl) {
         this.scoreRptFileUrl = scoreRptFileUrl;
     }
 
-    public String getRfxByName() { return rfxByName; }
+    public String getRfxByName() {
+        return this.rfxByName;
+    }
 
-    public void setRfxByName(String rfxByName) { this.rfxByName = rfxByName; }
+    public void setRfxByName(String rfxByName) {
+        this.rfxByName = rfxByName;
+    }
 
     public Integer getQuotationEndDateChangeFlag() {
-        return quotationEndDateChangeFlag;
+        return this.quotationEndDateChangeFlag;
     }
 
     public void setQuotationEndDateChangeFlag(Integer quotationEndDateChangeFlag) {
         this.quotationEndDateChangeFlag = quotationEndDateChangeFlag;
     }
 
-    public Integer getPasswordFlag() { return passwordFlag; }
+    public Integer getPasswordFlag() {
+        return this.passwordFlag;
+    }
 
-    public void setPasswordFlag(Integer passwordFlag) { this.passwordFlag = passwordFlag; }
+    public void setPasswordFlag(Integer passwordFlag) {
+        this.passwordFlag = passwordFlag;
+    }
 
     public Integer getScoreProcessFlag() {
-        return scoreProcessFlag;
+        return this.scoreProcessFlag;
     }
 
     public void setScoreProcessFlag(Integer scoreProcessFlag) {
@@ -3315,7 +3000,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Long getFinishingRate() {
-        return finishingRate;
+        return this.finishingRate;
     }
 
     public void setFinishingRate(Long finishingRate) {
@@ -3323,19 +3008,23 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Date getEstimatedStartTime() {
-        return estimatedStartTime;
+        return this.estimatedStartTime;
     }
 
     public void setEstimatedStartTime(Date estimatedStartTime) {
         this.estimatedStartTime = estimatedStartTime;
     }
 
-    public String getScoreWay() { return scoreWay; }
+    public String getScoreWay() {
+        return this.scoreWay;
+    }
 
-    public void setScoreWay(String scoreWay) { this.scoreWay = scoreWay; }
+    public void setScoreWay(String scoreWay) {
+        this.scoreWay = scoreWay;
+    }
 
     public String getInvoiceType() {
-        return invoiceType;
+        return this.invoiceType;
     }
 
     public void setInvoiceType(String invoiceType) {
@@ -3343,7 +3032,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public RfxLineItem getLine() {
-        return line;
+        return this.line;
     }
 
     public void setLine(RfxLineItem line) {
@@ -3351,7 +3040,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getCompanyNum() {
-        return companyNum;
+        return this.companyNum;
     }
 
     public void setCompanyNum(String companyNum) {
@@ -3359,7 +3048,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public String getTemplateNum() {
-        return templateNum;
+        return this.templateNum;
     }
 
     public void setTemplateNum(String templateNum) {
@@ -3367,14 +3056,24 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public Integer getOnlyAllowAllWinBids() {
-        return onlyAllowAllWinBids;
+        return this.onlyAllowAllWinBids;
     }
 
     public void setOnlyAllowAllWinBids(Integer onlyAllowAllWinBids) {
         this.onlyAllowAllWinBids = onlyAllowAllWinBids;
     }
 
-    public String getExpertSource() { return expertSource; }
+    public String getExpertSource() {
+        return this.expertSource;
+    }
 
-    public void setExpertSource(String expertSource) { this.expertSource = expertSource; }
+    public void setExpertSource(String expertSource) {
+        this.expertSource = expertSource;
+    }
+
+    public interface Abandon {
+    }
+
+    public interface Quotation {
+    }
 }

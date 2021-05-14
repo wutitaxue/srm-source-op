@@ -18,6 +18,7 @@ import org.srm.source.rfx.api.dto.QuotationSubmitDTO;
 import org.srm.source.rfx.api.dto.RfxSelectQuotationLineDTO;
 import org.srm.source.rfx.app.service.RfxLineItemService;
 import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
+import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.app.service.RfxQuotationRecordService;
 import org.srm.source.rfx.app.service.impl.RfxQuotationLineServiceImpl;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -44,6 +45,7 @@ import org.srm.source.share.infra.utils.ShareCommonUtil;
 import org.srm.web.annotation.Tenant;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -93,109 +95,95 @@ public class RcwlRfxQuotationLineServiceImpl extends RfxQuotationLineServiceImpl
     public Page<RfxQuotationLine> quotationSubmit(Long tenantId, RfxSelectQuotationLineDTO rfxSelectQuotationLine) {
         Date date = new Date();
         if (CollectionUtils.isNotEmpty(rfxSelectQuotationLine.getRfxQuotationLines())) {
-            rfxSelectQuotationLine.getRfxQuotationLines().forEach(rfxQuotationLine
-                    -> rfxQuotationLine.setAbandonedFlag(
-                    rfxQuotationLine.getAbandonedFlag() == null ? BaseConstants.Digital.ZERO : rfxQuotationLine.getAbandonedFlag()));
+            rfxSelectQuotationLine.getRfxQuotationLines().forEach((rfxQuotationLine) -> {
+                rfxQuotationLine.setAbandonedFlag(rfxQuotationLine.getAbandonedFlag() == null ? 0 : rfxQuotationLine.getAbandonedFlag());
+            });
         }
+
         List<RfxQuotationLine> rfxQuotationLinesUpdate = rfxSelectQuotationLine.getRfxQuotationLines();
         List<Long> submitLineIds = rfxSelectQuotationLine.getSelectedRowKeys();
-        List<RfxQuotationLine> rfxQuotationLineList;
         if (CollectionUtils.isEmpty(rfxQuotationLinesUpdate) && CollectionUtils.isEmpty(submitLineIds)) {
             return null;
-        }
-        // 提交前保存付款方式和付款条款
-        if (!Objects.isNull(rfxSelectQuotationLine.getRfxQuotationHeader())) {
-            rfxSelectQuotationLine.getRfxQuotationHeader().setTenantId(tenantId);
-            // 供应商报价单头更新---付款方式和付款条款
-            rfxQuotationHeaderRepository.updateOptional(rfxSelectQuotationLine.getRfxQuotationHeader(),
-                    RfxQuotationHeader.PAYMENT_TYPE_ID,
-                    RfxQuotationHeader.PAYMENT_TERM_ID);
-        }
-        if (CollectionUtils.isNotEmpty(rfxQuotationLinesUpdate)) {
-            //更新保存数据
-            iRfxQuotationDomainService.supplierQuotationSave(tenantId, rfxQuotationLinesUpdate);
-        }
-        if (BaseConstants.Flag.NO.equals(rfxSelectQuotationLine.getAllSubmitFlag())) {
-            if (CollectionUtils.isEmpty(submitLineIds)) {
-                //提交ID为空，提交数据为保存数据
-                rfxQuotationLineList = rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), rfxQuotationLinesUpdate.stream().map(RfxQuotationLine::getQuotationLineId).collect(Collectors.toList()));
-            } else {
-                //查出提交数据
-                rfxQuotationLineList = rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), submitLineIds);
-            }
         } else {
-            //查出所有报价行数据
-            rfxQuotationLineList = rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), null);
-        }
-        RfxHeader rfxHeader = rfxHeaderRepository.byQuotationHeaderIdVerifyRFQValidTime(rfxQuotationLineList.get(BaseConstants.Digital.ZERO));
-        //检查勾选提交,但未填写单价行
-        RfxQuotationLine.checkInvalidItemList(rfxQuotationLineList);
-        //校验勾选提交，阶梯价格单价未填写
-        this.checkLadderPrice(rfxQuotationLineList);
-        RfxQuotationLine quotationLineFirst = rfxQuotationLineList.get(0);
-        Long currentQuotationRound = quotationLineFirst.getCurrentQuotationRound();
-        RfxQuotationHeader rfxQuotationHeader = rfxQuotationHeaderService.findByPrimaryKey(quotationLineFirst.getQuotationHeaderId());
-        //校验报价明细行的数据
-        iQuotationColumnDomainService.validQuotationDetailForSubmit(new QuotationDetailQueryDTO(rfxQuotationHeader));
-        SourceTemplate sourceTemplate = sourceTemplateService.findByPrimaryKey(quotationLineFirst.getTemplateId());
-        String supplierIp = inetAddressUtil.getLocalHostIp();
-        rfxQuotationHeader.setSupplierCompanyIp(supplierIp);
-        //更新报价单头状态为已报价
-        rfxQuotationHeaderRepository.updateQuotationHeaderStatus(rfxQuotationHeader);
-//        RfxHeader rfxHeader = rfxHeaderRepository.selectByPrimaryKey(rfxQuotationHeader.getRfxHeaderId());
-        rfxHeader.setCurrentDateTime(date);
-        rfxHeader.setQuotationHeaderId(rfxQuotationHeader.getQuotationHeaderId());
-        rfxHeader.setRoundQuotationRule(sourceTemplate.getRoundQuotationRule());
-        rfxHeader.setRoundQuotationRankFlag(sourceTemplate.getRoundQuotationRankFlag());
-        rfxHeader.setRoundQuotationRankRule(sourceTemplate.getRoundQuotationRankRule());
-        Assert.notNull(rfxHeader, SourceConstants.ErrorCode.NO_RFX_HEADER_ID);
-//        rfxQuotationDomainService.disposeAbandoned(rfxQuotationLineList, tenantId);
-        List<RfxLineItem> rfxLineItems = null;
-        // 处理竞价延时和规则
-        if (sourceTemplate.getSourceCategory().equals(ShareConstants.SourceTemplate.CategoryType.RFA)) {
-            rfxLineItems = iRfxQuotationDomainService.supplierRFA(rfxQuotationLineList, rfxHeader, sourceTemplate);
-        }
-        // 处理报价行
-        iRfxQuotationDomainService.supplierQuotation(rfxQuotationLineList, rfxHeader, sourceTemplate);
-        // 放弃时清空阶梯报价信息
-//        ladderQuotationDomainService.processAbandonedLadderQuotation(rfxQuotationLineList);
-        //报价明细总价管控校验
-        this.self().checkQuotationDetailAmtControl(rfxQuotationHeader,rfxSelectQuotationLine.getWeakCtrlConfirmFlag());
-        rfxHeader.initRankRule(sourceTemplate);
+            if (!Objects.isNull(rfxSelectQuotationLine.getRfxQuotationHeader())) {
+                rfxSelectQuotationLine.getRfxQuotationHeader().setTenantId(tenantId);
+                this.rfxQuotationHeaderRepository.updateOptional(rfxSelectQuotationLine.getRfxQuotationHeader(), new String[]{"paymentTypeId", "paymentTermId"});
+            }
 
-        rfxHeader.setLastUpdatedBy(DetailsHelper.getUserDetails().getUserId());
-        if (StringUtils.isNotBlank(sourceTemplate.getRoundQuotationRule()) && sourceTemplate.getRoundQuotationRule().contains(ShareConstants.RoundQuotationRule.AUTO)) {
-            RoundHeaderDate currentRoundHeaderDate = roundHeaderDateRepository.selectCurrentRoundDate(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), ShareConstants.SourceTemplate.CategoryType.RFX, rfxHeader.getRoundNumber(),date);
-            if (currentQuotationRound != null && currentQuotationRound < currentRoundHeaderDate.getQuotationRound()) {
-                throw new CommonException("当前自动多轮轮次发生变化,请重新进入页面");
+            if (CollectionUtils.isNotEmpty(rfxQuotationLinesUpdate)) {
+                this.iRfxQuotationDomainService.supplierQuotationSave(tenantId, rfxQuotationLinesUpdate);
             }
-            rfxHeader.setCurrentQuotationRound(currentRoundHeaderDate.getQuotationRound());
-        } else {
-            if (!ShareConstants.RoundQuotationRule.NONE.equals(sourceTemplate.getRoundQuotationRule())) {
-                RoundHeader roundHeaderDb = roundHeaderRepository.selectOne(new RoundHeader(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), ShareConstants.SourceCategory.RFX));
+
+            List rfxQuotationLineList;
+            if (BaseConstants.Flag.NO.equals(rfxSelectQuotationLine.getAllSubmitFlag())) {
+                if (CollectionUtils.isEmpty(submitLineIds)) {
+                    rfxQuotationLineList = this.rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), (List)rfxQuotationLinesUpdate.stream().map(RfxQuotationLine::getQuotationLineId).collect(Collectors.toList()));
+                } else {
+                    rfxQuotationLineList = this.rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), submitLineIds);
+                }
+            } else {
+                rfxQuotationLineList = this.rfxQuotationLineRepository.quotationLine(tenantId, rfxSelectQuotationLine.getQuotationHeaderId(), (List)null);
+            }
+
+            RfxHeader rfxHeader = this.rfxHeaderRepository.byQuotationHeaderIdVerifyRFQValidTime((RfxQuotationLine)rfxQuotationLineList.get(0));
+            RfxQuotationLine.checkInvalidItemList(rfxQuotationLineList);
+            this.checkLadderPrice(rfxQuotationLineList);
+            RfxQuotationLine quotationLineFirst = (RfxQuotationLine)rfxQuotationLineList.get(0);
+            Long currentQuotationRound = quotationLineFirst.getCurrentQuotationRound();
+            RfxQuotationHeader rfxQuotationHeader = this.rfxQuotationHeaderService.findByPrimaryKey(quotationLineFirst.getQuotationHeaderId());
+            this.iQuotationColumnDomainService.validQuotationDetailForSubmit(new QuotationDetailQueryDTO(rfxQuotationHeader));
+            SourceTemplate sourceTemplate = this.sourceTemplateService.findByPrimaryKey(quotationLineFirst.getTemplateId());
+            String supplierIp = this.inetAddressUtil.getLocalHostIp();
+            rfxQuotationHeader.setSupplierCompanyIp(supplierIp);
+            this.rfxQuotationHeaderRepository.updateQuotationHeaderStatus(rfxQuotationHeader);
+            rfxHeader.setCurrentDateTime(date);
+            rfxHeader.setQuotationHeaderId(rfxQuotationHeader.getQuotationHeaderId());
+            rfxHeader.setRoundQuotationRule(sourceTemplate.getRoundQuotationRule());
+            rfxHeader.setRoundQuotationRankFlag(sourceTemplate.getRoundQuotationRankFlag());
+            rfxHeader.setRoundQuotationRankRule(sourceTemplate.getRoundQuotationRankRule());
+            Assert.notNull(rfxHeader, "error.no_rfx_header_Id");
+            List<RfxLineItem> rfxLineItems = null;
+            if (sourceTemplate.getSourceCategory().equals("RFA")) {
+                rfxLineItems = this.iRfxQuotationDomainService.supplierRFA(rfxQuotationLineList, rfxHeader, sourceTemplate);
+            }
+
+            this.iRfxQuotationDomainService.supplierQuotation(rfxQuotationLineList, rfxHeader, sourceTemplate);
+            ((RfxQuotationLineService)this.self()).checkQuotationDetailAmtControl(rfxQuotationHeader, rfxSelectQuotationLine.getWeakCtrlConfirmFlag());
+            rfxHeader.initRankRule(sourceTemplate);
+            rfxHeader.setLastUpdatedBy(DetailsHelper.getUserDetails().getUserId());
+            if (StringUtils.isNotBlank(sourceTemplate.getRoundQuotationRule()) && sourceTemplate.getRoundQuotationRule().contains("AUTO")) {
+                RoundHeaderDate currentRoundHeaderDate = this.roundHeaderDateRepository.selectCurrentRoundDate(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX", rfxHeader.getRoundNumber(), date);
+                if (currentQuotationRound != null && currentQuotationRound < currentRoundHeaderDate.getQuotationRound()) {
+                    throw new CommonException("当前自动多轮轮次发生变化,请重新进入页面", new Object[0]);
+                }
+
+                rfxHeader.setCurrentQuotationRound(currentRoundHeaderDate.getQuotationRound());
+            } else if (!"NONE".equals(sourceTemplate.getRoundQuotationRule())) {
+                RoundHeader roundHeaderDb = (RoundHeader)this.roundHeaderRepository.selectOne(new RoundHeader(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX"));
                 rfxHeader.setCurrentQuotationRound(roundHeaderDb.getQuotationRoundNumber());
             }
-        }
-        // 竞价图表实时刷新
-        if (!ShareConstants.SourceTemplate.CategoryType.RFQ.equals(rfxHeader.getSourceCategory())
-                &&!RcwlShareConstants.CategoryType.RCBJ.equals(rfxHeader.getSourceCategory())
-                &&!RcwlShareConstants.CategoryType.RCZB.equals(rfxHeader.getSourceCategory())
-                &&!RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
-            iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLineList);
-            rfxQuotationRecordService.sendMessageByUpdateQuotations(rfxHeader.getTenantId(), rfxQuotationHeader.getQuotationHeaderId(), sourceTemplate, rfxQuotationLineList, rfxLineItems);
-        }
 
-        // 发送事件，
-        if (null != rfxHeader.getCurrentQuotationRound()) {
-            roundHeaderDomainService.initSupplierRoundRankInfo(rfxQuotationLineList, rfxHeader);
+            if (!ShareConstants.SourceTemplate.CategoryType.RFQ.equals(rfxHeader.getSourceCategory())
+                    &&!RcwlShareConstants.CategoryType.RCBJ.equals(rfxHeader.getSourceCategory())
+                    &&!RcwlShareConstants.CategoryType.RCZB.equals(rfxHeader.getSourceCategory())
+                    &&!RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
+                this.iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLineList);
+                this.rfxQuotationRecordService.sendMessageByUpdateQuotations(rfxHeader.getTenantId(), rfxQuotationHeader.getQuotationHeaderId(), sourceTemplate, rfxQuotationLineList, rfxLineItems);
+            }
+
+            if (null != rfxHeader.getCurrentQuotationRound()) {
+                this.roundHeaderDomainService.initSupplierRoundRankInfo(rfxQuotationLineList, rfxHeader);
+            }
+
+            List<List<RfxQuotationLine>> lists = ShareCommonUtil.splistList(rfxQuotationLineList, 1000);
+            Iterator var15 = lists.iterator();
+
+            while(var15.hasNext()) {
+                List<RfxQuotationLine> list = (List)var15.next();
+                this.eventSender.fireEvent("SSRC_QUOTATION_SUBMIT", "RFQ_QUOTATION_SUBMIT", BaseConstants.DEFAULT_TENANT_ID, "quotation submit", new QuotationSubmitDTO(list, rfxHeader));
+            }
+
+            return null;
         }
-        List<List<RfxQuotationLine>> lists = ShareCommonUtil.splistList(rfxQuotationLineList, 1000);
-        for (List<RfxQuotationLine> list : lists) {
-//            // 处理rank
-//            eventSender.fireEvent(SourceConstants.Event.SSRC_QUOTATION_SUBMIT, SourceConstants.Event.EventCode.QUOTATION_SUBMIT_RANK, BaseConstants.DEFAULT_TENANT_ID, "quotation submit", new QuotationSubmitDTO(list,rfxHeader));
-            // 处理多轮报价和报价记录
-            eventSender.fireEvent(SourceConstants.Event.SSRC_QUOTATION_SUBMIT, SourceConstants.Event.EventCode.RFQ_QUOTATION_SUBMIT, BaseConstants.DEFAULT_TENANT_ID, "quotation submit", new QuotationSubmitDTO(list,rfxHeader));
-        }
-        return null;
     }
 }

@@ -39,27 +39,30 @@ public class RcwlQuotationSubmitRecordHandler implements EventListenerHandle {
     @Override
     public void eventHandle(EventDataWrapper eventDataWrapper) {
         long processStartTimes = System.currentTimeMillis();
-        if (eventDataWrapper == null || eventDataWrapper.getData() == null) {
+        if (eventDataWrapper != null && eventDataWrapper.getData() != null) {
+            try {
+                QuotationSubmitDTO quotationSubmitDTO = new QuotationSubmitDTO();
+                if (eventDataWrapper.getData() != null) {
+                    quotationSubmitDTO = (QuotationSubmitDTO) this.objectMapper.readValue(eventDataWrapper.getData(), QuotationSubmitDTO.class);
+                }
+
+                List<RfxQuotationLine> rfxQuotationLines = quotationSubmitDTO.getQuotationLines();
+                RfxHeader rfxHeader = quotationSubmitDTO.getRfxHeader();
+                if (!ShareConstants.SourceTemplate.CategoryType.RFQ.equals(rfxHeader.getSourceCategory())
+                        && !RcwlShareConstants.CategoryType.RCBJ.equals(rfxHeader.getSourceCategory())
+                        && !RcwlShareConstants.CategoryType.RCZB.equals(rfxHeader.getSourceCategory())
+                        && !RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
+                    return;
+                }
+
+                this.iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLines);
+                LOGGER.info("quotationSubmitRecordProcessTimes{}", System.currentTimeMillis() - processStartTimes);
+            } catch (Exception var7) {
+                LOGGER.error("quotationSubmitRecordError:{0}", var7);
+            }
+
+        } else {
             LOGGER.info("receivingQuotation is null");
-            return;
-        }
-        try {
-            QuotationSubmitDTO quotationSubmitDTO = new QuotationSubmitDTO();
-            if (eventDataWrapper.getData() != null) {
-                quotationSubmitDTO = objectMapper.readValue(eventDataWrapper.getData(), QuotationSubmitDTO.class);
-            }
-            List<RfxQuotationLine> rfxQuotationLines = quotationSubmitDTO.getQuotationLines();
-            RfxHeader rfxHeader = quotationSubmitDTO.getRfxHeader();
-            if (!ShareConstants.SourceTemplate.CategoryType.RFQ.equals(rfxHeader.getSourceCategory())
-                    &&!RcwlShareConstants.CategoryType.RCBJ.equals(rfxHeader.getSourceCategory())
-                    &&!RcwlShareConstants.CategoryType.RCZB.equals(rfxHeader.getSourceCategory())
-                    &&!RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
-                return;
-            }
-            iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLines);
-            LOGGER.info("quotationSubmitRecordProcessTimes{}",System.currentTimeMillis() - processStartTimes);
-        } catch (Exception e) {
-            LOGGER.error("quotationSubmitRecordError:{0}",e);
         }
     }
 

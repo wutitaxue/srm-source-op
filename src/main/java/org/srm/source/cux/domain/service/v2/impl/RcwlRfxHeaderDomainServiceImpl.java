@@ -19,6 +19,7 @@ import org.srm.web.annotation.Tenant;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -34,52 +35,49 @@ public class RcwlRfxHeaderDomainServiceImpl extends RfxHeaderDomainServiceImpl {
                 &&!RcwlShareConstants.CategoryType.RCBJ.equals(rfxHeader.getSourceCategory())
                 &&!RcwlShareConstants.CategoryType.RCZB.equals(rfxHeader.getSourceCategory())
                 &&!RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
-            rfxHeader.setQuotationRounds(null);
-            return;
-        }
-        if (StringUtils.isBlank(sourceTemplate.getRoundQuotationRule()) || !sourceTemplate.getRoundQuotationRule().contains(ShareConstants.RoundQuotationRule.AUTO)) {
-            rfxHeader.setQuotationRounds(null);
-            return;
-        }
-        List<RoundHeaderDate> roundHeaderDates = roundHeaderDateRepository.selectByCondition(Condition.builder(RoundHeaderDate.class)
-                .where(Sqls.custom()
-                        .andEqualTo(RoundHeaderDate.FIELD_SOURCE_HEADER_ID, rfxHeader.getRfxHeaderId())
-                        .andEqualTo(RoundHeaderDate.FIELD_TENANT_ID, rfxHeader.getTenantId())
-                        .andEqualTo(RoundHeaderDate.FIELD_ROUND_NUMBER, rfxHeader.getRoundNumber()))
-                .orderBy(RoundHeaderDate.FIELD_QUOTATION_ROUND).build());
-        if (CollectionUtils.isNotEmpty(roundHeaderDates)) {
-            Long quotationRounds = rfxHeader.getQuotationRounds();
-            List<RoundHeaderDate> delRoundHeaderDates = new ArrayList<>();
-            Date quotationStartDate = new Date();
-            Date quotationEndDate;
-            for (RoundHeaderDate roundHeaderDate : roundHeaderDates) {
-                if (quotationRounds < roundHeaderDate.getQuotationRound()) {
-                    delRoundHeaderDates.add(roundHeaderDate);
-                    continue;
+            rfxHeader.setQuotationRounds((Long)null);
+        } else if (!StringUtils.isBlank(sourceTemplate.getRoundQuotationRule()) && sourceTemplate.getRoundQuotationRule().contains("AUTO")) {
+            List<RoundHeaderDate> roundHeaderDates = this.roundHeaderDateRepository.selectByCondition(Condition.builder(RoundHeaderDate.class).where(Sqls.custom().andEqualTo("sourceHeaderId", rfxHeader.getRfxHeaderId()).andEqualTo("tenantId", rfxHeader.getTenantId()).andEqualTo("roundNumber", rfxHeader.getRoundNumber())).orderBy(new String[]{"quotationRound"}).build());
+            if (CollectionUtils.isNotEmpty(roundHeaderDates)) {
+                Long quotationRounds = rfxHeader.getQuotationRounds();
+                List<RoundHeaderDate> delRoundHeaderDates = new ArrayList();
+                Date quotationStartDate = new Date();
+                Iterator var8 = roundHeaderDates.iterator();
+
+                while(var8.hasNext()) {
+                    RoundHeaderDate roundHeaderDate = (RoundHeaderDate)var8.next();
+                    if (quotationRounds < roundHeaderDate.getQuotationRound()) {
+                        delRoundHeaderDates.add(roundHeaderDate);
+                    } else {
+                        long quotationRunningMills;
+                        if (BaseConstants.Flag.YES.equals(rfxHeader.getStartFlag())) {
+                            quotationRunningMills = roundHeaderDate.getRoundQuotationRunningDuration().multiply(new BigDecimal(60000)).longValue();
+                            Date quotationEndDate = new Date(quotationStartDate.getTime() + quotationRunningMills);
+                            roundHeaderDate.setRoundQuotationStartDate(quotationStartDate);
+                            roundHeaderDate.setRoundQuotationEndDate(quotationEndDate);
+                            quotationStartDate = quotationEndDate;
+                        } else {
+                            quotationRunningMills = roundHeaderDate.getRoundQuotationEndDate().getTime() - roundHeaderDate.getRoundQuotationStartDate().getTime();
+                            roundHeaderDate.setRoundQuotationRunningDuration(new BigDecimal(quotationRunningMills / 60000L));
+                        }
+                    }
                 }
-                if (BaseConstants.Flag.YES.equals(rfxHeader.getStartFlag())) {
-                    long quotationRunningMills = roundHeaderDate.getRoundQuotationRunningDuration().multiply(new BigDecimal(1000 * 60)).longValue();
-                    quotationEndDate = new Date(quotationStartDate.getTime() + quotationRunningMills);
-                    roundHeaderDate.setRoundQuotationStartDate(quotationStartDate);
-                    roundHeaderDate.setRoundQuotationEndDate(quotationEndDate);
-                    quotationStartDate = quotationEndDate;
-                } else {
-                    long quotationRunningMills = roundHeaderDate.getRoundQuotationEndDate().getTime() - roundHeaderDate.getRoundQuotationStartDate().getTime();
-                    roundHeaderDate.setRoundQuotationRunningDuration( new BigDecimal(quotationRunningMills / 60000));
+
+                this.roundHeaderDateRepository.batchUpdateByPrimaryKey(roundHeaderDates);
+                if (CollectionUtils.isNotEmpty(delRoundHeaderDates)) {
+                    this.roundHeaderDateRepository.batchDeleteByPrimaryKey(delRoundHeaderDates);
                 }
+
+                Date firstRoundQuotationStartDate = ((RoundHeaderDate)roundHeaderDates.get(0)).getRoundQuotationStartDate();
+                Date lastRoundQuotationEndDate = ((RoundHeaderDate)roundHeaderDates.get(rfxHeader.getQuotationRounds().intValue() - 1)).getRoundQuotationEndDate();
+                rfxHeader.setQuotationStartDate(firstRoundQuotationStartDate);
+                rfxHeader.setQuotationEndDate(lastRoundQuotationEndDate);
+                rfxHeader.setLatestQuotationEndDate(lastRoundQuotationEndDate);
+                rfxHeader.setHandDownDate(lastRoundQuotationEndDate);
             }
-            roundHeaderDateRepository.batchUpdateByPrimaryKey(roundHeaderDates);
-            if (CollectionUtils.isNotEmpty(delRoundHeaderDates)) {
-                roundHeaderDateRepository.batchDeleteByPrimaryKey(delRoundHeaderDates);
-            }
-            // 第一轮的开始时间为询价单报价开始时间
-            // 最后一轮的截止时间为询价单报价截止时间
-            Date firstRoundQuotationStartDate = roundHeaderDates.get(0).getRoundQuotationStartDate();
-            Date lastRoundQuotationEndDate = roundHeaderDates.get(rfxHeader.getQuotationRounds().intValue() - 1).getRoundQuotationEndDate();
-            rfxHeader.setQuotationStartDate(firstRoundQuotationStartDate);
-            rfxHeader.setQuotationEndDate(lastRoundQuotationEndDate);
-            rfxHeader.setLatestQuotationEndDate(lastRoundQuotationEndDate);
-            rfxHeader.setHandDownDate(lastRoundQuotationEndDate);
+
+        } else {
+            rfxHeader.setQuotationRounds((Long)null);
         }
     }
 }
