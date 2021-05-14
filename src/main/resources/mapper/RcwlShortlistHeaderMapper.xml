@@ -419,5 +419,42 @@
         WHERE
             h.shortlist_header_id =#{shortlistHeaderId}
     </select>
+    <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+        ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.status supplier_status,
+        slcs.stage_description,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.status,
+        srsh2.created_by,
+        srsh2.creation_date
+        from scux_rcwl_supplier_header srsh2
+        left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+        left join iam_user iu on iu.id = srsh2.created_by
+        left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+        AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        where
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+        and srsh2.selected = 1
+    </select>
 
 </mapper>

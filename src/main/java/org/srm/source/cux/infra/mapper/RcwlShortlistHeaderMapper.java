@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.mapper;
 
 import io.choerodon.core.domain.Page;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Component;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import io.choerodon.mybatis.common.BaseMapper;
@@ -18,6 +19,7 @@ import java.util.List;
  *
  * @author furong.tang@hand-china.com 2021-04-15 19:39:45
  */
+@Component
 public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeader> {
 
     /**
@@ -99,6 +101,7 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
 
     /**
      * 获取公司联系人
+     *
      * @param companyId 公司ID
      * @return List<CompanyContactVO>
      */
@@ -111,4 +114,13 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @return
      */
     Long supplierCount(Long shortlistHeaderId);
+
+    /**
+     * 转询价的供应商
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
 }

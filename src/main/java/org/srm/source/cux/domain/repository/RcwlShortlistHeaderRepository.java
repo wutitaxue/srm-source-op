@@ -68,6 +68,16 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      */
     Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
 
+
+    /**
+     * 转询价的供应商ß
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(Long organizationId, Long shortlistHeaderId);
+
     /**
      * 恢复prLine的值
      *

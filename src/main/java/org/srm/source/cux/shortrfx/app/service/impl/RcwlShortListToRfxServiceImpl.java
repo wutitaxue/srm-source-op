@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import javassist.Loader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
 
 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
+        logger.info("prLineDTO");
         Page<PrLineVO> prLineVOS = this.prLineService.listPurchase(pageRequest, prLineDTO, organizationId);
         List<PrLineVO> prLineVOList = prLineVOS.getContent();
         preFullSourceHeaderDTO.setSourceFrom("RW");
@@ -74,8 +76,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         logger.debug("preFullSourceHeaderDTO:[{}]");
 
         //入围单供应商查询
-        Page<RcwlSupplierHeader> rcwlSupplierHeaderList = rcwlShortlistHeaderRepository.selectSupplierByShortlistHeaderId(pageRequest, organizationId, shortlistHeaderId);
-        List<RcwlSupplierHeader> list = rcwlSupplierHeaderList.getContent();
+        List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
         //创建询价单
         preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
         //创建询价单供应商
