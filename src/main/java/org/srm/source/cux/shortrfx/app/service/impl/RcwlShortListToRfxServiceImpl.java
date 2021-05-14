@@ -68,10 +68,11 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         logger.info("ids:" + ids.toString());
 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
-        logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
+        logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
         logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
         Page<PrLineVO> prLineVOS = this.prLineService.listPurchase(pageRequest, prLineDTO, organizationId);
         List<PrLineVO> prLineVOList = prLineVOS.getContent();
+        logger.info("------------prLineVOList:" + prLineVOList.size());
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
         preFullSourceHeaderDTO.setPrLineList(prLineVOList);
