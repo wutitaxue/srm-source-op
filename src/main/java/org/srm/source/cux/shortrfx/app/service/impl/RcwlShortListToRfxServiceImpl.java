@@ -27,6 +27,7 @@ import org.srm.web.annotation.Tenant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author lu.cheng01@hand-china.com
@@ -60,9 +61,11 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         ObjectMapper mapper = new ObjectMapper();
         PrLineDTO prLineDTO = new PrLineDTO();
         prLineDTO.setNewPriceLibSearch(1);
-        prLineDTO.setAttributeBigint1(shortlistHeaderId);
         PageRequest pageRequest = new PageRequest();
         pageRequest.setSize(100);
+        Set<Long> ids = this.rcwlShortlistHeaderRepository.queryPrLine(shortlistHeaderId);
+        prLineDTO.setPrLineIds(ids);
+        logger.info("ids:" + ids.toString());
 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
         logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));

@@ -13,6 +13,7 @@ import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 入围单头表Mapper
@@ -123,4 +124,6 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
      * @return
      */
     List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
+
+    Set<Long> queryPrLine(Long shortlistHeaderId);
 }

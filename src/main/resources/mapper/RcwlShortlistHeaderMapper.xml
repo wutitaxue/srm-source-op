@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper">
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
         <result column="shortlist_header_id" property="shortlistHeaderId" jdbcType="DECIMAL"/>
         <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
@@ -214,130 +214,125 @@
     </update>
 
     <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
-        select
-            sph.pr_num,
-            spl.line_num,
-            spl.attribute_bigint1
+        select sph.pr_num,
+               spl.line_num,
+               spl.attribute_bigint1
         from sprm_pr_line spl
-            left join sprm_pr_header sph on sph.pr_header_id = spl.pr_header_id
-        where
-            spl.pr_line_id = #{prLineId}
-            and spl.attribute_bigint1 != #{shortlistHeaderId}
+                 left join sprm_pr_header sph on sph.pr_header_id = spl.pr_header_id
+        where spl.pr_line_id = #{prLineId}
+          and spl.attribute_bigint1 != #{shortlistHeaderId}
     </select>
 
     <select id="selectShortlistHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
-        select
-            srsh.shortlist_header_id,
-            srsh.tenant_id,
-            srsh.company_id,
-            srsh.sample_id,
-            srsh.shortlist_num,
-            srsh.project_name,
-            srsh.business_company_id,
-            srsh.source_category,
-            srsh.shortlist_category,
-            srsh.start_date,
-            srsh.finish_date,
-            srsh.capital,
-            srsh.years,
-            srsh.one_profit,
-            srsh.two_profit,
-            srsh.state,
-            srsh.examine,
-            srsh.publish,
-            srsh.sample,
-            srsh.request_content,
-            srsh.enabled_flag,
-            srsh.object_version_number,
-            srsh.created_by,
-            srsh.creation_date,
-            hc.company_num,
-            hc.company_name,
-            iu.real_name created_name,
-            hou.ou_code,
-            hou.ou_name
+        select srsh.shortlist_header_id,
+               srsh.tenant_id,
+               srsh.company_id,
+               srsh.sample_id,
+               srsh.shortlist_num,
+               srsh.project_name,
+               srsh.business_company_id,
+               srsh.source_category,
+               srsh.shortlist_category,
+               srsh.start_date,
+               srsh.finish_date,
+               srsh.capital,
+               srsh.years,
+               srsh.one_profit,
+               srsh.two_profit,
+               srsh.state,
+               srsh.examine,
+               srsh.publish,
+               srsh.sample,
+               srsh.request_content,
+               srsh.enabled_flag,
+               srsh.object_version_number,
+               srsh.created_by,
+               srsh.creation_date,
+               hc.company_num,
+               hc.company_name,
+               iu.real_name created_name,
+               hou.ou_code,
+               hou.ou_name
         from scux_rcwl_shortlist_header srsh
                  left join iam_user iu on iu.id = srsh.created_by
                  left join hpfm_company hc on hc.company_id = srsh.company_id
                  left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
-        where
-            srsh.tenant_id = #{organizationId}
-            and srsh.shortlist_header_id = #{shortlistHeaderId}
+        where srsh.tenant_id = #{organizationId}
+          and srsh.shortlist_header_id = #{shortlistHeaderId}
     </select>
 
     <select id="selectSupplierByShortlistHeaderId"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select
-            srsh2.supplier_header_id,
-            srsh2.supplier_id,
-            srsh.sample_id,
-            ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
-            ifnull(ssb.company_num,hc.company_num) AS supplier_num,
-            srsh2.contacts,
-            srsh2.phone,
-            srsh2.status supplier_status,
-            slcs.stage_description,
-            srsh2.object_version_number,
-            srsh2.selected,
-            srsh2.enroll,
-            srsh2.enroll_date,
-            srsh2.status,
-            srsh2.created_by,
-            srsh2.creation_date
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+        ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.status supplier_status,
+        slcs.stage_description,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.status,
+        srsh2.created_by,
+        srsh2.creation_date
         from scux_rcwl_supplier_header srsh2
-                 left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
-                 left join iam_user iu on iu.id = srsh2.created_by
-                 left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
-                 LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
-                 LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
-                    AND slc.supplier_company_id = hc.company_id
-                 LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
-                    AND slc.company_id = sp.company_id
-                    AND slc.supplier_tenant_id = sp.partner_tenant_id
-                    AND slc.supplier_company_id = sp.partner_company_id
-                 LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
-                 LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+        left join iam_user iu on iu.id = srsh2.created_by
+        left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+        AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         where
-            srsh2.tenant_id = #{organizationId}
-            and srsh2.shortlist_header_id = #{shortlistHeaderId}
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
     </select>
 
     <select id="selectUserInfoById" resultType="org.srm.source.share.api.dto.User">
-        select
-            iu.real_name,
-            iu.phone
+        select iu.real_name,
+               iu.phone
         from iam_user iu
         where iu.id = #{userId}
     </select>
     <select id="selectRcwlShortlistHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
         select
-            srsh.shortlist_header_id,
-            srsh.tenant_id,
-            srsh.company_id,
-            srsh.sample_id,
-            srsh.shortlist_num,
-            srsh.project_name,
-            srsh.business_company_id,
-            srsh.source_category,
-            srsh.shortlist_category,
-            srsh.start_date,
-            srsh.finish_date,
-            srsh.capital,
-            srsh.years,
-            srsh.one_profit,
-            srsh.two_profit,
-            srsh.state,
-            srsh.examine,
-            srsh.publish,
-            srsh.sample,
-            srsh.enabled_flag,
-            srsh.object_version_number,
-            srsh.created_by,
-            srsh.creation_date,
-            hc.company_num,
-            hc.company_name,
-            iu.real_name created_name
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        srsh.business_company_id,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.created_by,
+        srsh.creation_date,
+        hc.company_num,
+        hc.company_name,
+        iu.real_name created_name
         from scux_rcwl_shortlist_header srsh
         left join iam_user iu on iu.id = srsh.created_by
         left join hpfm_company hc on hc.company_id = srsh.company_id
@@ -369,55 +364,47 @@
 
     </select>
     <select id="selectStaticTextValueByCode" resultType="java.lang.String">
-        SELECT
-            hstv.text
-        FROM
-            hpfm_static_text hst
-                LEFT JOIN hpfm_static_text_value hstv ON hst.text_id = hstv.text_id
-        WHERE
-            hst.text_code = #{textCode}
-            AND hst.tenant_id = #{organizationId}
+        SELECT hstv.text
+        FROM hpfm_static_text hst
+                 LEFT JOIN hpfm_static_text_value hstv ON hst.text_id = hstv.text_id
+        WHERE hst.text_code = #{textCode}
+          AND hst.tenant_id = #{organizationId}
     </select>
     <select id="currentSupplierInfo" resultType="org.srm.source.cux.domain.vo.SupplierVO">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         SELECT
-            hc.company_num supplier_num,
-            hc.company_id supplier_id,
-            ifnull(ssbt.company_name,hc.company_name) supplier_name,
-            slc.company_id company_id,
-            slcst.stage_id,
-            slcst.stage_description
+        hc.company_num supplier_num,
+        hc.company_id supplier_id,
+        ifnull(ssbt.company_name,hc.company_name) supplier_name,
+        slc.company_id company_id,
+        slcst.stage_id,
+        slcst.stage_description
         FROM
-            iam_user iu
-            LEFT JOIN hpfm_company hc ON iu.organization_id = hc.tenant_id AND hc.source_key IS NOT NULL
-            LEFT JOIN sslm_life_cycle slc on slc.supplier_company_id = hc.company_id
-            LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
-            LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
-            LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
-            AND slc.company_id = sp.company_id
-            AND slc.supplier_tenant_id = sp.partner_tenant_id
-            AND slc.supplier_company_id = sp.partner_company_id
-            LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
-            LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        iam_user iu
+        LEFT JOIN hpfm_company hc ON iu.organization_id = hc.tenant_id AND hc.source_key IS NOT NULL
+        LEFT JOIN sslm_life_cycle slc on slc.supplier_company_id = hc.company_id
+        LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+        LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         WHERE
-            iu.id = #{userId}
+        iu.id = #{userId}
     </select>
     <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
-        SELECT
-            scc.name contact,
-            scc.mobilephone phone
+        SELECT scc.name        contact,
+               scc.mobilephone phone
         FROM spfm_company_contacts scc
-        WHERE
-            scc.company_id = #{companyId}
-            AND scc.default_flag = 1
+        WHERE scc.company_id = #{companyId}
+          AND scc.default_flag = 1
     </select>
     <select id="supplierCount" resultType="java.lang.Long">
-        SELECT
-            count( 1 )
-        FROM
-            scux_rcwl_supplier_header h
-        WHERE
-            h.shortlist_header_id =#{shortlistHeaderId}
+        SELECT count(1)
+        FROM scux_rcwl_supplier_header h
+        WHERE h.shortlist_header_id = #{shortlistHeaderId}
     </select>
     <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
@@ -450,11 +437,16 @@
         AND slc.supplier_tenant_id = sp.partner_tenant_id
         AND slc.supplier_company_id = sp.partner_company_id
         LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
-        LEFT JOIN sslm_supplier_basic_tl  ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         where
         srsh2.tenant_id = #{organizationId}
         and srsh2.shortlist_header_id = #{shortlistHeaderId}
         and srsh2.selected = 1
+    </select>
+    <select id="queryPrLine" resultType="java.lang.Long">
+        select l.pr_line_id
+        from sprm_pr_line l
+        where l.attribute_bigint1 = #{shortlistHeaderId}
     </select>
 
 </mapper>

@@ -25,6 +25,7 @@ import org.srm.source.share.domain.vo.PrLineVO;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
@@ -219,5 +220,10 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             }
         }
         return supplierVO;
+    }
+
+    @Override
+    public Set<Long> queryPrLine(Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.queryPrLine(shortlistHeaderId);
     }
 }
