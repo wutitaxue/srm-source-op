@@ -92,7 +92,8 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         rcwlGxBpmStartDataDTO.setData(rcwlDataForBPM.toString());
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");
-        String URL_BACK = "http://"+rcwl_bpm_urlip+"/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMCQDY&BOID="+clarify.getClarifyNum();
+        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_CLARIFY_TO_PAGE_URL");
+        String URL_BACK = "http://"+rcwl_bpm_urlip+rcwl_page_urlip+clarify.getClarifyNum();
         responseData.setUrl(URL_BACK);
         try{
             //调用bpm接口
