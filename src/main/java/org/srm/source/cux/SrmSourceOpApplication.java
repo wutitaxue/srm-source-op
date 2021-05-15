@@ -11,6 +11,7 @@ import org.srm.autoconfigure.source.EnableSrmSourceOP;
  */
 @EnableSrmSourceOP
 @SpringBootApplication
+@ComponentScan(basePackages ={"gxbpm.service" })
 public class SrmSourceOpApplication {
 
     public static void main(String[] args) {
