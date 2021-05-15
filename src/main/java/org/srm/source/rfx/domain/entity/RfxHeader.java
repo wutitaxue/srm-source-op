@@ -20,6 +20,7 @@ import org.srm.common.mybatis.domain.ExpandDomain;
 import org.srm.source.bid.infra.constant.BidConstants;
 import org.srm.source.cux.infra.constant.RcwlShareConstants;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
+import org.srm.source.rfx.api.dto.FieldPropertyDTO;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.repository.RfxMemberRepository;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
@@ -47,15 +48,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 询价单头表
- *
- * @author xuan.zhang03@hand-china.com 2018-12-27 18:44:58
- */
 @ApiModel("询价单头表")
 @VersionAudit
 @ModifyAudit
-@Table(name = "ssrc_rfx_header")
+@Table(
+        name = "ssrc_rfx_header"
+)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RfxHeader extends ExpandDomain {
     public static final String FIELD_RFX_HEADER_ID = "rfxHeaderId";
@@ -165,8 +163,11 @@ public class RfxHeader extends ExpandDomain {
     public static final String FIELD_BUSINESS_WEIGHT = "businessWeight";
     public static final String FIELD_TECHNOLOGY_WEIGHT = "technologyWeight";
     public static final String FIELD_QUOTATION_ROUNDS = "quotationRounds";
+    public static final String FIELD_MULTI_SECTION_FLAG = "multiSectionFlag";
     public static final String FIELD_SOURCE_PROJECT_ID = "sourceProjectId";
     public static final String FIELD_CHECK_FINISHED_DATE = "checkFinishedDate";
+    public static final String FIELD_REDACT_FLAG = "redactFlag";
+    public static final String FIELD_BARGAIN_REDACT_FLAG = "bargainRedactFlag";
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
@@ -539,6 +540,8 @@ public class RfxHeader extends ExpandDomain {
     private String purName;
     private String purEmail;
     private String purPhone;
+    private Integer redactFlag;
+    private Integer bargainRedactFlag;
     @ApiModelProperty("供应商升降价设置")
     private String quotationChange;
     private Integer scoreProcessFlag;
@@ -551,6 +554,8 @@ public class RfxHeader extends ExpandDomain {
     @ApiModelProperty("评分方式")
     private String scoreWay;
     private Long quotationRounds;
+    @ApiModelProperty("多标段标识")
+    private Integer multiSectionFlag;
     @ApiModelProperty("来源立项id")
     @Encrypt
     private Long sourceProjectId;
@@ -671,6 +676,8 @@ public class RfxHeader extends ExpandDomain {
     @Transient
     private List<Long> itemList;
     @Transient
+    private String resultApproveType;
+    @Transient
     @NotNull(
             groups = {RfxHeader.Quotation.class}
     )
@@ -725,6 +732,10 @@ public class RfxHeader extends ExpandDomain {
     @Transient
     @ApiModelProperty("议价阶段")
     private String bargainingStage;
+    @Transient
+    private List<RfxHeader> rfxHeaders;
+    @Transient
+    List<FieldPropertyDTO> fieldPropertyDTOList;
 
     public RfxHeader() {
     }
@@ -920,8 +931,9 @@ public class RfxHeader extends ExpandDomain {
 
             if ("IN_PREQUAL".equals(realStatus)) {
                 realRfxHeader.setQuotationStartDate(this.getQuotationStartDate());
+                realRfxHeader.setQuotationEndDate(this.getQuotationEndDate());
                 CustomizeHelper.ignore(() -> {
-                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "timeAdjustedBy", "timeAdjustedDate", "timeAdjustedRemark"});
+                    return rfxHeaderRepository.updateOptional(this, new String[]{"quotationStartDate", "quotationEndDate", "timeAdjustedBy", "timeAdjustedDate", "timeAdjustedRemark"});
                 });
             }
         }
@@ -1093,10 +1105,10 @@ public class RfxHeader extends ExpandDomain {
         this.sourceType = (String) Optional.ofNullable(this.sourceType).orElse("NORMAL");
         this.approvedBy = DetailsHelper.getUserDetails().getUserId();
         this.approvedDate = new Date();
-        if (ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
+        if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
                         || RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
                         || RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
-                        || RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory)) {
+                        || RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory))) {
             this.startQuotationRunningDuration = this.quotationEndDate == null ? null : new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000L);
         }
 
@@ -1184,6 +1196,8 @@ public class RfxHeader extends ExpandDomain {
         this.lackQuotedSendFlag = this.lackQuotedSendFlag == null ? BaseConstants.Flag.NO : this.lackQuotedSendFlag;
         this.bidBond = this.bidBond == null ? new BigDecimal(0.0D) : this.bidBond;
         this.budgetAmountFlag = this.budgetAmountFlag == null ? BaseConstants.Flag.NO : this.budgetAmountFlag;
+        this.multiSectionFlag = this.multiSectionFlag == null ? BaseConstants.Flag.NO : this.multiSectionFlag;
+        this.redactFlag = this.redactFlag == null ? BaseConstants.Flag.NO : this.redactFlag;
     }
 
     public void initCustomizeField(CheckPriceHeaderDTO checkPriceHeaderDTO) {
@@ -1346,9 +1360,10 @@ public class RfxHeader extends ExpandDomain {
         }
 
         if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
-                ||RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory))&& Objects.nonNull(this.quotationStartDate) && Objects.nonNull(this.quotationEndDate)) {
+                || RcwlShareConstants.CategoryType.RCBJ.equals(this.sourceCategory)
+                || RcwlShareConstants.CategoryType.RCZB.equals(this.sourceCategory)
+                || RcwlShareConstants.CategoryType.RCZW.equals(this.sourceCategory))
+                && Objects.nonNull(this.quotationStartDate) && Objects.nonNull(this.quotationEndDate)) {
             this.startQuotationRunningDuration = new BigDecimal((this.quotationEndDate.getTime() - this.quotationStartDate.getTime()) / 60000L);
         }
 
@@ -1422,6 +1437,17 @@ public class RfxHeader extends ExpandDomain {
             this.scoringProgress = "BUSINESS";
         }
 
+    }
+
+    public boolean notDisabledDate(String timeField) {
+        if (CollectionUtils.isEmpty(this.fieldPropertyDTOList)) {
+            return false;
+        } else {
+            FieldPropertyDTO fieldPropertyDTO = (FieldPropertyDTO) this.fieldPropertyDTOList.stream().filter((item) -> {
+                return timeField.equals(item.getName());
+            }).findFirst().orElse(new FieldPropertyDTO());
+            return BaseConstants.Flag.NO.equals(fieldPropertyDTO.getDisabled());
+        }
     }
 
     public String getBargainingStage() {
@@ -1542,6 +1568,22 @@ public class RfxHeader extends ExpandDomain {
 
     public void setPurPhone(String purPhone) {
         this.purPhone = purPhone;
+    }
+
+    public Integer getRedactFlag() {
+        return this.redactFlag;
+    }
+
+    public void setRedactFlag(Integer redactFlag) {
+        this.redactFlag = redactFlag;
+    }
+
+    public Integer getBargainRedactFlag() {
+        return this.bargainRedactFlag;
+    }
+
+    public void setBargainRedactFlag(Integer bargainRedactFlag) {
+        this.bargainRedactFlag = bargainRedactFlag;
     }
 
     public SourceTemplate getSourceTemplate() {
@@ -1898,6 +1940,14 @@ public class RfxHeader extends ExpandDomain {
 
     public void setItemList(List<Long> itemList) {
         this.itemList = itemList;
+    }
+
+    public String getResultApproveType() {
+        return this.resultApproveType;
+    }
+
+    public void setResultApproveType(String resultApproveType) {
+        this.resultApproveType = resultApproveType;
     }
 
     public Long getRfxHeaderId() {
@@ -2777,6 +2827,14 @@ public class RfxHeader extends ExpandDomain {
         this.quotationRounds = quotationRounds;
     }
 
+    public Integer getMultiSectionFlag() {
+        return this.multiSectionFlag;
+    }
+
+    public void setMultiSectionFlag(Integer multiSectionFlag) {
+        this.multiSectionFlag = multiSectionFlag;
+    }
+
     public Integer getRoundQuotationRankFlag() {
         return this.roundQuotationRankFlag;
     }
@@ -3069,6 +3127,22 @@ public class RfxHeader extends ExpandDomain {
 
     public void setExpertSource(String expertSource) {
         this.expertSource = expertSource;
+    }
+
+    public List<RfxHeader> getRfxHeaders() {
+        return this.rfxHeaders;
+    }
+
+    public void setRfxHeaders(List<RfxHeader> rfxHeaders) {
+        this.rfxHeaders = rfxHeaders;
+    }
+
+    public List<FieldPropertyDTO> getFieldPropertyDTOList() {
+        return this.fieldPropertyDTOList;
+    }
+
+    public void setFieldPropertyDTOList(List<FieldPropertyDTO> fieldPropertyDTOList) {
+        this.fieldPropertyDTOList = fieldPropertyDTOList;
     }
 
     public interface Abandon {
