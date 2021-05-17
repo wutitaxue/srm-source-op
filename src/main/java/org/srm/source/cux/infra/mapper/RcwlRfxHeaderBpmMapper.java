@@ -3,7 +3,6 @@ package org.srm.source.cux.infra.mapper;
 import org.apache.ibatis.annotations.Param;
 import org.srm.source.cux.domain.vo.*;
 import org.srm.source.rfx.domain.entity.RfxHeader;
-import org.srm.source.rfx.domain.vo.RfxFullHeader;
 
 import java.util.List;
 
