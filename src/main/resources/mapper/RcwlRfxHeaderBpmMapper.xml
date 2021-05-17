@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper">
+
+    <select id="prepareDate" resultType="org.srm.source.cux.domain.vo.RcwlSendBpmData">
+        select
+            concat('立项',srh.rfx_num,srh.rfx_title) FSubject,
+            srh.rfx_num RfxNum,
+            srh.rfx_title RfxName,
+            srh.attribute_varchar8 BidDingMode,
+            srh.source_category ShortListCategory,
+            srh.attribute_varchar9 AttributeVarchar9,
+            '单标段' SectionNumber,
+            srh.attribute_varchar16 AttributeVarchar11,
+            srh.checked_by CheckedBy,
+            srh.attribute_varchar10 AttributeVarchar12,
+            null RoundNumber,
+            srh.attribute_varchar17 MethodRemark,
+            srh.technology_weight BusinessWeight,
+            srh.business_weight TechnologyWeight,
+            srh.attribute_datetime3 AttributeDateTime10,
+            srh.attribute_datetime4 QuotationStartDate,
+            srh.attribute_datetime5 AttributeDateTime11,
+            srh.attribute_datetime6 QuotationEndDate,
+            srh.attribute_datetime7 AttributeDateTime12,
+            srh.attribute_bigint2 AttributeVarchar13,
+            srh.attribute_varchar11 AttributeVarchar14,
+            srh.pur_name PurchaserName,
+            srh.pur_phone PurchaserPhone,
+            srh.attribute_varchar12 AttributeVarchar15,
+            srh.bid_bond BidBond,
+            srh.attribute_varchar13 AttributeVarchar16,
+            attribute_varchar14 AttributeVarchar17,
+            attribute_varchar15  AttributeVarchar18,
+            attribute_varchar18 AttributeVarchar19
+        from
+            ssrc_rfx_header srh
+        where srh.tenant_id = #{quotationHeaderId}
+        and srh.rfx_header_id = #{rfxHeader.rfxHeaderId}
+    </select>
+    <select id="prepareScoringTeamData" resultType="org.srm.source.cux.domain.vo.RcwlScoringTeamData">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+            i.login_name ExpertName,
+            i.phone ExpertPhone,
+            (
+            SELECT
+                hlvt.meaning
+                FROM
+                hpfm_lov_value hlv
+                LEFT JOIN hpfm_lov_value_tl hlvt ON hlvt.lov_value_id = hlv.lov_value_id
+                AND hlvt.lang = #{lang}
+            WHERE
+            hlv.lov_value_id = see.evaluate_leader_flag
+            ) ExpertCategoryMeaning
+        FROM
+        ssrc_evaluate_expert see
+        left JOIN iam_user i ON i.organization_id = see.tenant_id
+        AND i.id = see.expert_user_id
+        where source_from = 'RFX'
+        and source_header_id = #{rfxHeader.rfx_header_id}
+        and tenant_id =  #{organizationId}
+    </select>
+    <select id="prepareSupplierData" resultType="org.srm.source.cux.domain.vo.RcwlSupplierData">
+        SELECT
+            hc.company_num SupplierCompanyNum,
+            hc.company_name SupplierCompanyName,
+            ( SELECT scb.registered_capital FROM spfm_company_basic scb WHERE scb.company_id = hc.source_key ORDER BY scb.object_version_number LIMIT 1 ) RegisteredCapital,
+            i.login_name ContactName,
+            i.phone ContactMobilePhone
+        FROM
+            ssrc_rfx_line_supplier srls
+            LEFT JOIN hpfm_company hc ON hc.company_id = srls.supplier_company_id
+            AND hc.tenant_id = srls.supplier_tenant_id
+            LEFT JOIN iam_user i ON i.organization_id = srls.supplier_tenant_id
+        where srls.tenant_id = #{organizationId}
+        and srls.rfx_header_id = #{rfxHeader.rfx_header_id}
+    </select>
+    <select id="prepareDetailData" resultType="org.srm.source.cux.domain.vo.RcwlDetailData">
+
+
+    </select>
+    <select id="prepareAttachmentData" resultType="org.srm.source.cux.domain.vo.RcwlAttachmentData">
+
+
+    </select>
+
+</mapper>
