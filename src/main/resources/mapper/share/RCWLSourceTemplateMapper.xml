@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.share.infra.mapper.RCWLSourceTemplateMapper">
+
+    <resultMap id="templateMap" type="org.srm.source.share.domain.entity.SourceTemplate" autoMapping="true">
+
+        <result column="template_id" property="templateId" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="template_num" property="templateNum" jdbcType="VARCHAR"/>
+        <result column="template_name" property="templateName" jdbcType="VARCHAR"/>
+        <result column="template_status" property="templateStatus" jdbcType="DECIMAL"/>
+
+        <result column="version_number" property="versionNumber" jdbcType="DECIMAL"/>
+        <result column="latest_flag" property="latestFlag" jdbcType="VARCHAR"/>
+        <result column="source_category" property="sourceCategory" jdbcType="VARCHAR"/>
+        <result column="source_announcement_flag" property="sourceAnnouncementFlag" jdbcType="DECIMAL"/>
+        <result column="bid_announcement_flag" property="bidAnnouncementFlag" jdbcType="DECIMAL"/>
+
+        <result column="pretrial_flag" property="pretrialFlag" jdbcType="DECIMAL"/>
+        <result column="release_approve_type" property="releaseApproveType" jdbcType="VARCHAR"/>
+        <result column="result_approve_type" property="resultApproveType" jdbcType="VARCHAR"/>
+        <result column="bid_rule_type" property="bidRuleType" jdbcType="VARCHAR"/>
+        <result column="qualification_type" property="qualificationType" jdbcType="VARCHAR"/>
+
+        <result column="max_defer_count" property="maxDeferCount" jdbcType="DECIMAL"/>
+        <result column="expert_score_type" property="expertScoreType" jdbcType="VARCHAR"/>
+        <result column="open_bid_order" property="openBidOrder" jdbcType="VARCHAR"/>
+        <result column="subject_matter_rule" property="subjectMatterRule" jdbcType="VARCHAR"/>
+        <result column="direct_cross_round_flag" property="directCrossRoundFlag" jdbcType="DECIMAL"/>
+
+        <result column="opener_flag" property="openerFlag" jdbcType="DECIMAL"/>
+        <result column="valid_date_input_type" property="validDateInputType" jdbcType="VARCHAR"/>
+        <result column="tax_change_flag" property="taxChangeFlag" jdbcType="DECIMAL"/>
+        <result column="auto_defer_flag" property="autoDeferFlag" jdbcType="DECIMAL"/>
+
+        <result column="source_method" property="sourceMethod" jdbcType="VARCHAR"/>
+        <result column="source_stage" property="sourceStage" jdbcType="VARCHAR"/>
+        <result column="price_category" property="priceCategory" jdbcType="VARCHAR"/>
+        <result column="source_type" property="sourceType" jdbcType="VARCHAR"/>
+        <result column="quotation_type" property="quotationType" jdbcType="VARCHAR"/>
+        <result column="quotation_scope" property="quotationScope" jdbcType="VARCHAR"/>
+        <result column="round_quotation_rule" property="roundQuotationRule" jdbcType="VARCHAR"/>
+        <result column="match_restrict_flag" property="matchRestrictFlag" jdbcType="VARCHAR"/>
+
+        <result column="bargain_rule" property="bargainRule" jdbcType="VARCHAR"/>
+        <result column="bargain_offline_flag" property="bargainOfflineFlag" jdbcType="DECIMAL"/>
+        <result column="password_flag" property="passwordFlag" jdbcType="DECIMAL"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        b.creation_date,
+             b.created_by,
+             b.last_update_date,
+             b.last_updated_by,
+             b.object_version_number,
+             b.template_id,
+             b.tenant_id,
+             b.template_num,
+             b.template_status,
+             b.version_number,
+             b.latest_flag,
+             b.source_category,
+             b.source_announcement_flag,
+             b.bid_announcement_flag,
+             b.pretrial_flag,
+             b.release_approve_type,
+             b.result_approve_type,
+             b.bid_rule_type,
+             b.qualification_type,
+             b.expert_score_type,
+             b.open_bid_order,
+             b.subject_matter_rule,
+             b.max_vendor_quantity,
+             b.min_vendor_number,
+             b.quotation_end_date_flag,
+             b.direct_cross_round_flag,
+             b.opener_flag,
+             b.valid_date_input_type,
+             b.continuous_quotation_flag,
+             b.quantity_change_flag,
+             b.tax_change_flag,
+             b.auto_defer_flag,
+             b.auto_defer_type,
+             b.auto_defer_period,
+             b.source_method,
+             b.source_stage,
+             b.auction_direction,
+             b.auction_rule,
+             b.open_rule,
+             b.auction_ranking,
+             b.price_category,
+             b.source_type,
+             b.auto_defer_duration,
+             b.max_defer_count,
+             b.quotation_type,
+             b.quotation_scope,
+             b.round_quotation_rule,
+             b.match_restrict_flag,
+             b.bargain_rule,
+             b.bargain_offline_flag,
+             b.tax_id,
+             b.tax_included_flag,
+             b.freight_included_flag,
+             b.freight_updatable_flag,
+             b.payment_term_flag,
+             b.pre_approve_type,
+             b.diy_ladder_quotation_flag,
+             b.rank_rule,
+             b.matter_detail,
+             b.budget_control_rule,
+	     b.multi_currency_flag,
+             b.min_quoted_supplier,
+             b.expert_source,
+             b.sealed_quotation_flag,
+             b.fast_bidding,
+             b.only_allow_all_win_bids,
+             b.selection_strategy,
+             b.quotation_rounds,
+             b.initial_review,
+             b.round_quotation_rank_flag,
+             b.round_quotation_rank_rule,
+             b.bid_bond_flag,
+             b.tender_fee_flag,
+             b.initial_review,
+             b.score_indic_flag,
+             b.password_flag
+    </sql>
+    <select id="selectByQuotationHeaderId" resultType="org.srm.source.share.domain.entity.SourceTemplate">
+        SELECT
+            srh.rfx_header_id,
+            srh.round_number,
+            srh.rfx_num,
+            srh.rank_rule,
+            sst.fast_bidding,
+            sst.only_allow_all_win_bids,
+            sst.selection_strategy,
+            sst.quotation_rounds,
+            sst.round_quotation_rank_flag,
+            sst.round_quotation_rank_rule,
+            sst.diy_ladder_quotation_flag,
+            sst.tax_change_flag,
+            sst.quantity_change_flag,
+            CASE WHEN srh.auction_direction IS NULL
+                     THEN sst.auction_direction
+                 ELSE srh.auction_direction
+                END auction_direction,
+            CASE WHEN srh.open_rule IS NULL
+                     THEN sst.open_rule
+                 ELSE srh.open_rule
+                END open_rule
+        FROM
+            ssrc_rfx_quotation_header srqh
+                LEFT JOIN ssrc_rfx_header srh ON srqh.rfx_header_id = srh.rfx_header_id
+                LEFT JOIN ssrc_source_template sst ON srh.template_id = sst.template_id
+        WHERE
+            srqh.quotation_header_id = #{quotationHeaderId}
+    </select>
+    <select id="listSourceTemplate" resultType="org.srm.source.share.domain.entity.SourceTemplate">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        <include refid="Base_Column_List"/>,
+        t.template_name
+        FROM
+        ssrc_source_template b
+        JOIN ssrc_source_template_tl t ON b.template_id = t.template_id AND t.lang =#{lang}
+        <where>
+            <if test="tenantId!= null and tenantId != ''">
+                b.tenant_id=#{tenantId}
+            </if>
+            <if test="templateNum != null and templateNum != ''">
+                <bind name="templateNum" value="'%' + templateNum + '%'"/>
+                and b.template_num like #{templateNum}
+            </if>
+            <if test="templateName != null and templateName != ''">
+                <bind name="templateNameLike" value="'%' + templateName + '%'"/>
+                and t.template_name like #{templateNameLike}
+            </if>
+            <if test="sourceCategory != null and sourceCategory !=''">
+                <bind name="sourceCategoryLike" value="'%' + sourceCategory + '%'"/>
+                and b.source_category like #{sourceCategoryLike}
+            </if>
+            <if test="sourceType!= null and sourceType != ''">
+                and b.source_type=#{sourceType}
+            </if>
+
+            <if test="latestFlag!= null">
+                and b.latest_flag=#{latestFlag}
+            </if>
+            <if test="sourceMethod!= null and sourceMethod != ''">
+                and b.source_method=#{sourceMethod}
+            </if>
+            <if test="subjectMatterRule!= null and subjectMatterRule != ''">
+                and b.subject_matter_rule=#{subjectMatterRule}
+            </if>
+            <if test="templateStatus!= null and templateStatus != ''">
+                and b.template_status=#{templateStatus}
+            </if>
+
+
+        </where>
+    </select>
+    <select id="listLatestSourceTemplate" resultType="org.srm.source.share.domain.entity.SourceTemplate">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        <include refid="Base_Column_List"/>,
+        b.template_score_type,
+        t.template_name,
+        st.tax_code,
+        st.tax_rate
+        FROM
+        ssrc_source_template b
+        JOIN ssrc_source_template_tl t ON b.template_id = t.template_id AND t.lang =#{lang}
+        LEFT JOIN smdm_tax st ON st.tax_id = b.tax_id
+        WHERE  b.latest_flag = 'Y' AND b.template_status = 'RELEASED'
+        <if test="tenantId!= null and tenantId != ''">
+            AND  b.tenant_id=#{tenantId}
+        </if>
+        <if test="templateNum != null and templateNum != ''">
+            <bind name="templateNum" value="'%' + templateNum + '%'"/>
+            and b.template_num like #{templateNum}
+        </if>
+        <if test="templateName != null and templateName != ''">
+            <bind name="templateNameLike" value="'%' + templateName + '%'"/>
+            and t.template_name like #{templateNameLike}
+        </if>
+        <if test="sourceCategory != null and sourceCategory !=''">
+            <bind name="sourceCategoryLike" value="'%' + sourceCategory + '%'"/>
+            and (b.source_category like #{sourceCategoryLike} or b.source_category like '%RC%')
+        </if>
+        <if test="sourceType!= null and sourceType != ''">
+            and b.source_type=#{sourceType}
+        </if>
+        <if test="sourceMethod!= null and sourceMethod != ''">
+            and b.source_method=#{sourceMethod}
+        </if>
+        <if test="subjectMatterRule!= null and subjectMatterRule != ''">
+            and b.subject_matter_rule=#{subjectMatterRule}
+        </if>
+        <if test="expertScoreFlag!= null and expertScoreFlag != ''">
+            and b.expert_score_type= 'ONLINE'
+        </if>
+    </select>
+
+    <select id="selectTax" resultType="org.srm.source.share.domain.entity.SourceTemplate">
+        SELECT
+        st.tax_id,
+        st.tax_code,
+        st.tax_rate
+        FROM smdm_tax st
+        <where>
+            <if test="tenantId!= null and tenantId != ''">
+                AND  st.tenant_id=#{tenantId}
+            </if>
+            <if test="taxId!= null and taxId != ''">
+                AND  st.tax_id=#{taxId}
+            </if>
+        </where>
+    </select>
+</mapper>
