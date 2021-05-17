@@ -6,7 +6,7 @@ import org.srm.source.rfx.domain.entity.RfxHeader;
 
 import java.util.List;
 
-public interface RcwlRfxHeaderRepository extends BaseRepository<RfxHeader> {
+public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
 
     List<String> getAttachmentList(String data);
 

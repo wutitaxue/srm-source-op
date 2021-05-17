@@ -4,7 +4,7 @@ import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 
 import java.util.List;
 
-public interface RcwlRfxHeaderMapper{
+public interface RcwlBPMRfxHeaderMapper {
     List<String> getAttachmentList(String data);
 
     void updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO);

@@ -8,11 +8,11 @@ import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.srm.source.cux.app.service.RcwlRfxHeaderService;
+import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
-import org.srm.source.cux.domain.repository.RcwlRfxHeaderRepository;
+import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
@@ -22,12 +22,12 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class RcwlRfxHeaderServiceImpl implements RcwlRfxHeaderService {
+public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
     @Autowired
     private RCWLGxBpmInterfaceService rcwlGxBpmInterfaceService;
     @Autowired
-    private RcwlRfxHeaderRepository rcwlRfxHeaderRepository;
+    private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
     //获取配置参数

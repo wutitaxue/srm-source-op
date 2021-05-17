@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderMapper">
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlBPMRfxHeaderMapper">
     <update id="updateRfxHeaderData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
