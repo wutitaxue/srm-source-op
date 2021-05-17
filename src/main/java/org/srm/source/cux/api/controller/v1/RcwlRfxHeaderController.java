@@ -20,7 +20,7 @@ import org.srm.web.annotation.Tenant;
 @Api(
         tags = {"Rfx Header"}
 )
-@RestController("rfxHeaderController.v1")
+@RestController("RcwlRfxHeaderController.v1")
 @RequestMapping({"/v1/{organizationId}/rfx"})
 @Tenant("SRM-RCWL")
 public class RcwlRfxHeaderController {
@@ -37,8 +37,7 @@ public class RcwlRfxHeaderController {
             level = ResourceLevel.ORGANIZATION
     )
     @PostMapping({"/release"})
-    @FilterSupplier
-    public ResponseEntity<String> releaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
+    public ResponseEntity<String> rcwlReleaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
         String s = rcwlRfxHeaderBpmService.rcwlReleaseRfx(organizationId, rfxFullHeader);
         return Results.success(s);
     }
