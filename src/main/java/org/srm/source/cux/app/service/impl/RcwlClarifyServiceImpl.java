@@ -57,7 +57,8 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         rcwlDataForBPM.setSOURCENAME(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[1]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_title
         rcwlDataForBPM.setCLARIFYNUM(clarify.getClarifyNum());//clarify_num
         rcwlDataForBPM.setCLARIFYNUMBER(countOfAlikeSourceId);//查询此表相同source_id的refer_flag（是否引用问题）值为1的数量
-        rcwlDataForBPM.setROUNDNUMBER(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[2]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应round_number
+//        rcwlDataForBPM.setROUNDNUMBER(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[2]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应round_number
+        rcwlDataForBPM.setROUNDNUMBER(rcwlClarifyRepository.getRoundNumber(clarify.getSourceId()));//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应round_number
         rcwlDataForBPM.setCONTEXT(clarify.getContext());//context
         //https://pssc-dev.sunacctg.com/app/ssrc/new-inquiry-hall/clarify-detail/       URL_MX_HEADER
         //32/RFX2021051200002/刘婷专用单002/1/4?current=newInquiryHall&createFlag=1

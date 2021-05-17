@@ -38,4 +38,10 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     public List<String> getAttachmentList(String id) {
         return rcwlClarifyMapper.getAttachmentList(id);
     }
+
+    @Override
+    public String getRoundNumber(Long id) {
+        String data =  rcwlClarifyMapper.getRoundNumber(id);
+        return data == null ? "":data;
+    }
 }
