@@ -209,7 +209,8 @@
     <update id="updatePrLineByShortlistHeader">
         update
             sprm_pr_line
-        set attribute_bigint1 = null
+        set attribute_bigint1 = null,
+        attribute_varchar2 = null
         where attribute_bigint1 = #{shortlistHeaderId}
     </update>
 
