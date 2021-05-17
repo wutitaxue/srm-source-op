@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderMapper">
+    <update id="updateRfxHeaderData">
+        UPDATE ssrc_rfx_header
+        <trim prefix="set" suffixOverrides=",">
+            <if test="boId!=null and boId != ''">attribute_varchar6=#{boId},</if>
+            <if test="boIdUrl!=null and boIdUrl != ''">attribute_varchar7=#{boIdUrl},</if>
+        </trim>
+        WHERE rfx_header_id=#{rfxHeaderId}
+    </update>
+    <update id="updateRfxHeader">
+        UPDATE ssrc_rfx_header
+        <trim prefix="set" suffixOverrides=",">
+            <if test="remark!=null and remark != ''">terminated_remark=#{remark},</if>
+            <if test="tenantId!=null and tenantId != ''">terminated_by=#{tenantId},</if>
+        </trim>
+        WHERE rfx_header_id=#{id}
+    </update>
+    <select id="getAttachmentList" resultType="String">
+        SELECT concat_ws('|+|',file_name,file_size,file_url)
+        FROM    hfle_file
+        WHERE   attachment_uuid = #{data}
+    </select>
+</mapper>
