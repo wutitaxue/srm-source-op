@@ -3,6 +3,7 @@
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper">
 
     <select id="prepareDate" resultType="org.srm.source.cux.domain.vo.RcwlSendBpmData">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select
             concat('立项',srh.rfx_num,srh.rfx_title) FSubject,
             srh.rfx_num RfxNum,
@@ -11,7 +12,9 @@
             srh.source_category ShortListCategory,
             srh.attribute_varchar9 AttributeVarchar9,
             '单标段' SectionNumber,
-            srh.attribute_varchar16 AttributeVarchar11,
+            (select hlvt.meaning  from hpfm_lov_value_tl hlvt ON hlvt.lov_value_id = hlv.lov_value_id where hlvt.lov_value_id = srh.attribute_varchar16
+            AND hlvt.lang = #{lang}
+            ) AttributeVarchar11,
             srh.checked_by CheckedBy,
             srh.attribute_varchar10 AttributeVarchar12,
             null RoundNumber,
@@ -77,12 +80,39 @@
         and srls.rfx_header_id = #{rfxHeader.rfx_header_id}
     </select>
     <select id="prepareDetailData" resultType="org.srm.source.cux.domain.vo.RcwlDetailData">
-
-
+        SELECT
+            srli.rfx_line_item_num RfxLineItemNum,
+            srli.item_code ItemCode,
+            srli.item_name ItemName,
+            si.specifications UomId,
+            ( SELECT sic.category_name FROM smdm_item_category sic WHERE sic.category_id = srli.item_category_id ) ItemCategoryName,
+            srli.rfx_quantity rfxQuanttity,
+            ( SELECT uom_name FROM hpfm_uom hu WHERE hu.uom_id = srli.uom_id ) UomId1
+        FROM
+            ssrc_rfx_line_item srli
+            LEFT JOIN smdm_item si ON si.item_id = srli.item_id
+            where srli.tenant_id = #{organizationId}
+        and srli.rfx_header_id = #{rfxHeader.rfx_header_id}
     </select>
     <select id="prepareAttachmentData" resultType="org.srm.source.cux.domain.vo.RcwlAttachmentData">
-
-
+        SELECT
+            @rowno := @rowno + 1 FileNumber,
+            hf.file_name FileName,
+            hf.file_size FileSize,
+            hf.file_name Description,
+            hf.file_url Url
+        FROM
+            hfle_file hf
+            LEFT JOIN ssrc_rfx_header srh1 ON srh1.tech_attachment_uuid = hf.attachment_uuid
+            LEFT JOIN ssrc_rfx_header srh2 ON srh2.business_attachment_uuid = hf.attachment_uuid,(
+            SELECT
+                @rowno := 0
+            ) t
+        WHERE
+            srh1.tenant_id = #{organizationId}
+            AND srh1.rfx_header_id = #{rfxHeader.rfx_header_id}
+            AND srh2.tenant_id = #{organizationId}
+            AND srh2.rfx_header_id = #{rfxHeader.rfx_header_id}
     </select>
 
 </mapper>

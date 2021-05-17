@@ -60,8 +60,8 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         //设置行参数
         rcwlSendBpmData.setRcwlScoringTeamDataList(rfxHeaderBpmMapper.prepareScoringTeamData(organizationId, rfxHeader));
         rcwlSendBpmData.setRcwlDetailDataList(rfxHeaderBpmMapper.prepareDetailData(organizationId, rfxHeader));
-        rcwlSendBpmData.setRcwlAttachmentDataList(rfxHeaderBpmMapper.prepareAttachmentData(organizationId, rfxHeader));
         rcwlSendBpmData.setRcwlSupplierDataList(rfxHeaderBpmMapper.prepareSupplierData(organizationId, rfxHeader));
+        rcwlSendBpmData.setRcwlAttachmentDataList(rfxHeaderBpmMapper.prepareAttachmentData(organizationId, rfxHeader));
 
         String data = JSONObject.toJSONString(rcwlSendBpmData);
         rcwlGxBpmStartDataDTO.setData(data);
