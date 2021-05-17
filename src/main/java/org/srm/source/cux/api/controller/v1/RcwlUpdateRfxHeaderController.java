@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.srm.source.cux.app.service.RcwlRfxHeaderService;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCloseRfxDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
 
@@ -29,7 +29,7 @@ public class RcwlUpdateRfxHeaderController {
             permissionPublic = true
     )
     @PostMapping({"/update-rfxHeader"})
-    public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
+    public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
         RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
         if(rcwlUpdateDataDTO.getRfxHeaderId() == null || "".equals(rcwlUpdateDataDTO.getRfxHeaderId())){

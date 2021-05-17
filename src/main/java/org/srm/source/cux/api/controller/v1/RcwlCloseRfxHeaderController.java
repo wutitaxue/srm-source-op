@@ -23,7 +23,7 @@ import java.util.List;
 )
 @RestController("rcwlRfxHeaderController.v1")
 @RequestMapping({"/v1/{organizationId}/rcwlrfx"})
-public class RcwlRfxHeaderController extends BaseController {
+public class RcwlCloseRfxHeaderController extends BaseController {
 
     @Resource
     private RcwlRfxHeaderService rcwlRfxHeaderService;
