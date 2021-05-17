@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.app.service.RcwlRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
 import org.srm.source.cux.domain.repository.RcwlRfxHeaderRepository;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -124,7 +123,7 @@ public class RcwlRfxHeaderServiceImpl implements RcwlRfxHeaderService {
     }
 
     @Override
-    public ResponseData updateRfxHeaderData(RcwlUpdateDataDTO rcwlUpdateDataDTO) {
+    public ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO) {
         ResponseData responseData = new ResponseData();
         responseData.setMessage("数据更新成功！");
         responseData.setCode("200");

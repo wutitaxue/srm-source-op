@@ -6,13 +6,13 @@ import lombok.Data;
 @Data
 public class RcwlUpdateDTO {
     @JsonProperty("RcwlUpdateDTO")
-    private RcwlUpdateDataDTO rcwlUpdateDataDTO;
+    private RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO;
 
-    public RcwlUpdateDataDTO getRcwlUpdateDataDTO() {
+    public RcwlUpdateRfxHeaderDataDTO getRcwlUpdateDataDTO() {
         return rcwlUpdateDataDTO;
     }
 
-    public void setRcwlUpdateDataDTO(RcwlUpdateDataDTO rcwlUpdateDataDTO) {
+    public void setRcwlUpdateDataDTO(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO) {
         this.rcwlUpdateDataDTO = rcwlUpdateDataDTO;
     }
 }

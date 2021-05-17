@@ -2,8 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
-import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.repository.RcwlRfxHeaderRepository;
 import org.srm.source.cux.infra.mapper.RcwlRfxHeaderMapper;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -26,7 +25,7 @@ public class RcwlRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader> i
     }
 
     @Override
-    public void updateRfxHeaderData(RcwlUpdateDataDTO rcwlUpdateDataDTO) {
+    public void updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO) {
         rcwlRfxHeaderMapper.updateRfxHeaderData(rcwlUpdateDataDTO);
     }
 

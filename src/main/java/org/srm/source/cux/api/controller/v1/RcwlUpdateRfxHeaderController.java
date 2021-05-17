@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.srm.source.cux.app.service.RcwlRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
 
 import javax.annotation.Resource;
@@ -31,7 +31,7 @@ public class RcwlUpdateRfxHeaderController {
     @PostMapping({"/update-rfxHeader"})
     public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
-        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
+        RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
         if(rcwlUpdateDataDTO.getRfxHeaderId() == null || "".equals(rcwlUpdateDataDTO.getRfxHeaderId())){
             responseData.setCode("201");
             responseData.setMessage("询价单编号获取异常！");
