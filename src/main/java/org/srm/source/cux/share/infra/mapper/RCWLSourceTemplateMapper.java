@@ -1,9 +1,7 @@
 package org.srm.source.cux.share.infra.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import org.srm.source.cux.share.domain.entity.RCWlSourceTemplate;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.infra.mapper.SourceTemplateMapper;
 import org.srm.web.annotation.Tenant;
