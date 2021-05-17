@@ -12,7 +12,7 @@
     </update>
 
     <select id="getSourceNumAndNameAndClarifyNumberById" resultType="String">
-        SELECT canact_ws('+',rfx_num,rfx_title,round_number)
+        SELECT CONCAT_WS('+',rfx_num,rfx_title,round_number)
         FROM    ssrc_rfx_header
         WHERE   rfx_header_id = #{id}
     </select>
