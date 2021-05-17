@@ -31,7 +31,7 @@ public class RcwlClarifyController extends BaseController{
             level = ResourceLevel.ORGANIZATION
     )
     @PostMapping({"/release-bpm-simulate"})
-    public ResponseData releaseClarifyByBPM(@RequestBody Clarify clarify) {
+    public ResponseData releaseClarifyByBPM(@PathVariable String organizationId,@RequestBody Clarify clarify) {
         this.validObject(clarify, new Class[0]);
         RcwlClarifyForBPM rcwlSonOfClarify = new RcwlClarifyForBPM();
         rcwlSonOfClarify.setClarifyId(clarify.getClarifyId());
@@ -50,30 +50,6 @@ public class RcwlClarifyController extends BaseController{
         rcwlSonOfClarify.setProcessInstanceId("0");
         ResponseData responseData = new ResponseData();
         responseData = rcwlClarifyService.releaseClarifyByBPM(rcwlSonOfClarify);
-        return responseData;
-    }
-
-    @ApiOperation("更新数据字段")
-    @Permission(
-            permissionPublic = true
-    )
-    @PostMapping({"/update-clarify"})
-    public ResponseData updateClarifyData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
-        ResponseData responseData = new ResponseData();
-        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
-        if(rcwlUpdateDataDTO.getClarifyNum() == null || "".equals(rcwlUpdateDataDTO.getClarifyNum())){
-            responseData.setCode("201");
-            responseData.setMessage("单据编号获取异常！");
-            return responseData;
-        }
-        if((rcwlUpdateDataDTO.getProcessInstanceId() == null || "".equals(rcwlUpdateDataDTO.getProcessInstanceId()))&&
-            (rcwlUpdateDataDTO.getClarifyStatus() == null || "".equals(rcwlUpdateDataDTO.getClarifyStatus()))&&
-            (rcwlUpdateDataDTO.getWebserviceUrl() == null || "".equals(rcwlUpdateDataDTO.getWebserviceUrl()))){
-            responseData.setCode("201");
-            responseData.setMessage("所需更新数据至少有一个值！");
-            return responseData;
-        }
-        responseData = rcwlClarifyService.updateClarifyData(rcwlUpdateDataDTO);
         return responseData;
     }
 }
