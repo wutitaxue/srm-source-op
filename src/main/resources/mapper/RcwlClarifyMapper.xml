@@ -12,7 +12,7 @@
     </update>
 
     <select id="getSourceNumAndNameAndClarifyNumberById" resultType="String">
-        SELECT canact_ws('+',rfx_num,rfx_title,round_number)
+        SELECT CONCAT_WS('+',rfx_num,rfx_title,round_number)
         FROM    ssrc_rfx_header
         WHERE   rfx_header_id = #{id}
     </select>
@@ -26,5 +26,10 @@
         SELECT concat_ws('|+|',file_name,file_size,file_url)
         FROM    hfle_file
         WHERE   attachment_uuid = #{id}
+    </select>
+    <select id="getRoundNumber" resultType="String">
+        SELECT quotation_round_number
+        FROM    ssrc_round_header
+        WHERE   source_header_id = #{id}
     </select>
 </mapper>

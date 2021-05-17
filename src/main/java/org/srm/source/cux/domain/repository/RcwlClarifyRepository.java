@@ -17,4 +17,6 @@ public interface RcwlClarifyRepository extends BaseRepository<RcwlClarifyForBPM>
     void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO);
 
     List<String> getAttachmentList(String id);
+
+    String getRoundNumber(Long id);
 }
