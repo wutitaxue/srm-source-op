@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.srm.source.cux.app.service.RcwlRfxHeaderService;
+import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlUpdateCloseRfxDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 public class RcwlUpdateRfxHeaderController {
 
     @Resource
-    private RcwlRfxHeaderService rcwlRfxHeaderService;
+    private RcwlBPMRfxHeaderService rcwlRfxHeaderService;
 
     @ApiOperation("更新询价单头表数据字段")
     @Permission(

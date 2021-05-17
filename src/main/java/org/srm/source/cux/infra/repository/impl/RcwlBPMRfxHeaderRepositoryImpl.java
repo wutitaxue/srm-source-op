@@ -3,8 +3,8 @@ package org.srm.source.cux.infra.repository.impl;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
-import org.srm.source.cux.domain.repository.RcwlRfxHeaderRepository;
-import org.srm.source.cux.infra.mapper.RcwlRfxHeaderMapper;
+import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
+import org.srm.source.cux.infra.mapper.RcwlBPMRfxHeaderMapper;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 
 import javax.annotation.Resource;
@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class RcwlRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader> implements RcwlRfxHeaderRepository {
+public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader> implements RcwlBPMRfxHeaderRepository {
 
     @Resource
-    RcwlRfxHeaderMapper rcwlRfxHeaderMapper;
+    RcwlBPMRfxHeaderMapper rcwlRfxHeaderMapper;
 
     @Override
     public List<String> getAttachmentList(String data) {
