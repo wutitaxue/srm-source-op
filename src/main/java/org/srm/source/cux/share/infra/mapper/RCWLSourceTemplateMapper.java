@@ -14,7 +14,6 @@ import java.util.List;
  * @createTime:2021/5/17 15:38
  * @version:1.0
  */
-@Component
 @Tenant("SRM-RCWL")
 public interface RCWLSourceTemplateMapper extends SourceTemplateMapper, ExtendMapper<SourceTemplate> {
     /**
