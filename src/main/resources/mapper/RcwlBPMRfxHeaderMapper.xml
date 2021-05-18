@@ -4,10 +4,10 @@
     <update id="updateRfxHeaderData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
-            <if test="boId!=null and boId != ''">attribute_varchar6=#{boId},</if>
-            <if test="boIdUrl!=null and boIdUrl != ''">attribute_varchar7=#{boIdUrl},</if>
+            <if test="boId!=null and boId != ''">attribute_varchar6=#{getAttributeVarchar6},</if>
+            <if test="boIdUrl!=null and boIdUrl != ''">attribute_varchar7=#{getAttributeVarchar7},</if>
         </trim>
-        WHERE rfx_header_id=#{rfxHeaderId}
+        WHERE rfx_num=#{rfxNum}
     </update>
     <update id="updateRfxHeader">
         UPDATE ssrc_rfx_header

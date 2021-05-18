@@ -32,13 +32,13 @@ public class RcwlUpdateRfxHeaderController {
     public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
         RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
-        if(rcwlUpdateDataDTO.getRfxHeaderId() == null || "".equals(rcwlUpdateDataDTO.getRfxHeaderId())){
+        if(rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum())){
             responseData.setCode("201");
             responseData.setMessage("询价单编号获取异常！");
             return responseData;
         }
-        if((rcwlUpdateDataDTO.getBoId() == null || "".equals(rcwlUpdateDataDTO.getBoId()))&&
-                (rcwlUpdateDataDTO.getBoIdUrl() == null || "".equals(rcwlUpdateDataDTO.getBoIdUrl()))){
+        if((rcwlUpdateDataDTO.getAttributeVarchar6() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar6()))&&
+                (rcwlUpdateDataDTO.getAttributeVarchar7() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar7()))){
             responseData.setCode("201");
             responseData.setMessage("所需更新数据至少有一个值！");
             return responseData;
