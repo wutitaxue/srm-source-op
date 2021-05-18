@@ -113,6 +113,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 rfxLineSupplier.setContactTelephone(supplier.getPhone());
                 rfxLineSupplier.setContactName(supplier.getContacts());
                 rfxLineSupplier.setReadFlag(0);
+                rfxLineSupplier.setAppendFlag(0);
             }
         }
         logger.info("---------创建供应商开始------");
