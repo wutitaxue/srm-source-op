@@ -76,7 +76,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         rcwlGxBpmStartDataDTO.setData(this.rfxHeaderToString(rfxHeader,userName,list));
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");
-        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_CLARIFY_TO_PAGE_URL");
+        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_LBSP_TO_PAGE_URL");
         String URL_BACK = "http://"+rcwl_bpm_urlip+rcwl_page_urlip+rfxHeader.getRfxNum();
         responseData.setUrl(URL_BACK);
         try{
@@ -110,7 +110,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark()).append("\",");
-        sb.append("\"URL_MX\":\"").append(sb.toString()).append("\"}");
+        sb.append("\"URL_MX\":\"").append(sbUrl.toString()).append("\",");
         sb.append("\"FKGLYSD\":[\"");
         if(!CollectionUtils.isEmpty(list) && list.size()>0){
             for(RcwlRfxHeaderAttachmentListDataForBPM ra : list){
