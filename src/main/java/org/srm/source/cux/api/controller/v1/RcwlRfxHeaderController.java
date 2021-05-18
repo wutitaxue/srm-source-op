@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.srm.common.annotation.FilterSupplier;
+import org.srm.source.bid.api.dto.BiddingWorkDTO;
 import org.srm.source.cux.app.service.RcwlRfxHeaderBpmService;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -17,8 +18,10 @@ import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
+import org.srm.source.share.domain.entity.EvaluateExpert;
 import org.srm.web.annotation.Tenant;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(
@@ -89,15 +92,26 @@ public class RcwlRfxHeaderController {
         RfxHeader rfxHeadertemp = new RfxHeader();
         rfxHeadertemp.setTenantId(organizationId);
         rfxHeadertemp.setRfxNum(rfxNum);
+        //
         RfxHeader rfxHeader = rfxHeaderRepository.selectOne(rfxHeadertemp);
         RfxLineItem rfxLineItem = new RfxLineItem();
         rfxLineItem.setTenantId(organizationId);
         rfxLineItem.setPrHeaderId(rfxHeader.getRfxHeaderId());
         List<RfxLineItem> rfxLineItems = rfxLineItemRepository.select(rfxLineItem);
         rfxHeader.setRfxLineItemList(rfxLineItems);
+        //
         RfxFullHeader rfxFullHeader = new RfxFullHeader();
         rfxFullHeader.setRfxHeader(rfxHeader);
         rfxFullHeader.setRfxLineItemList(rfxLineItems);
+        //
+        BiddingWorkDTO biddingWorkDTO = new BiddingWorkDTO();
+        List<EvaluateExpert> evaluateExpertList = new ArrayList<EvaluateExpert>();
+        EvaluateExpert evaluateExpert = new EvaluateExpert();
+        evaluateExpert.setPhone("1");
+        evaluateExpertList.add(evaluateExpert);
+        biddingWorkDTO.setEvaluateExpertList(evaluateExpertList);
+        rfxFullHeader.setEvaluateExperts(biddingWorkDTO);
+        //
         rfxHeaderService.releaseRfx(organizationId, rfxFullHeader);
         return Results.success();
     }
