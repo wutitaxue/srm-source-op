@@ -6,9 +6,12 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import javassist.Loader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
@@ -37,6 +40,7 @@ import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 @Component
 public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlShortlistHeader> implements RcwlShortlistHeaderRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(Loader.class);
 
     @Autowired
     private RcwlShortlistHeaderMapper rcwlShortlistHeaderMapper;
@@ -194,6 +198,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         } else {
             bidNumber = 0L;
         }
+        logger.info("标段数：" + rcwlShortlistHeader.getAttributeBigint2() + "---供应商数量：" + supplierCount);
         if (supplierCount < bidNumber * 2 + 2) {
             throw new CommonException("入围供应商数量不满足，请重新维护！");
         }
