@@ -2,6 +2,7 @@ package org.srm.source.cux;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.srm.autoconfigure.source.EnableSrmSourceOP;
 
 /**
@@ -11,6 +12,7 @@ import org.srm.autoconfigure.source.EnableSrmSourceOP;
  */
 @EnableSrmSourceOP
 @SpringBootApplication
+@ComponentScan(basePackages ={"gxbpm.service" })
 public class SrmSourceOpApplication {
 
     public static void main(String[] args) {
