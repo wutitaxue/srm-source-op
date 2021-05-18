@@ -114,8 +114,6 @@ logging:
     io.choerodon.asgard: ${LOG_LEVEL:info}
     io.choerodon: ${LOG_LEVEL:debug}
     org.srm: ${LOG_LEVEL:debug}
-    o.s.m.i.m.M.getUnSendMqMessage: info
-    com.netflix.discovery.DiscoveryClient: warn
 
 hzero:
   resource:
