@@ -89,7 +89,6 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
         //创建询价单
 
-
         PreSourceHeaderDTO preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
         logger.info("----------------创建询价单头结束-----------");
         //创建询价单供应商
@@ -126,6 +125,8 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
             lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
         }
         logger.info("----------创建供应商结束--------");
+
+        preSourceHeaderDTO.setRfxHeader(rfxHeaderService.saveOrUpdateHeader(preSourceHeaderDTO.getRfxHeader()));
 
         return preSourceHeaderDTO;
     }
