@@ -43,12 +43,12 @@ public class RcwlDataForBPM {
         sb.append("\"TITLE\":\"").append(this.getTITLE()).append("\",");
         sb.append("\"FILE\":\"").append(this.getTITLE()).append("\",");
         sb.append("\"SOURCENUM\":\"").append(this.getSOURCENUM()).append("\",");
-        sb.append("{\"SOURCENAME\":\"").append(this.getSOURCENAME()).append("\",");
+        sb.append("\"SOURCENAME\":\"").append(this.getSOURCENAME()).append("\",");
         sb.append("\"CLARIFYNUM\":\"").append(this.getCLARIFYNUM()).append("\",");
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER()).append("\",");
         sb.append("\"CLARIFYNUMBER\":\"").append(this.getCLARIFYNUMBER()).append("\",");
-        sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\"}");
-        sb.append("{\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
+        sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\",");
+        sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
         sb.append("\"FKGLYSD\":[\"");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(RcwlAttachmentListDataForBPM ra : this.getATTACHMENTS()){
