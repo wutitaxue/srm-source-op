@@ -19,6 +19,7 @@ import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.shortrfx.app.service.RcwlShortListToRfxService;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineSupplierService;
+import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
 import org.srm.source.rfx.domain.repository.RfxLineSupplierRepository;
 import org.srm.source.share.api.dto.PrLineDTO;
@@ -125,8 +126,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
             lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
         }
         logger.info("----------创建供应商结束--------");
-
-        preSourceHeaderDTO.setRfxHeader(rfxHeaderService.saveOrUpdateHeader(preSourceHeaderDTO.getRfxHeader()));
+        RfxHeader rfxHeader = preSourceHeaderDTO.getRfxHeader();
+        rfxHeader.setSourceMethod("INVITE");
+        preSourceHeaderDTO.setRfxHeader(rfxHeaderService.saveOrUpdateHeader(rfxHeader));
 
         return preSourceHeaderDTO;
     }
