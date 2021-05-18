@@ -97,6 +97,7 @@ public class RcwlRfxHeaderController {
         rfxHeader.setRfxLineItemList(rfxLineItems);
         RfxFullHeader rfxFullHeader = new RfxFullHeader();
         rfxFullHeader.setRfxHeader(rfxHeader);
+        rfxFullHeader.setRfxLineItemList(rfxLineItems);
         rfxHeaderService.releaseRfx(organizationId, rfxFullHeader);
         return Results.success();
     }
