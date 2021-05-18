@@ -212,6 +212,11 @@
         set attribute_bigint1 = null
         where attribute_bigint1 = #{shortlistHeaderId}
     </update>
+    <update id="updateRfxSourceMethod">
+        UPDATE ssrc_rfx_header h
+        set h.source_method = #{sourceMethod}
+        where h.rfx_header_id = #{rfxHeaderId}
+    </update>
 
     <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
         select sph.pr_num,
