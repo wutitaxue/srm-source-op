@@ -106,6 +106,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 rfxLineSupplier.setSupplierCompanyNum(supplier.getSupplierNum());
                 rfxLineSupplier.setRfxHeaderId(preSourceHeaderDTO.getRfxHeader().getRfxHeaderId());
                 rfxLineSupplier.setTenantId(organizationId);
+                rfxLineSupplier.setSupplierCompanyName(supplier.getSupplierName());
 
                 rfxLineSupplierList.add(rfxLineSupplier);
             }
