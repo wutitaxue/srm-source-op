@@ -13,9 +13,13 @@ import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlRfxHeaderBpmService;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
 import org.srm.web.annotation.Tenant;
+
+import java.util.List;
 
 @Api(
         tags = {"Rfx Header"}
@@ -30,7 +34,10 @@ public class RcwlRfxHeaderController {
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
     @Autowired
+    private RfxLineItemRepository rfxLineItemRepository;
+    @Autowired
     private RfxHeaderService rfxHeaderService;
+
 
     @ApiOperation("新询价单发布")
     @Permission(
@@ -83,6 +90,11 @@ public class RcwlRfxHeaderController {
         rfxHeadertemp.setTenantId(organizationId);
         rfxHeadertemp.setRfxNum(rfxNum);
         RfxHeader rfxHeader = rfxHeaderRepository.selectOne(rfxHeadertemp);
+        RfxLineItem rfxLineItem = new RfxLineItem();
+        rfxLineItem.setTenantId(organizationId);
+        rfxLineItem.setPrHeaderId(rfxHeader.getRfxHeaderId());
+        List<RfxLineItem> rfxLineItems = rfxLineItemRepository.select(rfxLineItem);
+        rfxHeader.setRfxLineItemList(rfxLineItems);
         RfxFullHeader rfxFullHeader = new RfxFullHeader();
         rfxFullHeader.setRfxHeader(rfxHeader);
         rfxHeaderService.releaseRfx(organizationId, rfxFullHeader);
