@@ -10,6 +10,7 @@ import javassist.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
@@ -25,6 +26,7 @@ import org.srm.source.share.app.service.PrLineService;
 import org.srm.source.share.domain.vo.PrLineVO;
 import org.srm.web.annotation.Tenant;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,6 +59,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
      * @return
      */
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public PreSourceHeaderDTO rcwlShortListToRfx(Long organizationId, Long shortlistHeaderId, Long templateId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PrLineDTO prLineDTO = new PrLineDTO();
@@ -70,7 +73,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
         logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
         logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
-        List<PrLineVO> prLineVOList= this.rcwlShortlistHeaderRepository.pageAssignList(shortlistHeaderId);
+        List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(shortlistHeaderId);
         logger.info("------------prLineVOList:" + prLineVOList.size());
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
@@ -81,7 +84,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
         //创建询价单
 
+
         PreSourceHeaderDTO preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
+        logger.info("----------------创建询价单头结束-----------");
         //创建询价单供应商
         List<RfxLineSupplier> rfxLineSupplierList = new ArrayList<>();
         if (null != list && list.size() > 0) {
@@ -97,11 +102,11 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 rfxLineSupplier.setTenantId(organizationId);
 
                 rfxLineSupplierList.add(rfxLineSupplier);
-                lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
             }
         }
+        logger.info("---------创建供应商开始------");
         lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
-
+        logger.info("----------创建供应商结束--------");
 
         return preSourceHeaderDTO;
     }
