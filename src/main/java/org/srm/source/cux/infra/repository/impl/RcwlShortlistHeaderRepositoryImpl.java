@@ -193,7 +193,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         }
         //供应商数量<标段数*2+2 则报错
         Long bidNumber;
-        if (null != rcwlShortlistHeader.getAttributeBigint2() && "".equals(rcwlShortlistHeader.getAttributeBigint2())) {
+        if (null != rcwlShortlistHeader.getAttributeBigint2() && !"".equals(rcwlShortlistHeader.getAttributeBigint2())) {
             bidNumber = rcwlShortlistHeader.getAttributeBigint2();
         } else {
             bidNumber = 0L;
