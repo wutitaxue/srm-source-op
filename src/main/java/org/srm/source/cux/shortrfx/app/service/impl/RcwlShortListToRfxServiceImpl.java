@@ -70,8 +70,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
         logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
         logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
-        Page<PrLineVO> prLineVOS = this.prLineService.listPurchase(pageRequest, prLineDTO, organizationId);
-        List<PrLineVO> prLineVOList = prLineVOS.getContent();
+        List<PrLineVO> prLineVOList= this.rcwlShortlistHeaderRepository.pageAssignList(shortlistHeaderId);
         logger.info("------------prLineVOList:" + prLineVOList.size());
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
@@ -81,6 +80,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         //入围单供应商查询
         List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
         //创建询价单
+
         PreSourceHeaderDTO preSourceHeaderDTO = this.rfxHeaderService.createRfxHeaderFromPurchase(organizationId, preFullSourceHeaderDTO);
         //创建询价单供应商
         List<RfxLineSupplier> rfxLineSupplierList = new ArrayList<>();

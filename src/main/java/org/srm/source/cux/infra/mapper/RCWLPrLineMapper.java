@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 import org.srm.source.cux.api.dto.PrLineDTO;
 import org.srm.source.cux.domain.entity.PrLine;
 import org.srm.source.cux.domain.vo.PrHeaderVO;
+import org.srm.source.share.domain.vo.PrLineVO;
+
+import java.util.List;
 
 /**
  * 采购申请行Mapper
@@ -26,4 +29,6 @@ public interface RCWLPrLineMapper extends BaseMapper<PrLine> {
     Long selectPrLineId(@Param("prHeaderId") Long prHeaderId, @Param("lineNum") String lineNum, @Param("tenantId") Long tenantId);
 
     PrHeaderVO selectByNum(@Param("prNum") String prNum, @Param("lineNum") String lineNum, @Param("tenantId") Long tenantId);
+
+   List<PrLineVO> pageAssignList(Long shortListId);
 }
