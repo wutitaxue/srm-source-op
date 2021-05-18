@@ -97,7 +97,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         if (null != list && list.size() > 0) {
             for (RcwlSupplierHeader supplier : list
             ) {
-                logger.info("供应商信息："+mapper.writerWithDefaultPrettyPrinter().writeValueAsString(supplier));
+                logger.info("供应商信息：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(supplier));
                 RfxLineSupplier rfxLineSupplier = new RfxLineSupplier();
                 //供应商复制
                 rfxLineSupplier.initSupContact(supplier.getCompanyName());
@@ -115,12 +115,14 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 rfxLineSupplier.setContactName(supplier.getContacts());
                 rfxLineSupplier.setReadFlag(0);
                 rfxLineSupplier.setAppendFlag(0);
+
                 rfxLineSupplierList.add(rfxLineSupplier);
             }
         }
         logger.info("---------创建供应商开始------");
         if (CollectionUtils.isNotEmpty(rfxLineSupplierList)) {
-            rfxLineSupplierRepository.batchInsert(rfxLineSupplierList);
+//            rfxLineSupplierRepository.batchInsert(rfxLineSupplierList);
+            lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
         }
         logger.info("----------创建供应商结束--------");
 
