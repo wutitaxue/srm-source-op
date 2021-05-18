@@ -126,4 +126,6 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
     List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
 
     Set<Long> queryPrLine(Long shortlistHeaderId);
+
+    List<PrLineVO> pageAssignList(Long shortlistHeaderId);
 }

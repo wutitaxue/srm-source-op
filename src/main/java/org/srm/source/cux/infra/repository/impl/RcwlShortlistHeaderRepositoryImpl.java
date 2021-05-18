@@ -226,4 +226,9 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public Set<Long> queryPrLine(Long shortlistHeaderId) {
         return rcwlShortlistHeaderMapper.queryPrLine(shortlistHeaderId);
     }
+
+    @Override
+    public List<PrLineVO> pageAssignList(Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.pageAssignList(shortlistHeaderId);
+    }
 }
