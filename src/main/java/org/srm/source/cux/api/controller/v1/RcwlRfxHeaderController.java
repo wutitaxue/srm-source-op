@@ -32,11 +32,12 @@ public class RcwlRfxHeaderController {
     @Autowired
     private RfxHeaderService rfxHeaderService;
 
-    @ApiOperation("询价单发布")
+    @ApiOperation("新询价单发布")
     @Permission(
             level = ResourceLevel.ORGANIZATION
     )
-    @PostMapping({"/release"})
+    @PostMapping({"/bpmRelease"})
+    @FilterSupplier
     public ResponseEntity<String> rcwlReleaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
         String s = rcwlRfxHeaderBpmService.rcwlReleaseRfx(organizationId, rfxFullHeader);
         return Results.success(s);
@@ -76,7 +77,6 @@ public class RcwlRfxHeaderController {
     @Permission(
             level = ResourceLevel.ORGANIZATION
     )
-
     @PostMapping({"/bpmRfxSubmit"})
     public ResponseEntity bpmRfxSubmit(@PathVariable Long organizationId, @RequestParam("rfxNum")String rfxNum) {
         RfxHeader rfxHeadertemp = new RfxHeader();
