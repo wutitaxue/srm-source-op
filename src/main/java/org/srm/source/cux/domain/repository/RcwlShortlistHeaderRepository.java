@@ -137,4 +137,11 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
     Set<Long> queryPrLine(Long shortlistHeaderId);
 
     List<PrLineVO> pageAssignList(Long shortlistHeaderId);
+
+    /**
+     * 更新寻源方式
+     * @param sourceMethod
+     * @param rfxHeaderId
+     */
+    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId);
 }

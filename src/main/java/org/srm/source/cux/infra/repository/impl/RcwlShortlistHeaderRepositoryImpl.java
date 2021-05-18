@@ -236,4 +236,15 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public List<PrLineVO> pageAssignList(Long shortlistHeaderId) {
         return rcwlShortlistHeaderMapper.pageAssignList(shortlistHeaderId);
     }
+
+    /**
+     * 更新寻源方式
+     *
+     * @param sourceMethod
+     * @param rfxHeaderId
+     */
+    @Override
+    public void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId) {
+        rcwlShortlistHeaderMapper.updateRfxSourceMethod(sourceMethod,rfxHeaderId);
+    }
 }
