@@ -248,7 +248,6 @@
                srsh.object_version_number,
                srsh.created_by,
                srsh.creation_date,
-               srsh.
                hc.company_num,
                hc.company_name,
                iu.real_name created_name,
