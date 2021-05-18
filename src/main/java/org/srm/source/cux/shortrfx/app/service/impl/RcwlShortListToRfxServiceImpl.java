@@ -7,6 +7,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import javassist.Loader;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.srm.source.cux.shortrfx.app.service.RcwlShortListToRfxService;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineSupplierService;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
+import org.srm.source.rfx.domain.repository.RfxLineSupplierRepository;
 import org.srm.source.share.api.dto.PrLineDTO;
 import org.srm.source.share.api.dto.PreFullSourceHeaderDTO;
 import org.srm.source.share.api.dto.PreSourceHeaderDTO;
@@ -48,6 +50,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
     @Autowired
     private RfxLineSupplierService lineSupplierService;
+
+    @Autowired
+    private RfxLineSupplierRepository rfxLineSupplierRepository;
     private static final Logger logger = LoggerFactory.getLogger(Loader.class);
 
 
@@ -105,7 +110,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
             }
         }
         logger.info("---------创建供应商开始------");
-        lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
+        if (CollectionUtils.isNotEmpty(rfxLineSupplierList)) {
+            rfxLineSupplierRepository.batchInsert(rfxLineSupplierList);
+        }
         logger.info("----------创建供应商结束--------");
 
         return preSourceHeaderDTO;
