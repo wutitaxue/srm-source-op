@@ -101,7 +101,8 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 RfxLineSupplier rfxLineSupplier = new RfxLineSupplier();
                 //供应商复制
                 rfxLineSupplier.initSupContact(supplier.getCompanyName());
-                rfxLineSupplier.setRfxLineSupplierId(supplier.getSupplierId());
+//                rfxLineSupplier.setRfxLineSupplierId(supplier.getSupplierId());
+                rfxLineSupplier.setSupplierCompanyId(supplier.getSupplierId());
                 rfxLineSupplier.setCompanyId(supplier.getCompanyId());
                 rfxLineSupplier.setCompanyNum(supplier.getCompanyNum());
                 rfxLineSupplier.setSupplierCompanyNum(supplier.getSupplierNum());
