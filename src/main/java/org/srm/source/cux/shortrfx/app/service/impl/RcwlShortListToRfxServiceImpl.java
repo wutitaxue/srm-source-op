@@ -63,9 +63,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         prLineDTO.setNewPriceLibSearch(1);
         PageRequest pageRequest = new PageRequest();
         pageRequest.setSize(100);
-        Set<Long> ids = this.rcwlShortlistHeaderRepository.queryPrLine(shortlistHeaderId);
-        prLineDTO.setPrLineIds(ids);
-        logger.info("ids:" + ids.toString());
+//        Set<Long> ids = this.rcwlShortlistHeaderRepository.queryPrLine(shortlistHeaderId);
+//        prLineDTO.setPrLineIds(ids);
+//        logger.info("ids:" + ids.toString());
 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
         logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
