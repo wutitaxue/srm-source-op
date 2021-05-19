@@ -119,4 +119,9 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         }
         return responseData;
     }
+
+    @Override
+    public Long getClarifyIdByClarifyNum(String clarifyNum) {
+        return rcwlClarifyRepository.getClarifyIdByClarifyNum(clarifyNum);
+    }
 }

@@ -9,4 +9,6 @@ public interface RcwlClarifyService {
     ResponseData releaseClarifyByBPM(RcwlClarifyForBPM clarify);
 
     ResponseData updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO);
+
+    Long getClarifyIdByClarifyNum(String clarifyNum);
 }
