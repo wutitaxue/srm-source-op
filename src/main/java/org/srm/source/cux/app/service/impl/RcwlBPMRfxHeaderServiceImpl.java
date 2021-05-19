@@ -91,7 +91,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
     public String rfxHeaderToString(RfxHeader rfxHeader, String userName, List<RcwlRfxHeaderAttachmentListDataForBPM> list){
         //详情路径
-        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_RFXHEADER_TO_BPM_URL");
+        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_LBSP_TO_BPM_URL");
         StringBuilder sbUrl = new StringBuilder();
         sbUrl.append(URL_MX_HEADER).append(rfxHeader.getRfxHeaderId()).append("?").append("current=newInquiryHall");
         //甄云链接-澄清函详情URL（招采-招采-招采过程控制-蓝色单据编号）
