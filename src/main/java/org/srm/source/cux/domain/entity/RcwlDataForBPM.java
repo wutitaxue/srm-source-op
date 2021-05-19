@@ -37,7 +37,6 @@ public class RcwlDataForBPM {
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"DATA\":");
         sb.append("{\"FSUBJECT\":\"").append(this.getFSUBJECT()).append("\",");
         sb.append("\"SUBMITTEDBY\":\"").append(this.getSUBMITTEDBY()).append("\",");
         sb.append("\"TITLE\":\"").append(this.getTITLE()).append("\",");
@@ -49,12 +48,12 @@ public class RcwlDataForBPM {
         sb.append("\"CLARIFYNUMBER\":\"").append(this.getCLARIFYNUMBER()).append("\",");
         sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
-        sb.append("\"FKGLYSD\":[\"");
+        sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(RcwlAttachmentListDataForBPM ra : this.getATTACHMENTS()){
                 sb.append(ra.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
             sb.append("]}");
         return  sb.toString();
