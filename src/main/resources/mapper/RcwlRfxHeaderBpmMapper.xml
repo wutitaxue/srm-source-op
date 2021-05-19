@@ -1,6 +1,118 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper">
+    <select id="rcwlQueryEvaluateIndicate" resultType="org.srm.source.share.domain.entity.EvaluateIndic">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+
+        select ei.evaluate_indic_id,
+        ei.tenant_id,
+        ei.source_header_id,
+        ei.source_from,
+        ei.indicate_id,
+        ei.tmpl_assign_id,
+        ei.template_id,
+        ei.weight,
+        ei.qualifie_score,
+        ei.min_score,
+        ei.max_score,
+        ei.team,
+        ei.sequence_num,
+        ei.object_version_number,
+        ei.business_weight,
+        ei.technology_weight,
+        ei.indic_status,
+        ei.indicate_code,
+        ei.indicate_name,
+        ei.indicate_remark,
+        ei.indicate_type,
+        'ONE' as indicate_level,
+        null as parent_indicate_id,
+        ei.detail_enabled_flag,
+        ei.calculate_type,
+        ei.pass_flag,
+        ei.score_type
+        from ssrc_evaluate_indic ei
+        WHERE
+        ei.tenant_id = #{tenantId}
+        AND ei.source_header_id = #{sourceHeaderId}
+        <if test="indicStatus != null and indicStatus != ''">
+            AND ei.indic_status = #{indicStatus}
+        </if>
+        <if test="bidRuleType != null and bidRuleType == 'DIFF'">
+            AND team IN ('BUSINESS', 'TECHNOLOGY')
+        </if>
+        <if test="bidRuleType != null and bidRuleType == 'NONE'">
+            AND team = 'BUSINESS_TECHNOLOGY'
+        </if>
+        <if test="team != null and team!= ''">
+            and ei.team = #{team}
+        </if>
+        <choose>
+            <when test="sourceFrom != null and sourceFrom != ''">
+                AND ei.source_from = #{sourceFrom}
+            </when>
+            <otherwise>
+                AND ei.source_from = 'BID'
+            </otherwise>
+        </choose>
+        UNION all
+        select sic.indicate_id  evaluate_indic_id,
+        ei.tenant_id,
+        ei.source_header_id,
+        ei.source_from,
+        ei.indicate_id,
+        ei.tmpl_assign_id,
+        ei.template_id,
+        sic.weight,
+        ei.qualifie_score,
+        sic.min_score,
+        sic.max_score,
+        ei.team,
+        ei.sequence_num,
+        ei.object_version_number,
+        ei.business_weight,
+        ei.technology_weight,
+        ei.indic_status,
+        sic.indicate_code,
+        sic.indicate_name,
+        sic.remark  indicate_remark,
+        ei.indicate_type,
+        sic.indicate_level,
+        sic.parent_indicate_id,
+        sic.detail_enabled_flag,
+        ei.calculate_type,
+        ei.pass_flag,
+        ei.score_type
+        FROM
+        ssrc_evaluate_indic ei
+        right JOIN ssrc_score_indic sic ON ei.evaluate_indic_id = sic.parent_indicate_id and sic.source_type='MANUAL' and sic.enabled_flag = 1
+        WHERE
+        ei.tenant_id = #{tenantId}
+        AND ei.source_header_id = #{sourceHeaderId}
+        <if test="indicStatus != null and indicStatus != ''">
+            AND ei.indic_status = #{indicStatus}
+        </if>
+        <if test="bidRuleType != null and bidRuleType == 'DIFF'">
+            AND team IN ('BUSINESS', 'TECHNOLOGY')
+        </if>
+        <if test="bidRuleType != null and bidRuleType == 'NONE'">
+            AND team = 'BUSINESS_TECHNOLOGY'
+        </if>
+        <if test="indicateLevel != null and indicateLevel != ''">
+            AND sic.indicate_level = #{indicateLevel}
+        </if>
+        <if test="team != null and team!= ''">
+            and ei.team = #{team}
+        </if>
+        <choose>
+            <when test="sourceFrom != null and sourceFrom != ''">
+                AND ei.source_from = #{sourceFrom}
+            </when>
+            <otherwise>
+                AND ei.source_from = 'BID'
+            </otherwise>
+        </choose>
+    </select>
 
     <select id="prepareDate" resultType="org.srm.source.cux.domain.vo.RcwlSendBpmData">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
