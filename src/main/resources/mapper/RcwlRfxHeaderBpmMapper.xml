@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper">
+<mapper namespace="org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper">
     <select id="rcwlQueryEvaluateIndicate" resultType="org.srm.source.share.domain.entity.EvaluateIndic">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
 
@@ -114,7 +114,7 @@
         </choose>
     </select>
 
-    <select id="prepareDate" resultType="org.srm.source.cux.domain.vo.RcwlSendBpmData">
+    <select id="prepareDate" resultType="org.srm.source.cux.rfx.domain.vo.RcwlSendBpmData">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select
             concat('立项',srh.rfx_num,srh.rfx_title) FSubject,
@@ -153,7 +153,7 @@
         where srh.tenant_id = #{quotationHeaderId}
         and srh.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
-    <select id="prepareScoringTeamData" resultType="org.srm.source.cux.domain.vo.RcwlScoringTeamData">
+    <select id="prepareScoringTeamData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlScoringTeamData">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         SELECT
             i.login_name ExpertName,
@@ -176,7 +176,7 @@
         and source_header_id = #{rfxHeader.rfx_header_id}
         and tenant_id =  #{organizationId}
     </select>
-    <select id="prepareSupplierData" resultType="org.srm.source.cux.domain.vo.RcwlSupplierData">
+    <select id="prepareSupplierData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlSupplierData">
         SELECT
             hc.company_num SupplierCompanyNum,
             hc.company_name SupplierCompanyName,
@@ -191,7 +191,7 @@
         where srls.tenant_id = #{organizationId}
         and srls.rfx_header_id = #{rfxHeader.rfx_header_id}
     </select>
-    <select id="prepareDetailData" resultType="org.srm.source.cux.domain.vo.RcwlDetailData">
+    <select id="prepareDetailData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlDetailData">
         SELECT
             srli.rfx_line_item_num RfxLineItemNum,
             srli.item_code ItemCode,
@@ -206,7 +206,7 @@
             where srli.tenant_id = #{organizationId}
         and srli.rfx_header_id = #{rfxHeader.rfx_header_id}
     </select>
-    <select id="prepareAttachmentData" resultType="org.srm.source.cux.domain.vo.RcwlAttachmentData">
+    <select id="prepareAttachmentData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlAttachmentData">
         SELECT
             @rowno := @rowno + 1 FileNumber,
             hf.file_name FileName,
