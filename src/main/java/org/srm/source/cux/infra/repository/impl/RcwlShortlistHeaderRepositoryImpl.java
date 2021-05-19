@@ -6,9 +6,12 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import javassist.Loader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
@@ -25,6 +28,7 @@ import org.srm.source.share.domain.vo.PrLineVO;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
@@ -36,6 +40,7 @@ import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 @Component
 public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlShortlistHeader> implements RcwlShortlistHeaderRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(Loader.class);
 
     @Autowired
     private RcwlShortlistHeaderMapper rcwlShortlistHeaderMapper;
@@ -63,7 +68,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str2 = "";
             String str3 = "";
             String str4 = "";
-            if(ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())){
+            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
                     str1 = "注册资本不符合";
                 }
@@ -101,6 +106,18 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectRcwlShortlistHeader(rcwlShortlistQueryDTO));
     }
 
+    /**
+     * 转询价的供应商ß
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    @Override
+    public List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(Long organizationId, Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
+    }
+
     @Override
     public void updatePrLineByShortlistHeader(RcwlShortlistHeader rcwlShortlistHeader) {
         rcwlShortlistHeaderMapper.updatePrLineByShortlistHeader(rcwlShortlistHeader);
@@ -128,17 +145,17 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         RcwlShortlistHeader header;
         for (RcwlShortlistHeader rcwlShortlistHeader : rcwlShortlistHeaders) {
             Long shortlistHeaderId = rcwlShortlistHeader.getShortlistHeaderId();
-            if(shortlistHeaderId == null){
+            if (shortlistHeaderId == null) {
                 throw new CommonException("shortlistHeaderId not null");
             }
             //审批中的才可以审
-            if(!RW_STUTAS_APPROVING.equals(rcwlShortlistHeader.getState())){
+            if (!RW_STUTAS_APPROVING.equals(rcwlShortlistHeader.getState())) {
                 throw new CommonException("当前状态下不允许审批！");
             }
             header = new RcwlShortlistHeader();
             header.setShortlistHeaderId(shortlistHeaderId);
             //获取版本信息
-            if(!ObjectUtils.allNotNull(rcwlShortlistHeader.getObjectVersionNumber())){
+            if (!ObjectUtils.allNotNull(rcwlShortlistHeader.getObjectVersionNumber())) {
                 RcwlShortlistHeader headerSelect = rcwlShortlistHeaderMapper.selectByPrimaryKey(rcwlShortlistHeader);
                 header.setObjectVersionNumber(headerSelect.getObjectVersionNumber());
             }
@@ -153,7 +170,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public RcwlShortlistHeader published(RcwlShortlistHeader rcwlShortlistHeader) {
         //公开征集 才可以发布
         String shortlistCategory = rcwlShortlistHeader.getShortlistCategory();
-        if(!SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)){
+        if (!SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             throw new CommonException("入围方式为公开征集才可发布！");
         }
         //修改状态
@@ -166,11 +183,24 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader) {
         //公开征集时，报名时间截止后才可提交
         String shortlistCategory = rcwlShortlistHeader.getShortlistCategory();
-        if(SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)){
+        //查询供应个数
+        Long supplierCount = rcwlShortlistHeaderMapper.supplierCount(rcwlShortlistHeader.getShortlistHeaderId());
+        if (SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             Date finishDate = rcwlShortlistHeader.getFinishDate();
-            if(finishDate.compareTo(new Date()) <= 0){
+            if (finishDate.compareTo(new Date()) <= 0) {
                 throw new CommonException("未到报名截止时间，无法发布！");
             }
+        }
+        //供应商数量<标段数*2+2 则报错
+        Long bidNumber;
+        if (null != rcwlShortlistHeader.getAttributeBigint2() && !"".equals(rcwlShortlistHeader.getAttributeBigint2())) {
+            bidNumber = rcwlShortlistHeader.getAttributeBigint2();
+        } else {
+            bidNumber = 0L;
+        }
+        logger.info("标段数：" + rcwlShortlistHeader.getAttributeBigint2() + "---供应商数量：" + supplierCount);
+        if (supplierCount < bidNumber * 2 + 2) {
+            throw new CommonException("入围供应商数量不满足，请重新维护！");
         }
         //将状态修改为审批中
         rcwlShortlistHeader.setState(RW_STUTAS_APPROVING);
@@ -186,14 +216,35 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         //获取用户公司基本信息
         SupplierVO supplierVO = rcwlShortlistHeaderMapper.currentSupplierInfo(userDetails.getUserId());
         //获取联系人及电话
-        if(ObjectUtils.allNotNull(supplierVO)){
+        if (ObjectUtils.allNotNull(supplierVO)) {
             Long companyId = supplierVO.getCompanyId();
             List<CompanyContactVO> companyContactVOS = rcwlShortlistHeaderMapper.selectContactsByCompanyId(companyId);
-            if(CollectionUtils.isNotEmpty(companyContactVOS)){
+            if (CollectionUtils.isNotEmpty(companyContactVOS)) {
                 supplierVO.setContact(companyContactVOS.get(0).getContact());
                 supplierVO.setPhone(companyContactVOS.get(0).getPhone());
             }
         }
         return supplierVO;
+    }
+
+    @Override
+    public Set<Long> queryPrLine(Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.queryPrLine(shortlistHeaderId);
+    }
+
+    @Override
+    public List<PrLineVO> pageAssignList(Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.pageAssignList(shortlistHeaderId);
+    }
+
+    /**
+     * 更新寻源方式
+     *
+     * @param sourceMethod
+     * @param rfxHeaderId
+     */
+    @Override
+    public void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId) {
+        rcwlShortlistHeaderMapper.updateRfxSourceMethod(sourceMethod,rfxHeaderId);
     }
 }

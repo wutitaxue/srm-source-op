@@ -84,6 +84,7 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                 for (Long prLineId : rcwlShortlistHeader.getPrLineIds()) {
                     prLine = new PrLine();
                     prLine.setPrLineId(prLineId);
+                    prLine.setAttributeVarchar2(rcwlShortlistHeader.getShortlistNum());
                     prLine.setAttributeBigint1(rcwlShortlistHeader.getShortlistHeaderId());
                     prLines.add(prLine);
                 }
