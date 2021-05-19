@@ -1,4 +1,4 @@
-package org.srm.source.cux.infra.constant;
+package org.srm.source.cux.rfx.infra.constant;
 
 public class RcwlMessageCode {
 
