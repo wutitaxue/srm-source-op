@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.bid.api.dto.BiddingWorkDTO;
 import org.srm.source.cux.app.service.RcwlRfxHeaderBpmService;
+import org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxMemberService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -60,7 +61,7 @@ public class RcwlRfxHeaderController {
     @Autowired
     private RfxHeaderService rfxHeaderService;
     @Autowired
-    private EvaluateIndicMapper evaluateIndicMapper;
+    private RcwlRfxHeaderBpmMapper rcwlRfxHeaderBpmMapper;
 
 
     @ApiOperation("新询价单发布")
@@ -137,9 +138,7 @@ public class RcwlRfxHeaderController {
         evaluateIndicDTO.setIndicateLevel("ONE");
         evaluateIndicDTO.setSourceFrom("RFX");
         evaluateIndicDTO.setSourceHeaderId(rfxHeader.getRfxHeaderId());
-        List<EvaluateIndicDTO> evaluateIndicDTOS = evaluateIndicMapper.queryEvaluateIndicate(evaluateIndicDTO);
-        List<EvaluateIndic> evaluateIndicS = new ArrayList<EvaluateIndic>();
-        BeanUtils.copyProperties(evaluateIndicDTOS,evaluateIndicS);
+        List<EvaluateIndic> evaluateIndicS = rcwlRfxHeaderBpmMapper.rcwlQueryEvaluateIndicate(evaluateIndicDTO);
         rfxFullHeader.setEvaluateIndics(evaluateIndicS);
         RfxLineSupplier rfxLineSupplier = new RfxLineSupplier();
         rfxLineSupplier.setRfxHeaderId(rfxHeader.getRfxHeaderId());
