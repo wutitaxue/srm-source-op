@@ -42,9 +42,9 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         List<CalibrationApprovalAttachmentDataForBPM> attachmentDataForBPMList = new ArrayList<CalibrationApprovalAttachmentDataForBPM>();
         List<String> listAttachmentData = new ArrayList<String>();
         //详情路径
-        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_CALIBRATION_TO_BPM_URL");
+        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_DBSP_TO_BPM_URL");
         StringBuilder sbUrl = new StringBuilder();
-        sbUrl.append(URL_MX_HEADER).append(rfxHeader.getRfxHeaderId()).append("?").append("current=newInquiryHall");
+        sbUrl.append(URL_MX_HEADER).append(rfxHeader.getRfxHeaderId()).append("?").append("current=newInquiryHall&projectLineSectionId=");
         //方法区
         listDbdbjgData = rcwlCalibrationApprovalRepository.getDbdbjgList(rfxHeader.getRfxHeaderId());
         listAttachmentData = rcwlCalibrationApprovalRepository.getAttachmentList(rfxHeader.getCheckAttachmentUuid());
@@ -124,7 +124,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         rcwlGxBpmStartDataDTO.setData(forBPMData.toString());
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");
-        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_CALIBRATION_TO_PAGE_URL");
+        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_DBSP_TO_PAGE_URL");
         String URL_BACK = "http://"+rcwl_bpm_urlip+rcwl_page_urlip+rfxHeader.getRfxNum();
         responseData.setUrl(URL_BACK);
         try{
