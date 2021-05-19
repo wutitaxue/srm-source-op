@@ -43,13 +43,12 @@ public class CalibrationApprovalForBPMData {
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"DATA\":");
         sb.append("{\"FSUBJECT\":\"").append(this.getFSUBJECT()).append("\",");
         sb.append("\"COMPANYID\":\"").append(this.getCOMPANYID()).append("\",");
         sb.append("\"RFXNAME\":\"").append(this.getRFXNAME()).append("\",");
         sb.append("\"RFXNUM\":\"").append(this.getRFXNUM()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(this.getBIDDINGMODE()).append("\",");
-        sb.append("{\"SHORTLISTCATEGORY\":\"").append(this.getSHORTLISTCATEGORY()).append("\",");
+        sb.append("\"SHORTLISTCATEGORY\":\"").append(this.getSHORTLISTCATEGORY()).append("\",");
         sb.append("\"METHODREMARK\":\"").append(this.getMETHODREMARK()).append("\",");
         sb.append("\"ATTRIBUTEVARCHAR9\":\"").append(this.getATTRIBUTEVARCHAR9()).append("\",");
         sb.append("\"PROJECTAMOUNT\":\"").append(this.getPROJECTAMOUNT()).append("\",");
@@ -58,20 +57,20 @@ public class CalibrationApprovalForBPMData {
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER()).append("\",");
         sb.append("\"OPINION\":\"").append(this.getOPINION()).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
-        sb.append("\"DBDBJGS\":[\"");
+        sb.append("\"DBDBJGS\":[");
         if(!CollectionUtils.isEmpty(this.getDBDBJGS()) && this.getDBDBJGS().size()>0){
             for(CalibrationApprovalDbdbjgDataForBPM db : this.getDBDBJGS()){
                 sb.append(db.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
         sb.append("],");
-        sb.append("\"ATTACHMENTS\":[\"");
+        sb.append("\"ATTACHMENTS\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(CalibrationApprovalAttachmentDataForBPM at : this.getATTACHMENTS()){
                 sb.append(at.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
         sb.append("]}");
         return  sb.toString();

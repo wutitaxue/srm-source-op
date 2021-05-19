@@ -26,7 +26,7 @@ public class RcwlUpdateCalibrationApprovalController {
     @Permission(
             permissionPublic = true
     )
-    @PostMapping({"/update-clarify"})
+    @PostMapping({"/update-calibration-approval"})
     public ResponseCalibrationApprovalData updateClarifyData(@RequestBody RcwlUpdateCalibrationApprovalDTO rcwlUpdateDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateCalibrationApprovalDataDTO();
