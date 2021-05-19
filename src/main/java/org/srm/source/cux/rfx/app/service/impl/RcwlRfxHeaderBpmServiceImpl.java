@@ -1,4 +1,4 @@
-package org.srm.source.cux.app.service.impl;
+package org.srm.source.cux.rfx.app.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.srm.source.cux.app.service.RcwlRfxHeaderBpmService;
-import org.srm.source.cux.domain.vo.RcwlSendBpmData;
-import org.srm.source.cux.infra.constant.RcwlMessageCode;
-import org.srm.source.cux.infra.mapper.RcwlRfxHeaderBpmMapper;
+import org.srm.source.cux.rfx.app.service.RcwlRfxHeaderBpmService;
+import org.srm.source.cux.rfx.domain.vo.RcwlSendBpmData;
+import org.srm.source.cux.rfx.infra.constant.RcwlMessageCode;
+import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;

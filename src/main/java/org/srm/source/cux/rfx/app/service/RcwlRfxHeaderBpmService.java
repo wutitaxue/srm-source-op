@@ -1,4 +1,4 @@
-package org.srm.source.cux.app.service;
+package org.srm.source.cux.rfx.app.service;
 
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
 

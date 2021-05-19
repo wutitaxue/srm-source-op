@@ -1,4 +1,4 @@
-package org.srm.source.cux.domain.vo;
+package org.srm.source.cux.rfx.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

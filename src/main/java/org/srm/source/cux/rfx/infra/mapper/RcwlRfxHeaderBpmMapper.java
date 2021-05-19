@@ -1,7 +1,7 @@
-package org.srm.source.cux.infra.mapper;
+package org.srm.source.cux.rfx.infra.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.srm.source.cux.domain.vo.*;
+import org.srm.source.cux.rfx.domain.vo.*;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.share.api.dto.EvaluateIndicDTO;
 import org.srm.source.share.domain.entity.EvaluateIndic;
