@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class RcwlUpdateRfxHeaderDataDTO {
+    @JsonProperty("tenantId")
+    private String tenantId;
     @JsonProperty("rfxNum")
     private String rfxNum;
     @JsonProperty("attributeVarchar6")

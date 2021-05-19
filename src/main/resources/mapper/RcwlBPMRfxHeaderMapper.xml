@@ -8,6 +8,7 @@
             <if test="boIdUrl!=null and boIdUrl != ''">attribute_varchar7=#{getAttributeVarchar7},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
+        AND tenant_id = #{tenantId}
     </update>
     <update id="updateRfxHeader">
         UPDATE ssrc_rfx_header

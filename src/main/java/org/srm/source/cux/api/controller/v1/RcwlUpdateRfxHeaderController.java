@@ -45,9 +45,10 @@ public class RcwlUpdateRfxHeaderController {
     public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
         RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
-        if(rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum())){
+        if((rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum()))&&
+                (rcwlUpdateDataDTO.getTenantId() == null || "".equals(rcwlUpdateDataDTO.getTenantId()))){
             responseData.setCode("201");
-            responseData.setMessage("询价单编号获取异常！");
+            responseData.setMessage("询价单编号或人员信息获取异常！");
             return responseData;
         }
         if((rcwlUpdateDataDTO.getAttributeVarchar6() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar6()))&&
