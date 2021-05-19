@@ -134,4 +134,10 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         }
         return responseData;
     }
+
+    @Override
+    public Long getRfxHeaderIdByRfxNum(Long rfxNum) {
+        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum);
+        return l == null ? 0l:l;
+    }
 }

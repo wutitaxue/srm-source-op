@@ -22,4 +22,9 @@
         FROM    hfle_file
         WHERE   attachment_uuid = #{data}
     </select>
+    <select id="getRfxHeaderIdByRfxNum" resultType="java.lang.Long">
+        SELECT rfx_header_id
+        FROM    ssrc_rfx_header
+        WHERE   rfx_num = #{rfxNumd}
+    </select>
 </mapper>

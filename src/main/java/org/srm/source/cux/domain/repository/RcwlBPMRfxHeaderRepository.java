@@ -13,4 +13,6 @@ public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
     void updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO);
 
     void updateRfxHeader(Long id , String remark,Long tenantId);
+
+    Long getRfxHeaderIdByRfxNum(Long rfxNum);
 }
