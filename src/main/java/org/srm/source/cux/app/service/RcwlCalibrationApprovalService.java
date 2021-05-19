@@ -8,4 +8,6 @@ public interface RcwlCalibrationApprovalService {
     ResponseCalibrationApprovalData connectBPM(String organizationId, Long rfxHeaderId);
 
     ResponseCalibrationApprovalData updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO);
+
+    Long getRfxHeaderIdByRfxNum(String rfxNum);
 }

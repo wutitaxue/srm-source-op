@@ -56,4 +56,16 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     public void updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO) {
         rcwlCalibrationApprovalMapper.updateClarifyData(rcwlUpdateDataDTO);
     }
+
+    @Override
+    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
+        Long data = rcwlCalibrationApprovalMapper.getRfxHeaderIdByRfxNum(rfxNum);
+        return data == null ? 0l:data ;
+    }
+
+    @Override
+    public String getQuotationAmount(String s) {
+        String data = rcwlCalibrationApprovalMapper.getQuotationAmount(s);
+        return data == null ? "":data ;
+    }
 }

@@ -85,4 +85,22 @@
             t.suggested_remark
             LIMIT 0,1
     </select>
+    <select id="getRfxHeaderIdByRfxNum" resultType="java.lang.Long">
+        SELECT
+            t.rfx_header_id
+        FROM
+            `ssrc_rfx_header` t
+        WHERE
+            t.rfx_num = #{rfxNum}
+    </select>
+    <select id="getQuotationAmount" resultType="String">
+        SELECT
+            t.quotation_amount
+        FROM
+            `ssrc_round_rank_header` t
+        WHERE
+            t.quotation_header_id = #{s}
+          AND t.quotation_round_number = 1
+            limit 0,1
+    </select>
 </mapper>

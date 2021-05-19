@@ -82,7 +82,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setBUSINESSSCORE(dbdbjgListData.split("|\\+|")[5]);
                 rald.setCOMPREHENSIVE(dbdbjgListData.split("|\\+|")[6]);
                 rald.setCOMPREHENSIVERANK(dbdbjgListData.split("|\\+|")[7]);
-                rald.setBIDPRICE("");
+                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.split("|\\+|")[1]));
                 rald.setFIXEDPRICE(dbdbjgListData.split("|\\+|")[8]);
                 rald.setREMARKS(this.getRemark(dbdbjgListData.split("|\\+|")[0]));
                 dbdbjgDataForBPMList.add(rald);
@@ -149,6 +149,11 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             responseCalibrationApprovalData.setCode("201");
         }
         return responseCalibrationApprovalData;
+    }
+
+    @Override
+    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
+        return rcwlCalibrationApprovalRepository.getRfxHeaderIdByRfxNum(rfxNum);
     }
 
     private String getRemark(String s) {

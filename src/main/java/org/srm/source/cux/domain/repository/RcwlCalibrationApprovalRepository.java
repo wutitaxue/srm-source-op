@@ -22,4 +22,8 @@ public interface RcwlCalibrationApprovalRepository extends BaseRepository<RfxHea
     String getRemark(String id);
 
     void updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO);
+
+    Long getRfxHeaderIdByRfxNum(String rfxNum);
+
+    String getQuotationAmount(String s);
 }
