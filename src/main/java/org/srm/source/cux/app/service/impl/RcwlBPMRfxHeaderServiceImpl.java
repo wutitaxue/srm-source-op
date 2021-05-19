@@ -98,25 +98,24 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
         StringBuffer sb = new StringBuffer();
-        sb.append("\"DATA\":");
         sb.append("{\"FSUBJECT\":\"").append(rfxHeader.getCompanyName())
                 .append("-").append(rfxHeader.getRfxTitle()).append("-").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"COMPANYID\":\"").append(rfxHeader.getCompanyName()).append("\",");
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8()).append("\",");
-        sb.append("{\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay()).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay()).append("\",");
         sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory()).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark()).append("\",");
         sb.append("\"URL_MX\":\"").append(sbUrl.toString()).append("\",");
-        sb.append("\"FKGLYSD\":[\"");
+        sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(list) && list.size()>0){
             for(RcwlRfxHeaderAttachmentListDataForBPM ra : list){
                 sb.append(ra.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
         sb.append("]}");
         return  sb.toString();
