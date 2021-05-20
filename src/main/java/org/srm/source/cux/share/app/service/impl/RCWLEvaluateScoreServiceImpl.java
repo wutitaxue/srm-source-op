@@ -4,11 +4,13 @@ import io.choerodon.core.exception.CommonException;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.srm.source.bid.app.service.BidLineItemService;
 import org.srm.source.bid.app.service.common.BidSendMessageHandle;
@@ -27,10 +29,13 @@ import org.srm.source.share.app.service.impl.EvaluateScoreServiceImpl;
 import org.srm.source.share.domain.entity.EvaluateExpert;
 import org.srm.source.share.domain.entity.EvaluateScore;
 import org.srm.source.share.domain.entity.EvaluateScoreLine;
+import org.srm.source.share.domain.repository.EvaluateExpertRepository;
+import org.srm.source.share.domain.repository.EvaluateScoreLineRepository;
 import org.srm.source.share.domain.repository.EvaluateScoreRepository;
 import org.srm.source.share.infra.utils.ShareEventUtil;
 import org.srm.web.annotation.Tenant;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,7 +70,10 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
     private SendMessageHandle rfxSendMessageHandle;
     @Autowired
     private ShareEventUtil shareEventUtil;
-
+    @Autowired
+    private EvaluateExpertRepository evaluateExpertRepository;
+    @Autowired
+    private EvaluateScoreLineRepository evaluateScoreLineRepository;
 
     @Transactional(
             rollbackFor = {Exception.class}
@@ -218,20 +226,20 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
         if (count == 0) {
 
             //评分负责人不评分，给各个评分人的均值
-            this.evaluateLeaderScore(evaluateScoreQueryDTO, header, rfxHeader);
+            this.evaluateLeaderScore(header, rfxHeader);
 
             if (header.getBidHeaderId() != null) {
-                header.setBidStatus("BID_EVALUATION_PENDING");
+                header.setBidStatus(SourceBaseConstant.RfxStatus.BID_EVALUATION_PENDING);
                 this.bidHeaderRepository.updateByPrimaryKeySelective(header);
                 this.bidSendMessageHandle.sendMessageForTeamLeader(header);
-                this.shareEventUtil.eventSend("SSRC_EVALUATE", "SSRC_EVALUATE_PENDING", "SUMMARY_PENDING", header);
+                this.shareEventUtil.eventSend(SourceBaseConstant.RfxCategory.SSRC_EVALUATE, SourceBaseConstant.EventCode.SSRC_EVALUATE_PENDING, SourceBaseConstant.RfxAction.SUMMARY_PENDING, header);
             }
 
             if (rfxHeader.getRfxHeaderId() != null) {
-                rfxHeader.setRfxStatus("RFX_EVALUATION_PENDING");
+                rfxHeader.setRfxStatus(SourceBaseConstant.RfxStatus.RFX_EVALUATION_PENDING);
                 this.rfxHeaderRepository.updateByPrimaryKeySelective(rfxHeader);
                 this.rfxSendMessageHandle.sendMessageForTeamLeader(rfxHeader);
-                this.shareEventUtil.eventSend("SSRC_EVALUATE", "SSRC_EVALUATE_PENDING", "SUMMARY_PENDING", rfxHeader);
+                this.shareEventUtil.eventSend(SourceBaseConstant.RfxCategory.SSRC_EVALUATE, SourceBaseConstant.EventCode.SSRC_EVALUATE_PENDING, SourceBaseConstant.RfxAction.SUMMARY_PENDING, rfxHeader);
             }
 
         }
@@ -239,11 +247,12 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
 
     /**
      * 给评分负责人均值
-     * @param evaluateScoreQueryDTO
+     *
+     * @param
      * @param header
      * @param rfxHeader
      */
-    private void evaluateLeaderScore(EvaluateScoreQueryDTO evaluateScoreQueryDTO, BidHeader header, RfxHeader rfxHeader) {
+    private void evaluateLeaderScore( BidHeader header, RfxHeader rfxHeader) {
         Long sourceHeaderId = rfxHeader.getRfxHeaderId();
         String sourceFrom = SourceBaseConstant.SourceFrom.RFX;
         Integer currentSequenceNum = rfxHeader.getCurrentSequenceNum();
@@ -252,13 +261,96 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
             sourceFrom = SourceBaseConstant.SourceFrom.BID;
             currentSequenceNum = header.getCurrentSequenceNum();
         }
+        //查出分数
         List<EvaluateScore> evaluateScores = this.evaluateScoreRepository.selectByCondition(Condition.builder(EvaluateScore.class)
                 .andWhere(Sqls.custom().andEqualTo(EvaluateScore.FIELD_SOURCE_FROM, sourceFrom)
                         .andEqualTo(EvaluateScore.FIELD_SOURCE_HEADER_ID, sourceHeaderId)
-                        .andEqualTo("sequenceNum", currentSequenceNum)).build());
+                        .andEqualTo(EvaluateExpert.FIELD_SEQUENCE_NUM, currentSequenceNum)).build());
+        //要素得分
+        List<Long> scoreIds = evaluateScores.stream().map(v -> v.getEvaluateScoreId()).collect(Collectors.toList());
+        List<EvaluateScoreLine> evaluateScoreLines = this.evaluateScoreLineRepository.selectByCondition(Condition.builder(EvaluateScoreLine.class)
+                .andWhere(Sqls.custom().andIn(EvaluateScoreLine.FIELD_EVALUATE_SCORE_ID, scoreIds)).build());
 
+        //查出评分人
+        List<EvaluateExpert> evaluateExperts = this.evaluateExpertRepository.selectByCondition(Condition.builder(EvaluateExpert.class).andWhere(Sqls.custom().andEqualTo(EvaluateExpert.FIELD_SOURCE_HEADER_ID, sourceHeaderId)
+                .andEqualTo(EvaluateExpert.FIELD_SOURCE_FROM, sourceFrom).andEqualTo(EvaluateExpert.FIELD_SEQUENCE_NUM, currentSequenceNum)).build());
+        //过滤出评分负责人
+        List<EvaluateExpert> evaluateLeaderExperts = evaluateExperts.stream().filter(e -> BaseConstants.Flag.YES.equals(e.getEvaluateLeaderFlag())).collect(Collectors.toList());
+        Long evaluateExpertId = evaluateLeaderExperts.get(0).getEvaluateExpertId();
+        //取出评分负责人的数据
+        List<EvaluateScore> evaluateLeaderCollect = evaluateScores.stream().filter(e -> evaluateExpertId.equals(e.getEvaluateExpertId())).collect(Collectors.toList());
+        Set<Long> evaluateLeaderScoreIds = evaluateLeaderCollect.stream().map(v -> v.getEvaluateScoreId()).collect(Collectors.toSet());
+        List<EvaluateScoreLine> evaluateLeaderScoreLine = evaluateScoreLines.stream().filter(e -> evaluateLeaderScoreIds.contains(e.getEvaluateScoreId())).collect(Collectors.toList());
+        Map<Long, List<EvaluateScore>> leader = evaluateLeaderCollect.stream().collect(Collectors.groupingBy(EvaluateScore::getQuotationHeaderId));
+        Map<Long, List<Long>> leaderIds = this.quotationAndScoreIds(leader);
+        //取出评分其他人的数据
+        List<EvaluateScore> evaluateCollect = evaluateScores.stream().filter(e -> !evaluateExpertId.equals(e.getEvaluateExpertId())).collect(Collectors.toList());
+        Set<Long> evaluateScoreIds = evaluateCollect.stream().map(v -> v.getEvaluateScoreId()).collect(Collectors.toSet());
+        List<EvaluateScoreLine> evaluateScoreLine = evaluateScoreLines.stream().filter(e -> evaluateScoreIds.contains(e.getEvaluateScoreId())).collect(Collectors.toList());
+        //分数对应报价单
+        Map<Long, List<EvaluateScore>> longListMap = evaluateCollect.stream().collect(Collectors.groupingBy(EvaluateScore::getQuotationHeaderId));
+        Map<Long, List<Long>> quotationAndScoreIds = this.quotationAndScoreIds(longListMap);
+        //要素分平均  通过要素分类计算
+        Map<Long, List<EvaluateScoreLine>> lineScoreMap = evaluateScoreLine.stream().collect(Collectors.groupingBy(EvaluateScoreLine::getEvaluateIndicId));
+        Map<Long, List<EvaluateScoreLine>> scoreLines = new HashMap<>();
+        for (Long quoId : quotationAndScoreIds.keySet()) {
+            List<Long> longs = quotationAndScoreIds.get(quoId);
+            List<EvaluateScoreLine> lines = new ArrayList<>();
+            for (Long indicId : lineScoreMap.keySet()) {
+                EvaluateScoreLine evgScoreLine = new EvaluateScoreLine();
+                List<EvaluateScoreLine> lineList = lineScoreMap.get(indicId);
+                BigDecimal reduce = lineList.stream().filter(e -> longs.contains(e.getEvaluateScoreId())).map(v -> ObjectUtils.isEmpty(v.getIndicScore()) ? BigDecimal.ZERO : v.getIndicScore()).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal divide = reduce.divide(BigDecimal.valueOf(longs.size()), 2, BigDecimal.ROUND_HALF_UP);
+                evgScoreLine.setIndicScore(divide);
+                evgScoreLine.setEvaluateIndicId(indicId);
+                lines.add(evgScoreLine);
+            }
+            scoreLines.put(quoId, lines);
+        }
+        //要素评分
+        evaluateLeaderScoreLine.forEach(line -> {
+            for (Long quoID : scoreLines.keySet()) {
+                Long scoreId = leaderIds.get(quoID).get(0);
+                EvaluateScoreLine scoreLine = scoreLines.get(quoID).stream().filter(e -> e.getEvaluateIndicId().equals(line.getEvaluateIndicId())).collect(Collectors.toList()).get(0);
+                if(scoreId.equals(line.getEvaluateScoreId())&&line.getEvaluateIndicId().equals(scoreLine.getEvaluateIndicId())){
+                    line.setIndicScore(scoreLine.getIndicScore());
+                }
+            }
+        });
+        //总分平均
+        Map<Long, BigDecimal> evgScore = new HashMap<>();
+        for (Long key : longListMap.keySet()) {
+            BigDecimal reduce = longListMap.get(key).stream().map(v -> ObjectUtils.isEmpty(v.getSumIndicScore()) ? BigDecimal.ZERO : v.getSumIndicScore()).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal divide = reduce.divide(BigDecimal.valueOf(evaluateExperts.size() - evaluateLeaderExperts.size()), 2, BigDecimal.ROUND_HALF_UP);
+            evgScore.put(key, divide);
+        }
 
-    int i = 1/0;
+        //赋值
+        evaluateLeaderCollect.forEach(e -> {
+            Long id = evgScore.keySet().stream().filter(s -> s.equals(e.getQuotationHeaderId())).collect(Collectors.toList()).get(0);
+            e.setSumIndicScore(evgScore.get(id));
+            e.setExpertSuggestion(SourceBaseConstant.Text.EXPERT_SUGGESTION);
+            e.setScoreStatus(SourceBaseConstant.ScoredStatus.SCORED);
+        });
+        //评分保存
+        this.evaluateScoreLineRepository.batchUpdateByPrimaryKeySelective(evaluateLeaderScoreLine);
+        this.evaluateScoreRepository.batchUpdateByPrimaryKeySelective(evaluateLeaderCollect);
+        //评分人状态保存
+        evaluateLeaderExperts.forEach(e -> {
+            e.setScoredStatus(SourceBaseConstant.ScoredStatus.SCORED);
+        });
+        this.evaluateExpertRepository.batchUpdateByPrimaryKeySelective(evaluateLeaderExperts);
     }
 
+    private Map<Long, List<Long>> quotationAndScoreIds(Map<Long, List<EvaluateScore>> scoreMap) {
+        Map<Long, List<Long>> quotationAndScoreIds = new HashMap<>();
+        for (Long quotationId : scoreMap.keySet()) {
+            List<Long> scoreIdList = new ArrayList<>();
+            scoreMap.get(quotationId).forEach(e -> {
+                scoreIdList.add(e.getEvaluateScoreId());
+            });
+            quotationAndScoreIds.put(quotationId, scoreIdList);
+        }
+        return quotationAndScoreIds;
+    }
 }
