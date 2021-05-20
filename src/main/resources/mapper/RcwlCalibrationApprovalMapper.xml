@@ -8,6 +8,7 @@
             <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attribute_varchar5},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
+        AND tenant_id = #{tenantId}
     </update>
 
     <select id="getAttachmentList" resultType="String">
@@ -102,5 +103,31 @@
             t.quotation_header_id = #{s}
           AND t.quotation_round_number = 1
             limit 0,1
+    </select>
+    <select id="getQuotationHeaderIDByRfxHeaderId" resultType="String">
+        SELECT
+            t.quotation_header_id
+        FROM
+            `ssrc_rfx_quotation_header` t
+        WHERE
+            t.rfx_header_id = #{rfxHeaderId}
+        AND t.tenant_id = #{tenantId}
+    </select>
+    <select id="getRfxLineItemIdByRfxHeaderId" resultType="java.lang.Long">
+        SELECT
+            t.rfx_line_item_id
+        FROM
+            `ssrc_rfx_line_item` t
+        WHERE
+            t.rfx_header_id = #{rfxHeaderId}
+    </select>
+    <select id="getQuotationLineListByQuotationHeaderID"
+            resultType="org.srm.source.rfx.domain.entity.RfxQuotationLine">
+        SELECT
+            t.*
+        FROM
+            `ssrc_rfx_quotation_line`
+        WHERE
+            t.quotation_header_id = #{id}
     </select>
 </mapper>

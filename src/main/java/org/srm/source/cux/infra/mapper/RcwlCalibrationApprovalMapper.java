@@ -1,6 +1,7 @@
 package org.srm.source.cux.infra.mapper;
 
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
+import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import java.util.List;
 
@@ -22,4 +23,10 @@ public interface RcwlCalibrationApprovalMapper {
     Long getRfxHeaderIdByRfxNum(String rfxNum);
 
     String getQuotationAmount(String s);
+
+    List<String> getQuotationHeaderIDByRfxHeaderId(Long rfxHeaderId,Long tenantId);
+
+    List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId);
+
+    List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
 }

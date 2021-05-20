@@ -26,8 +26,6 @@ public class RcwlCalibrationApprovalController extends BaseController {
 
     @Autowired
     private RcwlCalibrationApprovalService rcwlCalibrationApprovalService;
-    @Autowired
-    private RfxHeaderService rfxHeaderService;
 
     @ApiOperation("定标审批BPM模拟")
     @Permission(
@@ -41,23 +39,4 @@ public class RcwlCalibrationApprovalController extends BaseController {
         return responseData;
     }
 
-    @ApiOperation("定标审批通过")
-    @Permission(
-            level = ResourceLevel.ORGANIZATION
-    )
-    @PostMapping({"/check/approved/for/bpm"})
-    @FilterSupplier
-    public ResponseCalibrationApprovalData checkPriceApproved(@ApiParam("租户ID") @PathVariable Long organizationId, @ApiParam("询价单头ID") @PathVariable @Encrypt String rfxNum) {
-        ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rfxNum);
-        responseData.setCode("200");
-        responseData.setMessage("操作成功！");
-        try{
-            rfxHeaderService.checkPriceApproved(organizationId, rfxHeaderId);
-        }catch(Exception e){
-            responseData.setCode("201");
-            responseData.setMessage("操作失败！");
-        }
-        return responseData;
-    }
 }

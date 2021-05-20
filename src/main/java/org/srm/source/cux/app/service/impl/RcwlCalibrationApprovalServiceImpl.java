@@ -12,6 +12,7 @@ import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
 import java.util.ArrayList;
@@ -154,6 +155,24 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     @Override
     public Long getRfxHeaderIdByRfxNum(String rfxNum) {
         return rcwlCalibrationApprovalRepository.getRfxHeaderIdByRfxNum(rfxNum);
+    }
+
+    @Override
+    public List<String> getQuotationHeaderIDByRfxHeaderId(Long rfxHeaderId,Long tenantId) {
+        List<String> qQuotationHeaderIDs = rcwlCalibrationApprovalRepository.getQuotationHeaderIDByRfxHeaderId(rfxHeaderId,tenantId);
+        return qQuotationHeaderIDs;
+    }
+
+    @Override
+    public List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId) {
+        List<Long> l = rcwlCalibrationApprovalRepository.getRfxLineItemIdByRfxHeaderId(rfxHeaderId);
+        return l;
+    }
+
+    @Override
+    public List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id) {
+        List<RfxQuotationLine> l = rcwlCalibrationApprovalRepository.getQuotationLineListByQuotationHeaderID(id);
+        return l;
     }
 
     private String getRemark(String s) {
