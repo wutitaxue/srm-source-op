@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlCalibrationApprovalMapper">
+    <update id="updateClarifyData">
+        UPDATE ssrc_rfx_header
+        <trim prefix="set" suffixOverrides=",">
+            <if test="attribute_varchar4!=null and attribute_varchar4 != ''">attribute_varchar4=#{attribute_varchar4},</if>
+            <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attribute_varchar5},</if>
+        </trim>
+        WHERE rfx_num=#{rfxNum}
+    </update>
+
+    <select id="getAttachmentList" resultType="String">
+        SELECT concat_ws('|+|',file_name,file_size,file_url)
+        FROM    hfle_file
+        WHERE   attachment_uuid = #{data}
+    </select>
+    <select id="getWinningSupplyNum" resultType="String">
+        SELECT
+            count(DISTINCT(T.quotation_header_id))
+        FROM
+            `ssrc_rfx_quotation_line` t
+        WHERE
+                t.quotation_header_id IN (
+                SELECT
+                    y.quotation_header_id
+                FROM
+                    ssrc_rfx_quotation_header y
+                WHERE
+                    y.rfx_header_id = #{rfxHeaderId}
+            )
+    </select>
+    <select id="getquotationRoundNum" resultType="String">
+        SELECT
+            t.quotation_round_number
+        FROM
+            ssrc_round_header t
+        where  t.source_header_id = #{rfxHeaderId}
+    </select>
+    <select id="getDbdbjgList" resultType="String">
+        SELECT
+            CONCAT_WS( '|+|', quotation_header_id, supplier_company_name, company_num, supplier_company_ip, technology_score, business_score, score, score_rank, total_amount )
+        FROM
+            (
+                SELECT
+                    t.quotation_header_id,
+                    t.supplier_company_name,
+                    y.company_num,
+                    t.supplier_company_ip,
+                    x.technology_score,
+                    x.business_score,
+                    x.score,
+                    x.score_rank,
+                    sum( z.total_amount ) total_amount
+                FROM
+                    ssrc_rfx_quotation_header t
+                        LEFT JOIN sslm_supplier_basic y ON t.supplier_company_id = y.supplier_company_id
+                        LEFT JOIN ssrc_evaluate_summary x ON t.quotation_header_id = x.quotation_header_id
+                        LEFT JOIN ssrc_rfx_quotation_line z ON z.quotation_header_id = t.quotation_header_id
+                WHERE
+                    t.rfx_header_id = #{rfxHeaderId}
+                GROUP BY
+                    t.quotation_header_id
+                ORDER BY
+                    x.score_rank
+            ) q
+    </select>
+    <select id="getAppendRemark" resultType="Integer">
+        SELECT
+            COUNT( t.suggested_flag ) suggested_flag
+        FROM
+            ssrc_rfx_quotation_line t
+        WHERE
+            t.quotation_header_id = #{id}
+          AND t.suggested_flag = 1
+    </select>
+    <select id="getRemark" resultType="String">
+        SELECT
+            t.suggested_remark
+        FROM
+            ssrc_rfx_quotation_line t
+        WHERE
+            t.quotation_header_id = #{id}
+        ORDER BY
+            t.suggested_remark
+            LIMIT 0,1
+    </select>
+    <select id="getRfxHeaderIdByRfxNum" resultType="java.lang.Long">
+        SELECT
+            t.rfx_header_id
+        FROM
+            `ssrc_rfx_header` t
+        WHERE
+            t.rfx_num = #{rfxNum}
+    </select>
+    <select id="getQuotationAmount" resultType="String">
+        SELECT
+            t.quotation_amount
+        FROM
+            `ssrc_round_rank_header` t
+        WHERE
+            t.quotation_header_id = #{s}
+          AND t.quotation_round_number = 1
+            limit 0,1
+    </select>
+</mapper>
