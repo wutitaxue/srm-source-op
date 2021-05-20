@@ -128,8 +128,7 @@ hzero:
       database: ${SPRING_REDIS_DATABASE:1}
       password: ${SPRING_REDIS_PASSWORD:Zyun1234}
   scheduler:
-#    executor-code: SRM_SOURCE_EXECUTOR
-    executor-code: SFIN.EXECUTOR
+    executor-code: SRM_SOURCE_EXECUTOR
     auto-register: true
     upload-log: false
   export:
