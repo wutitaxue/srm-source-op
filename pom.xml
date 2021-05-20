@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.srm</groupId>
+        <groupId>org.srm-op</groupId>
         <artifactId>srm-parent</artifactId>
-        <version>1.13.5.RELEASE</version>
+        <version>1.13.5-SNAPSHOT</version>
     </parent>
     <groupId>org.srm-op</groupId>
     <artifactId>srm-source-op</artifactId>
@@ -13,28 +13,35 @@
     <dependencies>
         <dependency>
             <groupId>org.srm-op</groupId>
-            <artifactId>srm-source</artifactId>
-            <version>1.13.30-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hzero.starter</groupId>
-                    <artifactId>hzero-starter-mybatis-mapper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.srm.starter</groupId>
-                    <artifactId>srm-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>srm-source-rcwl-hotfix</artifactId>
+            <version>1.13.1.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>com.hand.scm</groupId>
             <artifactId>customize</artifactId>
-            <version>2.0-RELEASE</version>
+            <version>2.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.10</version>
+            <groupId>org.srm-op</groupId>
+            <artifactId>rcwl-bpm</artifactId>
+            <version>1.0-20210414.155404-4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.interceptor</groupId>
+            <artifactId>javax.interceptor-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- srm 应用市场 -->
+        <dependency>
+            <groupId>org.srm.plugin</groupId>
+            <artifactId>amkt-hzero-client</artifactId>
+            <version>1.14.1.RELEASE</version>
         </dependency>
     </dependencies>
 

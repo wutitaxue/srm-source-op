@@ -1,143 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.cux.infra.mapper.RCWLPrLineMapper">
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper">
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.PrLine">
-        <result column="pr_line_id" property="prLineId" jdbcType="DECIMAL"/>
-        <result column="pr_header_id" property="prHeaderId" jdbcType="DECIMAL"/>
+    <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        <result column="shortlist_header_id" property="shortlistHeaderId" jdbcType="DECIMAL"/>
         <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
-        <result column="line_num" property="lineNum" jdbcType="DECIMAL"/>
-        <result column="display_line_num" property="displayLineNum" jdbcType="VARCHAR"/>
         <result column="company_id" property="companyId" jdbcType="DECIMAL"/>
-        <result column="ou_id" property="ouId" jdbcType="DECIMAL"/>
-        <result column="purchase_org_id" property="purchaseOrgId" jdbcType="DECIMAL"/>
-        <result column="purchase_agent_id" property="purchaseAgentId" jdbcType="DECIMAL"/>
-        <result column="request_date" property="requestDate" jdbcType="DATE"/>
-        <result column="requested_by" property="requestedBy" jdbcType="DECIMAL"/>
-        <result column="pr_requested_name" property="prRequestedName" jdbcType="VARCHAR"/>
-        <result column="inv_organization_id" property="invOrganizationId" jdbcType="DECIMAL"/>
-        <result column="inventory_id" property="inventoryId" jdbcType="DECIMAL"/>
-        <result column="item_id" property="itemId" jdbcType="DECIMAL"/>
-        <result column="item_code" property="itemCode" jdbcType="VARCHAR"/>
-        <result column="item_name" property="itemName" jdbcType="VARCHAR"/>
-        <result column="item_abc_class" property="itemAbcClass" jdbcType="VARCHAR"/>
-        <result column="drawing_num" property="drawingNum" jdbcType="VARCHAR"/>
-        <result column="project_num" property="projectNum" jdbcType="VARCHAR"/>
+        <result column="sample_id" property="sampleId" jdbcType="DECIMAL"/>
+        <result column="shortlist_num" property="shortlistNum" jdbcType="VARCHAR"/>
         <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
-        <result column="crane_num" property="craneNum" jdbcType="VARCHAR"/>
-        <result column="product_id" property="productId" jdbcType="DECIMAL"/>
-        <result column="product_num" property="productNum" jdbcType="VARCHAR"/>
-        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
-        <result column="catalog_id" property="catalogId" jdbcType="DECIMAL"/>
-        <result column="catalog_name" property="catalogName" jdbcType="VARCHAR"/>
-        <result column="category_id" property="categoryId" jdbcType="DECIMAL"/>
-        <result column="uom_id" property="uomId" jdbcType="DECIMAL"/>
-        <result column="quantity" property="quantity" jdbcType="DECIMAL"/>
-        <result column="tax_id" property="taxId" jdbcType="DECIMAL"/>
-        <result column="tax_rate" property="taxRate" jdbcType="DECIMAL"/>
-        <result column="currency_code" property="currencyCode" jdbcType="VARCHAR"/>
-        <result column="unit_price" property="unitPrice" jdbcType="DECIMAL"/>
-        <result column="tax_included_unit_price" property="taxIncludedUnitPrice" jdbcType="DECIMAL"/>
-        <result column="line_amount" property="lineAmount" jdbcType="DECIMAL"/>
-        <result column="tax_included_line_amount" property="taxIncludedLineAmount" jdbcType="DECIMAL"/>
-        <result column="needed_date" property="neededDate" jdbcType="DATE"/>
-        <result column="supplier_tenant_id" property="supplierTenantId" jdbcType="DECIMAL"/>
-        <result column="supplier_id" property="supplierId" jdbcType="DECIMAL"/>
-        <result column="supplier_code" property="supplierCode" jdbcType="VARCHAR"/>
-        <result column="supplier_name" property="supplierName" jdbcType="VARCHAR"/>
-        <result column="supplier_company_id" property="supplierCompanyId" jdbcType="DECIMAL"/>
-        <result column="supplier_company_name" property="supplierCompanyName" jdbcType="VARCHAR"/>
-        <result column="execution_status_code" property="executionStatusCode" jdbcType="VARCHAR"/>
-        <result column="executed_date" property="executedDate" jdbcType="DATE"/>
-        <result column="executed_by" property="executedBy" jdbcType="DECIMAL"/>
-        <result column="execution_bill_id" property="executionBillId" jdbcType="DECIMAL"/>
-        <result column="execution_bill_num" property="executionBillNum" jdbcType="VARCHAR"/>
-        <result column="execution_bill_data" property="executionBillData" jdbcType="VARCHAR"/>
-        <result column="assigned_flag" property="assignedFlag" jdbcType="DECIMAL"/>
-        <result column="assigned_date" property="assignedDate" jdbcType="DATE"/>
-        <result column="assigned_by" property="assignedBy" jdbcType="DECIMAL"/>
-        <result column="assigned_remark" property="assignedRemark" jdbcType="VARCHAR"/>
-        <result column="cancelled_flag" property="cancelledFlag" jdbcType="DECIMAL"/>
-        <result column="cancelled_date" property="cancelledDate" jdbcType="DATE"/>
-        <result column="cancelled_by" property="cancelledBy" jdbcType="DECIMAL"/>
-        <result column="cancelled_remark" property="cancelledRemark" jdbcType="VARCHAR"/>
-        <result column="closed_flag" property="closedFlag" jdbcType="DECIMAL"/>
-        <result column="closed_date" property="closedDate" jdbcType="DATE"/>
-        <result column="closed_by" property="closedBy" jdbcType="DECIMAL"/>
-        <result column="closed_remark" property="closedRemark" jdbcType="VARCHAR"/>
-        <result column="suspend_flag" property="suspendFlag" jdbcType="DECIMAL"/>
-        <result column="suspend_date" property="suspendDate" jdbcType="DATE"/>
-        <result column="suspend_remark" property="suspendRemark" jdbcType="VARCHAR"/>
-        <result column="incorrect_flag" property="incorrectFlag" jdbcType="DECIMAL"/>
-        <result column="incorrect_date" property="incorrectDate" jdbcType="DATE"/>
-        <result column="incorrect_msg" property="incorrectMsg" jdbcType="VARCHAR"/>
-        <result column="can_vat_flag" property="canVatFlag" jdbcType="DECIMAL"/>
-        <result column="erp_edit_status" property="erpEditStatus" jdbcType="VARCHAR"/>
-        <result column="attachment_uuid" property="attachmentUuid" jdbcType="VARCHAR"/>
-        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="business_company_id" property="businessCompanyId" jdbcType="DECIMAL"/>
+        <result column="source_category" property="sourceCategory" jdbcType="VARCHAR"/>
+        <result column="shortlist_category" property="shortlistCategory" jdbcType="VARCHAR"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="finish_date" property="finishDate" jdbcType="DATE"/>
+        <result column="capital" property="capital" jdbcType="DECIMAL"/>
+        <result column="years" property="years" jdbcType="DECIMAL"/>
+        <result column="one_profit" property="oneProfit" jdbcType="DECIMAL"/>
+        <result column="two_profit" property="twoProfit" jdbcType="DECIMAL"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="examine" property="examine" jdbcType="DECIMAL"/>
+        <result column="publish" property="publish" jdbcType="DECIMAL"/>
+        <result column="sample" property="sample" jdbcType="DECIMAL"/>
+        <result column="request_content" property="requestContent" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
         <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
         <result column="creation_date" property="creationDate" jdbcType="DATE"/>
         <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
-        <result column="line_freight" property="lineFreight" jdbcType="DECIMAL"/>
-        <result column="execution_header_bill_id" property="executionHeaderBillId" jdbcType="DECIMAL"/>
-        <result column="execution_header_bill_num" property="executionHeaderBillNum" jdbcType="VARCHAR"/>
-        <result column="urgent_flag" property="urgentFlag" jdbcType="DECIMAL"/>
-        <result column="urgent_date" property="urgentDate" jdbcType="DATE"/>
-        <result column="cost_id" property="costId" jdbcType="DECIMAL"/>
-        <result column="cost_code" property="costCode" jdbcType="VARCHAR"/>
-        <result column="account_subject_id" property="accountSubjectId" jdbcType="DECIMAL"/>
-        <result column="account_subject_num" property="accountSubjectNum" jdbcType="VARCHAR"/>
-        <result column="WBS" property="wbs" jdbcType="VARCHAR"/>
-        <result column="last_purchase_price" property="lastPurchasePrice" jdbcType="DECIMAL"/>
-        <result column="pc_header_id" property="pcHeaderId" jdbcType="DECIMAL"/>
-        <result column="item_model" property="itemModel" jdbcType="VARCHAR"/>
-        <result column="item_specs" property="itemSpecs" jdbcType="VARCHAR"/>
-        <result column="item_properties" property="itemProperties" jdbcType="VARCHAR"/>
-        <result column="agent_id" property="agentId" jdbcType="DECIMAL"/>
-        <result column="keeper_user_id" property="keeperUserId" jdbcType="DECIMAL"/>
-        <result column="accepter_user_id" property="accepterUserId" jdbcType="DECIMAL"/>
-        <result column="cost_payer_user_id" property="costPayerUserId" jdbcType="DECIMAL"/>
-        <result column="address" property="address" jdbcType="VARCHAR"/>
-        <result column="inner_po_num" property="innerPoNum" jdbcType="VARCHAR"/>
-        <result column="jd_price" property="jdPrice" jdbcType="DECIMAL"/>
-        <result column="purchase_org_group_name" property="purchaseOrgGroupName" jdbcType="VARCHAR"/>
-        <result column="company_org_name" property="companyOrgName" jdbcType="VARCHAR"/>
-        <result column="cost_anch_dep_desc" property="costAnchDepDesc" jdbcType="VARCHAR"/>
-        <result column="exp_bear_dep" property="expBearDep" jdbcType="VARCHAR"/>
-        <result column="source_platform_code" property="sourcePlatformCode" jdbcType="VARCHAR"/>
-        <result column="surface_treat_flag" property="surfaceTreatFlag" jdbcType="DECIMAL"/>
-        <result column="req_type_code" property="reqTypeCode" jdbcType="VARCHAR"/>
-        <result column="accepter_user_name" property="accepterUserName" jdbcType="VARCHAR"/>
-        <result column="agent_name" property="agentName" jdbcType="VARCHAR"/>
-        <result column="keeper_user_name" property="keeperUserName" jdbcType="VARCHAR"/>
-        <result column="batch_no" property="batchNo" jdbcType="VARCHAR"/>
-        <result column="tax_code" property="taxCode" jdbcType="DECIMAL"/>
-        <result column="company_org_id" property="companyOrgId" jdbcType="DECIMAL"/>
-        <result column="cost_anch_dep_id" property="costAnchDepId" jdbcType="DECIMAL"/>
-        <result column="exp_bear_dep_id" property="expBearDepId" jdbcType="DECIMAL"/>
-        <result column="overseas_procurement" property="overseasProcurement" jdbcType="DECIMAL"/>
-        <result column="po_line_id" property="poLineId" jdbcType="DECIMAL"/>
-        <result column="drawing_version" property="drawingVersion" jdbcType="VARCHAR"/>
-        <result column="supplier_item_code" property="supplierItemCode" jdbcType="VARCHAR"/>
-        <result column="occupied_quantity" property="occupiedQuantity" jdbcType="DECIMAL"/>
-        <result column="supplier_item_name" property="supplierItemName" jdbcType="VARCHAR"/>
-        <result column="frame_agreement_num" property="frameAgreementNum" jdbcType="VARCHAR"/>
-        <result column="wbs_code" property="wbsCode" jdbcType="VARCHAR"/>
-        <result column="tax_without_freight_price" property="taxWithoutFreightPrice" jdbcType="DECIMAL"/>
-        <result column="benchmark_price" property="benchmarkPrice" jdbcType="DECIMAL"/>
-        <result column="change_percent" property="changePercent" jdbcType="DECIMAL"/>
-        <result column="unit_price_batch" property="unitPriceBatch" jdbcType="DECIMAL"/>
-        <result column="project_category" property="projectCategory" jdbcType="VARCHAR"/>
-        <result column="assets" property="assets" jdbcType="VARCHAR"/>
-        <result column="asset_child_num" property="assetChildNum" jdbcType="VARCHAR"/>
-        <result column="account_assign_type_id" property="accountAssignTypeId" jdbcType="DECIMAL"/>
-        <result column="purchase_line_type_id" property="purchaseLineTypeId" jdbcType="DECIMAL"/>
-        <result column="budget_io_flag" property="budgetIoFlag" jdbcType="DECIMAL"/>
-        <result column="tax_included_budget_unit_price" property="taxIncludedBudgetUnitPrice" jdbcType="DECIMAL"/>
-        <result column="quality_standard" property="qualityStandard" jdbcType="VARCHAR"/>
-        <result column="freight_line_flag" property="freightLineFlag" jdbcType="DECIMAL"/>
         <result column="attribute_varchar1" property="attributeVarchar1" jdbcType="VARCHAR"/>
         <result column="attribute_varchar2" property="attributeVarchar2" jdbcType="VARCHAR"/>
         <result column="attribute_varchar3" property="attributeVarchar3" jdbcType="VARCHAR"/>
@@ -308,50 +199,251 @@
         <result column="attribute_date18" property="attributeDate18" jdbcType="DATE"/>
         <result column="attribute_date19" property="attributeDate19" jdbcType="DATE"/>
         <result column="attribute_date20" property="attributeDate20" jdbcType="DATE"/>
-        <result column="execution_strategy_code" property="executionStrategyCode" jdbcType="VARCHAR"/>
-        <result column="budget_account_id" property="budgetAccountId" jdbcType="DECIMAL"/>
-        <result column="receiver_information" property="receiverInformation" jdbcType="VARCHAR"/>
-        <result column="business_card_flag" property="businessCardFlag" jdbcType="DECIMAL"/>
-        <result column="receive_address" property="receiveAddress" jdbcType="VARCHAR"/>
-        <result column="receive_contact_name" property="receiveContactName" jdbcType="VARCHAR"/>
-        <result column="receive_tel_num" property="receiveTelNum" jdbcType="VARCHAR"/>
-        <result column="cart_user_id" property="cartUserId" jdbcType="DECIMAL"/>
-        <result column="cart_user_type" property="cartUserType" jdbcType="VARCHAR"/>
-        <result column="change_order_code" property="changeOrderCode" jdbcType="VARCHAR"/>
-        <result column="change_order_message" property="changeOrderMessage" jdbcType="VARCHAR"/>
-        <result column="budget_account_deptno" property="budgetAccountDeptno" jdbcType="VARCHAR"/>
-        <result column="budget_account_price" property="budgetAccountPrice" jdbcType="DECIMAL"/>
-        <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL"/>
-        <result column="local_currency_tax_unit" property="localCurrencyTaxUnit" jdbcType="DECIMAL"/>
-        <result column="local_currency_no_tax_unit" property="localCurrencyNoTaxUnit" jdbcType="DECIMAL"/>
-        <result column="local_currency_tax_sum" property="localCurrencyTaxSum" jdbcType="DECIMAL"/>
-        <result column="local_currency_no_tax_sum" property="localCurrencyNoTaxSum" jdbcType="DECIMAL"/>
-        <result column="document_id" property="documentId" jdbcType="VARCHAR"/>
-        <result column="exchange_rate_date" property="exchangeRateDate" jdbcType="DATE"/>
-        <result column="budget_account_num" property="budgetAccountNum" jdbcType="VARCHAR"/>
-        <result column="before_split_pr_line_id" property="beforeSplitPrLineId" jdbcType="DECIMAL"/>
     </resultMap>
-    <update id="updatePrLine">
-        update sprm_pr_line h set h.attribute_bigint1 = null
-        where h.attribute_bigint1 = #{planId} and  h.tenant_id = #{tenantId}
+    <update id="updatePrLineByShortlistHeaderId">
+        update
+            sprm_pr_line
+        set attribute_bigint1 = #{shortlistHeaderId}
+        where pr_line_id = #{prLineId}
     </update>
-    <select id="selectPrLine" resultType="org.srm.source.cux.api.dto.PrLineDTO">
-              select h.pr_line_id,
-                  h.pr_header_id,
-                   h.attribute_bigint1
-               from sprm_pr_line h where h.attribute_bigint1 = #{planId}
+    <update id="updatePrLineByShortlistHeader">
+        update
+            sprm_pr_line
+        set attribute_bigint1 = null,
+        attribute_varchar2 = null
+        where attribute_bigint1 = #{shortlistHeaderId}
+    </update>
+    <update id="updateRfxSourceMethod">
+        UPDATE ssrc_rfx_header h
+        set h.source_method = #{sourceMethod}
+        where h.rfx_header_id = #{rfxHeaderId}
+    </update>
+
+    <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
+        select sph.pr_num,
+               spl.line_num,
+               spl.attribute_bigint1
+        from sprm_pr_line spl
+                 left join sprm_pr_header sph on sph.pr_header_id = spl.pr_header_id
+        where spl.pr_line_id = #{prLineId}
+          and spl.attribute_bigint1 != #{shortlistHeaderId}
     </select>
-    <select id="selectPrLineId" resultType="java.lang.Long">
-          select  h.pr_line_id  from sprm_pr_line h
-          where h.pr_header_id = #{prHeaderId}  and h.line_num = #{lineNum} and h.tenant_id = #{tenantId}
+
+    <select id="selectShortlistHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        select srsh.shortlist_header_id,
+               srsh.tenant_id,
+               srsh.company_id,
+               srsh.sample_id,
+               srsh.shortlist_num,
+               srsh.project_name,
+               srsh.business_company_id,
+               srsh.source_category,
+               srsh.shortlist_category,
+               srsh.start_date,
+               srsh.finish_date,
+               srsh.capital,
+               srsh.years,
+               srsh.one_profit,
+               srsh.two_profit,
+               srsh.state,
+               srsh.examine,
+               srsh.publish,
+               srsh.sample,
+               srsh.request_content,
+               srsh.enabled_flag,
+               srsh.object_version_number,
+               srsh.created_by,
+               srsh.creation_date,
+               hc.company_num,
+               hc.company_name,
+               iu.real_name created_name,
+               hou.ou_code,
+               srsh.attribute_bigint2,
+               hou.ou_name
+        from scux_rcwl_shortlist_header srsh
+                 left join iam_user iu on iu.id = srsh.created_by
+                 left join hpfm_company hc on hc.company_id = srsh.company_id
+                 left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
+        where srsh.tenant_id = #{organizationId}
+          and srsh.shortlist_header_id = #{shortlistHeaderId}
     </select>
-    <select id="selectByNum" resultType="org.srm.source.cux.domain.vo.PrHeaderVO">
-        select h.pr_header_id,
-              h.pr_num,
-            l.pr_line_id,
-            l.line_num
-         from sprm_pr_header h left join sprm_pr_line l on h.pr_header_id = l.pr_header_id
-        where  h.pr_num = trim(#{prNum}) and l.line_num = trim(#{lineNum}) and h.tenant_id = #{tenantId}
+
+    <select id="selectSupplierByShortlistHeaderId"
+            resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+        ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.status supplier_status,
+        slcs.stage_description,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.status,
+        srsh2.created_by,
+        srsh2.creation_date
+        from scux_rcwl_supplier_header srsh2
+        left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+        left join iam_user iu on iu.id = srsh2.created_by
+        left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+        AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        where
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+
+    <select id="selectUserInfoById" resultType="org.srm.source.share.api.dto.User">
+        select iu.real_name,
+               iu.phone
+        from iam_user iu
+        where iu.id = #{userId}
+    </select>
+    <select id="selectRcwlShortlistHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        srsh.business_company_id,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.created_by,
+        srsh.creation_date,
+        hc.company_num,
+        hc.company_name,
+        iu.real_name created_name
+        from scux_rcwl_shortlist_header srsh
+        left join iam_user iu on iu.id = srsh.created_by
+        left join hpfm_company hc on hc.company_id = srsh.company_id
+        <where>
+            1=1
+            and srsh.state != 'delete'
+            <if test="shortlistNum != null and shortlistNum != '' ">
+                and srsh.shortlist_num = #{shortlistNum}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and srsh.project_name = #{projectName}
+            </if>
+            <if test="sourceCategory != null and sourceCategory != '' ">
+                and srsh.source_category = #{sourceCategory}
+            </if>
+            <if test="shortlistCategory != null and shortlistCategory != '' ">
+                and srsh.shortlist_category = #{shortlistCategory}
+            </if>
+            <if test="state != null and state != '' ">
+                and srsh.state = #{state}
+            </if>
+            <if test="startDateFrom != null">
+                and srsh.start_date >= #{startDateFrom}
+            </if>
+            <if test="finishDateTo != null">
+                and srsh.finish_date &lt;= #{finishDateTo}
+            </if>
+        </where>
+
+    </select>
+    <select id="selectStaticTextValueByCode" resultType="java.lang.String">
+        SELECT hstv.text
+        FROM hpfm_static_text hst
+                 LEFT JOIN hpfm_static_text_value hstv ON hst.text_id = hstv.text_id
+        WHERE hst.text_code = #{textCode}
+          AND hst.tenant_id = #{organizationId}
+    </select>
+    <select id="currentSupplierInfo" resultType="org.srm.source.cux.domain.vo.SupplierVO">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        hc.company_num supplier_num,
+        hc.company_id supplier_id,
+        ifnull(ssbt.company_name,hc.company_name) supplier_name,
+        slc.company_id company_id,
+        slcst.stage_id,
+        slcst.stage_description
+        FROM
+        iam_user iu
+        LEFT JOIN hpfm_company hc ON iu.organization_id = hc.tenant_id AND hc.source_key IS NOT NULL
+        LEFT JOIN sslm_life_cycle slc on slc.supplier_company_id = hc.company_id
+        LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+        LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        WHERE
+        iu.id = #{userId}
+    </select>
+    <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
+        SELECT scc.name        contact,
+               scc.mobilephone phone
+        FROM spfm_company_contacts scc
+        WHERE scc.company_id = #{companyId}
+          AND scc.default_flag = 1
+    </select>
+    <select id="supplierCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM scux_rcwl_supplier_header h
+        WHERE h.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+    <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ( SELECT hc.company_name FROM hpfm_company hc WHERE hc.company_id = srsh2.supplier_id ) supplier_name,
+        ( SELECT hc.company_num FROM hpfm_company hc WHERE hc.company_id = srsh2.supplier_id ) supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.STATUS supplier_status,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.STATUS,
+        srsh2.created_by,
+        srsh2.creation_date
+        FROM
+        scux_rcwl_supplier_header srsh2
+        LEFT JOIN scux_rcwl_shortlist_header srsh ON srsh2.shortlist_header_id = srsh.shortlist_header_id
+        LEFT JOIN iam_user iu ON iu.id = srsh2.created_by
+        where
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+        and srsh2.selected = 1
+    </select>
+    <select id="queryPrLine" resultType="java.lang.Long">
+        select l.pr_line_id
+        from sprm_pr_line l
+        where l.attribute_bigint1 = #{shortlistHeaderId}
     </select>
     <select id="pageAssignList" resultType="org.srm.source.share.domain.vo.PrLineVO">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
@@ -577,4 +669,5 @@
         LEFT JOIN hpfm_unit_tl ehut ON ehut.unit_id = ehu.unit_id AND ehut.lang = #{lang}
         LEFT JOIN smdm_currency sc ON sph.original_currency = sc.currency_code AND sph.tenant_id = sc.tenant_id
     </select>
+
 </mapper>
