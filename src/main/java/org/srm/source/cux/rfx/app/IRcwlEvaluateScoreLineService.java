@@ -21,7 +21,7 @@ public interface IRcwlEvaluateScoreLineService {
 
     /**
      * 获取报价头 ID，与价格组成的 Map
-     * @param autoScoreDTO 自动评分信息记录DTO
+     * @param autoScoreDTO 自动评分信息记录 DTO
      * @param priceTypeCode 价格类型（未使用）
      * @return
      */
