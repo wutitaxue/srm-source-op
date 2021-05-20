@@ -166,8 +166,19 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
             checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
             checkPriceDTO.setSelectionStrategy("");//选择策略
-            checkPriceDTO.setRfxLineItemId(null);
+            checkPriceDTO.setRfxLineItemId(null);//物料行ID
             checkPriceDTO.setRfxLineItemNum(null);
+            checkPriceDTO.setType(null);
+            checkPriceDTO.setObjectVersionNumber(null);//物料行版本号
+            checkPriceDTO.setWholeSuggestFlag(null);//整包推荐
+            checkPriceDTO.setRfxLineSupplierId(null);
+            checkPriceDTO.setSupplierTenantId(null);
+            checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
+//            checkPriceDTO.setAllottedQuantity(quotationHeader.get);
+            checkPriceDTO.setSuggestedRemark(null);
+            checkPriceDTO.setAllottedRatio(null);
+            checkPriceDTO.setChangePercent(null);
+            //放一个RfxQuotationLine    list
         }
         checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
         List<RfxLineItem> rfxLineItemList = new ArrayList<>();
