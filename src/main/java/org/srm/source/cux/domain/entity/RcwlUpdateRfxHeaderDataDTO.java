@@ -13,4 +13,6 @@ public class RcwlUpdateRfxHeaderDataDTO {
     private String attributeVarchar6;
     @JsonProperty("attributeVarchar7")
     private String attributeVarchar7;
+    @JsonProperty("status")
+    private String status;
 }

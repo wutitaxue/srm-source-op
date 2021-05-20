@@ -52,7 +52,8 @@ public class RcwlUpdateRfxHeaderController {
             return responseData;
         }
         if((rcwlUpdateDataDTO.getAttributeVarchar6() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar6()))&&
-                (rcwlUpdateDataDTO.getAttributeVarchar7() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar7()))){
+                (rcwlUpdateDataDTO.getAttributeVarchar7() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar7()))&&
+                (rcwlUpdateDataDTO.getStatus() == null || "".equals(rcwlUpdateDataDTO.getStatus()))){
             responseData.setCode("201");
             responseData.setMessage("所需更新数据至少有一个值！");
             return responseData;
