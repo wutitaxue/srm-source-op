@@ -143,5 +143,5 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @param sourceMethod
      * @param rfxHeaderId
      */
-    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId);
+    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId,String shotListNum);
 }

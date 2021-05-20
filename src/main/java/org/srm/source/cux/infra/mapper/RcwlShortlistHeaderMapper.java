@@ -129,5 +129,5 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
 
     List<PrLineVO> pageAssignList(Long shortlistHeaderId);
 
-    void updateRfxSourceMethod(@Param("sourceMethod") String sourceMethod, @Param("rfxHeaderId") Long rfxHeaderId);
+    void updateRfxSourceMethod(@Param("sourceMethod") String sourceMethod, @Param("rfxHeaderId") Long rfxHeaderId,@Param("shotListNum") String shotListNum);
 }

@@ -80,6 +80,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
         logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
         List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(shortlistHeaderId);
+        RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(organizationId,shortlistHeaderId);
         logger.info("------------prLineVOList:" + prLineVOList.size());
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
@@ -126,7 +127,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
             lineSupplierService.createOrUpdateLineSupplier(organizationId, preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(), rfxLineSupplierList);
         }
         logger.info("----------创建供应商结束--------");
-        rcwlShortlistHeaderRepository.updateRfxSourceMethod("INVITE",preSourceHeaderDTO.getRfxHeader().getRfxHeaderId());
+        rcwlShortlistHeaderRepository.updateRfxSourceMethod("INVITE",preSourceHeaderDTO.getRfxHeader().getRfxHeaderId(),rcwlShortlistHeader.getShortlistNum());
 
         RfxHeader rfxHeader = preSourceHeaderDTO.getRfxHeader();
         rfxHeader.setSourceMethod("INVITE");

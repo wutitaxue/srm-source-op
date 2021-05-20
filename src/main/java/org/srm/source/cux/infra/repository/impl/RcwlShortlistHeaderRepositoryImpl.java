@@ -244,7 +244,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
      * @param rfxHeaderId
      */
     @Override
-    public void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId) {
-        rcwlShortlistHeaderMapper.updateRfxSourceMethod(sourceMethod,rfxHeaderId);
+    public void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId,String shotListNum) {
+        rcwlShortlistHeaderMapper.updateRfxSourceMethod(sourceMethod,rfxHeaderId,shotListNum);
     }
 }
