@@ -7,6 +7,7 @@ import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.infra.mapper.RcwlCalibrationApprovalMapper;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -75,5 +76,17 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     public List<String> getQuotationHeaderIDByRfxHeaderId(Long rfxHeaderId,Long tenantId) {
         List<String> qQuotationHeaderIDs = rcwlCalibrationApprovalMapper.getQuotationHeaderIDByRfxHeaderId(rfxHeaderId,tenantId);
         return qQuotationHeaderIDs == null ? new ArrayList<String>():qQuotationHeaderIDs;
+    }
+
+    @Override
+    public List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId) {
+        List<Long> l = rcwlCalibrationApprovalMapper.getRfxLineItemIdByRfxHeaderId(rfxHeaderId);
+        return l == null ? new ArrayList<Long>() : l;
+    }
+
+    @Override
+    public List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id) {
+        List<RfxQuotationLine> l = rcwlCalibrationApprovalMapper.getQuotationLineListByQuotationHeaderID(id);
+        return l == null ? new ArrayList<RfxQuotationLine>() : l;
     }
 }
