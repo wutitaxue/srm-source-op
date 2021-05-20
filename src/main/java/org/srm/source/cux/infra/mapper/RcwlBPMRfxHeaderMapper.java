@@ -10,4 +10,6 @@ public interface RcwlBPMRfxHeaderMapper {
     void updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO);
 
     void updateRfxHeader(Long id, String remark,Long tenantId);
+
+    Long getRfxHeaderIdByRfxNum(String rfxNum);
 }

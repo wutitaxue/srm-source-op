@@ -76,7 +76,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         rcwlGxBpmStartDataDTO.setData(this.rfxHeaderToString(rfxHeader,userName,list));
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");
-        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_CLARIFY_TO_PAGE_URL");
+        String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_LBSP_TO_PAGE_URL");
         String URL_BACK = "http://"+rcwl_bpm_urlip+rcwl_page_urlip+rfxHeader.getRfxNum();
         responseData.setUrl(URL_BACK);
         try{
@@ -91,32 +91,31 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
     public String rfxHeaderToString(RfxHeader rfxHeader, String userName, List<RcwlRfxHeaderAttachmentListDataForBPM> list){
         //详情路径
-        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_RFXHEADER_TO_BPM_URL");
+        String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_LBSP_TO_BPM_URL");
         StringBuilder sbUrl = new StringBuilder();
         sbUrl.append(URL_MX_HEADER).append(rfxHeader.getRfxHeaderId()).append("?").append("current=newInquiryHall");
         //甄云链接-澄清函详情URL（招采-招采-招采过程控制-蓝色单据编号）
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
         StringBuffer sb = new StringBuffer();
-        sb.append("\"DATA\":");
         sb.append("{\"FSUBJECT\":\"").append(rfxHeader.getCompanyName())
                 .append("-").append(rfxHeader.getRfxTitle()).append("-").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"COMPANYID\":\"").append(rfxHeader.getCompanyName()).append("\",");
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8()).append("\",");
-        sb.append("{\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay()).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay()).append("\",");
         sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory()).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark()).append("\",");
-        sb.append("\"URL_MX\":\"").append(sb.toString()).append("\"}");
-        sb.append("\"FKGLYSD\":[\"");
+        sb.append("\"URL_MX\":\"").append(sbUrl.toString()).append("\",");
+        sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(list) && list.size()>0){
             for(RcwlRfxHeaderAttachmentListDataForBPM ra : list){
                 sb.append(ra.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
         sb.append("]}");
         return  sb.toString();
@@ -134,5 +133,11 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
             responseData.setCode("201");
         }
         return responseData;
+    }
+
+    @Override
+    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
+        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum);
+        return l == null ? 0l:l;
     }
 }
