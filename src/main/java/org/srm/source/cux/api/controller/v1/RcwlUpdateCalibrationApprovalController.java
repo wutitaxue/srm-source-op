@@ -23,9 +23,11 @@ import org.srm.source.rfx.api.dto.CheckPriceDTO;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
+import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
+import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxHeaderService rfxHeaderService;
     @Autowired
     private RfxQuotationHeaderService rfxQuotationHeaderService;
+    @Autowired
+    private RfxQuotationLineService rfxQuotationLineService;
 
     @ApiOperation("更新定标字段")
     @Permission(
@@ -157,10 +161,13 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         List<String> qQuotationHeaderIDs =  rcwlCalibrationApprovalService.getQuotationHeaderIDByRfxHeaderId(rfxHeaderId,tenantId);
         for(String id : qQuotationHeaderIDs){
             RfxQuotationHeader quotationHeader = rfxQuotationHeaderService.getQuotationHeader(Long.valueOf(id));
+            RfxQuotationLine rfxQuotationLine = new RfxQuotationLine();
+
             CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
             checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
             checkPriceDTO.setSelectionStrategy("");//选择策略
-
+            checkPriceDTO.setRfxLineItemId(null);
+            checkPriceDTO.setRfxLineItemNum(null);
         }
         checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
         List<RfxLineItem> rfxLineItemList = new ArrayList<>();
