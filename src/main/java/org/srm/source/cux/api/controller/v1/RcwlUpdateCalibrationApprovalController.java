@@ -123,7 +123,15 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId){
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
+        checkPriceHeaderDTO.setRfxHeaderId(rfxHeader.getRfxHeaderId());
+        checkPriceHeaderDTO.setTotalCost(rfxHeader.getTotalCost());
+        checkPriceHeaderDTO.setTotalPrice(rfxHeader.getTotalPrice());
+        checkPriceHeaderDTO.setCostRemark(rfxHeader.getCostRemark());
 
+        checkPriceHeaderDTO.setObjectVersionNumber(rfxHeader.getObjectVersionNumber());
+        checkPriceHeaderDTO.setCheckAttachmentUuid(rfxHeader.getCheckAttachmentUuid());
+        checkPriceHeaderDTO.setSuppAttachmentUuid("");
+        checkPriceHeaderDTO.setReleaseItemIds("");
         return  checkPriceHeaderDTO;
     }
 }
