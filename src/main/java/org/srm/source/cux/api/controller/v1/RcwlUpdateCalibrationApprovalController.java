@@ -80,7 +80,6 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             permissionPublic = true
     )
     @PostMapping({"/check/approved/for/bpm"})
-    @FilterSupplier
     public ResponseCalibrationApprovalData checkPriceApproved(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
@@ -100,7 +99,6 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             permissionPublic = true
     )
     @PostMapping({"/check/reject/for/bpm"})
-    @FilterSupplier
     public ResponseCalibrationApprovalData checkPriceReject(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
@@ -117,10 +115,9 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
 
     @ApiOperation("定标提交")
     @Permission(
-            level = ResourceLevel.ORGANIZATION
+            permissionPublic = true
     )
     @PostMapping({"/check/submit/for/bpm"})
-    @FilterSupplier
     public ResponseCalibrationApprovalData checkPriceSubmit(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         //获取头ID
@@ -152,8 +149,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setCheckAttachmentUuid(rfxHeader.getCheckAttachmentUuid());
         checkPriceHeaderDTO.setSuppAttachmentUuid("");
         checkPriceHeaderDTO.setReleaseItemIds("");
-        checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate().toString());
-        checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate().toString());
+        checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate() == null ? "":rfxHeader.getPriceEffectiveDate().toString());
+        checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate() == null ? "":rfxHeader.getPriceExpiryDate().toString());
         checkPriceHeaderDTO.setCheckRemark(rfxHeader.getCheckRemark());
         checkPriceHeaderDTO.setCreateItemFlag(0);
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
