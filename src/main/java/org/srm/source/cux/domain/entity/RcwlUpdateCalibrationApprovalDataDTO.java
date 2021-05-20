@@ -9,8 +9,8 @@ public class RcwlUpdateCalibrationApprovalDataDTO {
     private String tenantId;
     @JsonProperty("rfxNum")
     private String rfxNum;
-    @JsonProperty("attribute_varchar4")
-    private String attribute_varchar4;
-    @JsonProperty("attribute_varchar5")
-    private String attribute_varchar5;
+    @JsonProperty("attributeVarchar4")
+    private String attributeVarchar4;
+    @JsonProperty("attributeVarchar5")
+    private String attributeVarchar5;
 }

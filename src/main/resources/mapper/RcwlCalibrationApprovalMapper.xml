@@ -104,4 +104,13 @@
           AND t.quotation_round_number = 1
             limit 0,1
     </select>
+    <select id="getQuotationHeaderIDByRfxHeaderId" resultType="String">
+        SELECT
+            t.quotation_header_id
+        FROM
+            `ssrc_rfx_quotation_header` t
+        WHERE
+            t.rfx_header_id = #{rfxHeaderId}
+        AND t.tenant_id = #{tenantId}
+    </select>
 </mapper>
