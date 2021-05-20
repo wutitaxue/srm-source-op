@@ -37,24 +37,23 @@ public class RcwlDataForBPM {
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"DATA\":");
         sb.append("{\"FSUBJECT\":\"").append(this.getFSUBJECT()).append("\",");
         sb.append("\"SUBMITTEDBY\":\"").append(this.getSUBMITTEDBY()).append("\",");
         sb.append("\"TITLE\":\"").append(this.getTITLE()).append("\",");
         sb.append("\"FILE\":\"").append(this.getTITLE()).append("\",");
         sb.append("\"SOURCENUM\":\"").append(this.getSOURCENUM()).append("\",");
-        sb.append("{\"SOURCENAME\":\"").append(this.getSOURCENAME()).append("\",");
+        sb.append("\"SOURCENAME\":\"").append(this.getSOURCENAME()).append("\",");
         sb.append("\"CLARIFYNUM\":\"").append(this.getCLARIFYNUM()).append("\",");
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER()).append("\",");
         sb.append("\"CLARIFYNUMBER\":\"").append(this.getCLARIFYNUMBER()).append("\",");
-        sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\"}");
-        sb.append("{\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
-        sb.append("\"FKGLYSD\":[\"");
+        sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\",");
+        sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
+        sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(RcwlAttachmentListDataForBPM ra : this.getATTACHMENTS()){
                 sb.append(ra.toString()).append(",");
             }
-            sb.substring(0,sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
         }
             sb.append("]}");
         return  sb.toString();

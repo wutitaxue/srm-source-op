@@ -44,4 +44,10 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
         String data =  rcwlClarifyMapper.getRoundNumber(id);
         return data == null ? "":data;
     }
+
+    @Override
+    public Long getClarifyIdByClarifyNum(String clarifyNum) {
+        Long l = rcwlClarifyMapper.getClarifyIdByClarifyNum(clarifyNum);
+        return l == null ? 0l:l;
+    }
 }

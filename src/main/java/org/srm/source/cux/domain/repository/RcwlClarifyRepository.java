@@ -19,4 +19,6 @@ public interface RcwlClarifyRepository extends BaseRepository<RcwlClarifyForBPM>
     List<String> getAttachmentList(String id);
 
     String getRoundNumber(Long id);
+
+    Long getClarifyIdByClarifyNum(String clarifyNum);
 }

@@ -19,4 +19,6 @@ public interface RcwlClarifyMapper extends BaseMapper<RcwlClarifyForBPM> {
     List<String> getAttachmentList(String id);
 
     String getRoundNumber(Long id);
+
+    Long getClarifyIdByClarifyNum(String clarifyNum);
 }
