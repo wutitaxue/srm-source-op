@@ -51,7 +51,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         rcwlDataForBPM.setFILE(clarify.getReferFlag() == 0l ? "澄清":"答疑");//值为1传描述“答疑” 值为0传描述“ 澄清”
         //立项编号不确定----------
         rcwlDataForBPM.setFSUBJECT(rcwlDataForBPM.getTITLE() + clarify.getTitle() + dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//答疑+标题+立项编号
-        rcwlDataForBPM.setSUBMITTEDBY(clarify.getCreatedBy().toString());//CREATED_BY
+        rcwlDataForBPM.setSUBMITTEDBY(clarify.getCreatedBy() == null ? "":clarify.getCreatedBy().toString());//CREATED_BY
         rcwlDataForBPM.setTITLE(clarify.getTitle());
         rcwlDataForBPM.setSOURCENUM(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_num
         rcwlDataForBPM.setSOURCENAME(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[1]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_title
