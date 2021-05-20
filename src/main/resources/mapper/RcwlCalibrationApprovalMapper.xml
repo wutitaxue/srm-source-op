@@ -8,6 +8,7 @@
             <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attribute_varchar5},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
+        AND tenant_id = #{tenantId}
     </update>
 
     <select id="getAttachmentList" resultType="String">

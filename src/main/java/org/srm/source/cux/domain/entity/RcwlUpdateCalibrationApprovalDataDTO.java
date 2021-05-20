@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class RcwlUpdateCalibrationApprovalDataDTO {
+    @JsonProperty("tenantId")
+    private String tenantId;
     @JsonProperty("rfxNum")
     private String rfxNum;
     @JsonProperty("attribute_varchar4")
