@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlClarifyMapper">
+    <update id="updateClarifyData" parameterType="org.srm.source.cux.domain.entity.RcwlUpdateDataDTO">
+        UPDATE ssrc_clarify
+        <trim prefix="set" suffixOverrides=",">
+            <if test="processInstanceId!=null and processInstanceId != ''">process_instance_id=#{processInstanceId},</if>
+            <if test="webserviceUrl!=null and webserviceUrl != ''">webservice_url=#{webserviceUrl},</if>
+            <if test="clarifyStatus!=null and clarifyStatus != ''">clarify_status=#{clarifyStatus},</if>
+        </trim>
+        WHERE clarify_num=#{clarifyNum}
+        AND tenant_id = #{tenantid}
+    </update>
+
+    <select id="getSourceNumAndNameAndClarifyNumberById" resultType="String">
+        SELECT CONCAT_WS('+',rfx_num,rfx_title,round_number)
+        FROM    ssrc_rfx_header
+        WHERE   rfx_header_id = #{id}
+    </select>
+    <select id="getCountOfAlikeSourceId" resultType="String">
+        SELECT count(*)
+        FROM    ssrc_clarify
+        WHERE   source_id = #{id}
+        AND     refer_flag = #{referFlag}
+    </select>
+    <select id="getAttachmentList" resultType="String">
+        SELECT concat_ws('|+|',file_name,file_size,file_url)
+        FROM    hfle_file
+        WHERE   attachment_uuid = #{id}
+    </select>
+    <select id="getRoundNumber" resultType="String">
+        SELECT quotation_round_number
+        FROM    ssrc_round_header
+        WHERE   source_header_id = #{id}
+    </select>
+    <select id="getClarifyIdByClarifyNum" resultType="java.lang.Long">
+        SELECT clarify_id
+        FROM    ssrc_clarify
+        WHERE   clarify_num = #{clarifyNum}
+    </select>
+</mapper>

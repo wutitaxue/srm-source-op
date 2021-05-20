@@ -12,6 +12,7 @@ import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 入围单头表资源库
@@ -68,6 +69,16 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      */
     Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO);
 
+
+    /**
+     * 转询价的供应商ß
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlSupplierHeader> rcwlSelectToRfxSuppier(Long organizationId, Long shortlistHeaderId);
+
     /**
      * 恢复prLine的值
      *
@@ -121,4 +132,16 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @return SupplierVO
      */
     SupplierVO currentSupplierInfo();
+
+
+    Set<Long> queryPrLine(Long shortlistHeaderId);
+
+    List<PrLineVO> pageAssignList(Long shortlistHeaderId);
+
+    /**
+     * 更新寻源方式
+     * @param sourceMethod
+     * @param rfxHeaderId
+     */
+    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId,String shotListNum);
 }
