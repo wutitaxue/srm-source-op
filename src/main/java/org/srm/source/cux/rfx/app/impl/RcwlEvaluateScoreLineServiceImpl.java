@@ -82,7 +82,7 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
 
     @Override
     public void autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
-        this.self()._autoEvaluateScore(autoScoreDTO);
+        ((IRcwlEvaluateScoreLineService)this.self())._autoEvaluateScore(autoScoreDTO);
     }
 
     @Override
