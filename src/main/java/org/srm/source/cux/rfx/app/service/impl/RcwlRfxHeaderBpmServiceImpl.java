@@ -61,20 +61,20 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
-        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
+//        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
             rfxHeaderService.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
         }
-
-        rfxHeaderService.validateLadderInquiry(rtnFullHeader);
+        rfxHeaderService.validateLadderInquiry(rfxFullHeader);
         this.rfxHeaderDomainService.removeOrValidRfxItemSupAssign(rfxFullHeader);
         PrequalHeader prequalHeader = rfxFullHeader.getPrequalHeader();
         if (null != prequalHeader) {
             prequalHeader.preData(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX");
         }
-
         this.prequelDomainService.checkPrequalHeader(sourceTemplate, rfxFullHeader.getPrequalHeader());
+
+
 
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
