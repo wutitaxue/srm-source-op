@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        <result column="shortlist_header_id" property="shortlistHeaderId" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="company_id" property="companyId" jdbcType="DECIMAL"/>
+        <result column="sample_id" property="sampleId" jdbcType="DECIMAL"/>
+        <result column="shortlist_num" property="shortlistNum" jdbcType="VARCHAR"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="business_company_id" property="businessCompanyId" jdbcType="DECIMAL"/>
+        <result column="source_category" property="sourceCategory" jdbcType="VARCHAR"/>
+        <result column="shortlist_category" property="shortlistCategory" jdbcType="VARCHAR"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="finish_date" property="finishDate" jdbcType="DATE"/>
+        <result column="capital" property="capital" jdbcType="DECIMAL"/>
+        <result column="years" property="years" jdbcType="DECIMAL"/>
+        <result column="one_profit" property="oneProfit" jdbcType="DECIMAL"/>
+        <result column="two_profit" property="twoProfit" jdbcType="DECIMAL"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="examine" property="examine" jdbcType="DECIMAL"/>
+        <result column="publish" property="publish" jdbcType="DECIMAL"/>
+        <result column="sample" property="sample" jdbcType="DECIMAL"/>
+        <result column="request_content" property="requestContent" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+        <result column="attribute_varchar1" property="attributeVarchar1" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar2" property="attributeVarchar2" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar3" property="attributeVarchar3" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar4" property="attributeVarchar4" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar5" property="attributeVarchar5" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar6" property="attributeVarchar6" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar7" property="attributeVarchar7" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar8" property="attributeVarchar8" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar9" property="attributeVarchar9" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar10" property="attributeVarchar10" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar11" property="attributeVarchar11" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar12" property="attributeVarchar12" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar13" property="attributeVarchar13" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar14" property="attributeVarchar14" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar15" property="attributeVarchar15" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar16" property="attributeVarchar16" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar17" property="attributeVarchar17" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar18" property="attributeVarchar18" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar19" property="attributeVarchar19" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar20" property="attributeVarchar20" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar21" property="attributeVarchar21" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar22" property="attributeVarchar22" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar23" property="attributeVarchar23" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar24" property="attributeVarchar24" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar25" property="attributeVarchar25" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar26" property="attributeVarchar26" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar27" property="attributeVarchar27" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar28" property="attributeVarchar28" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar29" property="attributeVarchar29" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar30" property="attributeVarchar30" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar31" property="attributeVarchar31" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar32" property="attributeVarchar32" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar33" property="attributeVarchar33" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar34" property="attributeVarchar34" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar35" property="attributeVarchar35" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar36" property="attributeVarchar36" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar37" property="attributeVarchar37" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar38" property="attributeVarchar38" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar39" property="attributeVarchar39" jdbcType="VARCHAR"/>
+        <result column="attribute_varchar40" property="attributeVarchar40" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext1" property="attributeLongtext1" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext2" property="attributeLongtext2" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext3" property="attributeLongtext3" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext4" property="attributeLongtext4" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext5" property="attributeLongtext5" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext6" property="attributeLongtext6" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext7" property="attributeLongtext7" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext8" property="attributeLongtext8" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext9" property="attributeLongtext9" jdbcType="VARCHAR"/>
+        <result column="attribute_longtext10" property="attributeLongtext10" jdbcType="VARCHAR"/>
+        <result column="attribute_bigint1" property="attributeBigint1" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint2" property="attributeBigint2" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint3" property="attributeBigint3" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint4" property="attributeBigint4" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint5" property="attributeBigint5" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint6" property="attributeBigint6" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint7" property="attributeBigint7" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint8" property="attributeBigint8" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint9" property="attributeBigint9" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint10" property="attributeBigint10" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint11" property="attributeBigint11" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint12" property="attributeBigint12" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint13" property="attributeBigint13" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint14" property="attributeBigint14" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint15" property="attributeBigint15" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint16" property="attributeBigint16" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint17" property="attributeBigint17" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint18" property="attributeBigint18" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint19" property="attributeBigint19" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint20" property="attributeBigint20" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint21" property="attributeBigint21" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint22" property="attributeBigint22" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint23" property="attributeBigint23" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint24" property="attributeBigint24" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint25" property="attributeBigint25" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint26" property="attributeBigint26" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint27" property="attributeBigint27" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint28" property="attributeBigint28" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint29" property="attributeBigint29" jdbcType="DECIMAL"/>
+        <result column="attribute_bigint30" property="attributeBigint30" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint1" property="attributeTinyint1" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint2" property="attributeTinyint2" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint3" property="attributeTinyint3" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint4" property="attributeTinyint4" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint5" property="attributeTinyint5" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint6" property="attributeTinyint6" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint7" property="attributeTinyint7" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint8" property="attributeTinyint8" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint9" property="attributeTinyint9" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint10" property="attributeTinyint10" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint11" property="attributeTinyint11" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint12" property="attributeTinyint12" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint13" property="attributeTinyint13" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint14" property="attributeTinyint14" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint15" property="attributeTinyint15" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint16" property="attributeTinyint16" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint17" property="attributeTinyint17" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint18" property="attributeTinyint18" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint19" property="attributeTinyint19" jdbcType="DECIMAL"/>
+        <result column="attribute_tinyint20" property="attributeTinyint20" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal1" property="attributeDecimal1" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal2" property="attributeDecimal2" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal3" property="attributeDecimal3" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal4" property="attributeDecimal4" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal5" property="attributeDecimal5" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal6" property="attributeDecimal6" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal7" property="attributeDecimal7" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal8" property="attributeDecimal8" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal9" property="attributeDecimal9" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal10" property="attributeDecimal10" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal11" property="attributeDecimal11" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal12" property="attributeDecimal12" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal13" property="attributeDecimal13" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal14" property="attributeDecimal14" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal15" property="attributeDecimal15" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal16" property="attributeDecimal16" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal17" property="attributeDecimal17" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal18" property="attributeDecimal18" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal19" property="attributeDecimal19" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal20" property="attributeDecimal20" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal21" property="attributeDecimal21" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal22" property="attributeDecimal22" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal23" property="attributeDecimal23" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal24" property="attributeDecimal24" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal25" property="attributeDecimal25" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal26" property="attributeDecimal26" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal27" property="attributeDecimal27" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal28" property="attributeDecimal28" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal29" property="attributeDecimal29" jdbcType="DECIMAL"/>
+        <result column="attribute_decimal30" property="attributeDecimal30" jdbcType="DECIMAL"/>
+        <result column="attribute_datetime1" property="attributeDatetime1" jdbcType="DATE"/>
+        <result column="attribute_datetime2" property="attributeDatetime2" jdbcType="DATE"/>
+        <result column="attribute_datetime3" property="attributeDatetime3" jdbcType="DATE"/>
+        <result column="attribute_datetime4" property="attributeDatetime4" jdbcType="DATE"/>
+        <result column="attribute_datetime5" property="attributeDatetime5" jdbcType="DATE"/>
+        <result column="attribute_datetime6" property="attributeDatetime6" jdbcType="DATE"/>
+        <result column="attribute_datetime7" property="attributeDatetime7" jdbcType="DATE"/>
+        <result column="attribute_datetime8" property="attributeDatetime8" jdbcType="DATE"/>
+        <result column="attribute_datetime9" property="attributeDatetime9" jdbcType="DATE"/>
+        <result column="attribute_datetime10" property="attributeDatetime10" jdbcType="DATE"/>
+        <result column="attribute_datetime11" property="attributeDatetime11" jdbcType="DATE"/>
+        <result column="attribute_datetime12" property="attributeDatetime12" jdbcType="DATE"/>
+        <result column="attribute_datetime13" property="attributeDatetime13" jdbcType="DATE"/>
+        <result column="attribute_datetime14" property="attributeDatetime14" jdbcType="DATE"/>
+        <result column="attribute_datetime15" property="attributeDatetime15" jdbcType="DATE"/>
+        <result column="attribute_datetime16" property="attributeDatetime16" jdbcType="DATE"/>
+        <result column="attribute_datetime17" property="attributeDatetime17" jdbcType="DATE"/>
+        <result column="attribute_datetime18" property="attributeDatetime18" jdbcType="DATE"/>
+        <result column="attribute_datetime19" property="attributeDatetime19" jdbcType="DATE"/>
+        <result column="attribute_datetime20" property="attributeDatetime20" jdbcType="DATE"/>
+        <result column="attribute_date1" property="attributeDate1" jdbcType="DATE"/>
+        <result column="attribute_date2" property="attributeDate2" jdbcType="DATE"/>
+        <result column="attribute_date3" property="attributeDate3" jdbcType="DATE"/>
+        <result column="attribute_date4" property="attributeDate4" jdbcType="DATE"/>
+        <result column="attribute_date5" property="attributeDate5" jdbcType="DATE"/>
+        <result column="attribute_date6" property="attributeDate6" jdbcType="DATE"/>
+        <result column="attribute_date7" property="attributeDate7" jdbcType="DATE"/>
+        <result column="attribute_date8" property="attributeDate8" jdbcType="DATE"/>
+        <result column="attribute_date9" property="attributeDate9" jdbcType="DATE"/>
+        <result column="attribute_date10" property="attributeDate10" jdbcType="DATE"/>
+        <result column="attribute_date11" property="attributeDate11" jdbcType="DATE"/>
+        <result column="attribute_date12" property="attributeDate12" jdbcType="DATE"/>
+        <result column="attribute_date13" property="attributeDate13" jdbcType="DATE"/>
+        <result column="attribute_date14" property="attributeDate14" jdbcType="DATE"/>
+        <result column="attribute_date15" property="attributeDate15" jdbcType="DATE"/>
+        <result column="attribute_date16" property="attributeDate16" jdbcType="DATE"/>
+        <result column="attribute_date17" property="attributeDate17" jdbcType="DATE"/>
+        <result column="attribute_date18" property="attributeDate18" jdbcType="DATE"/>
+        <result column="attribute_date19" property="attributeDate19" jdbcType="DATE"/>
+        <result column="attribute_date20" property="attributeDate20" jdbcType="DATE"/>
+    </resultMap>
+    <update id="updatePrLineByShortlistHeaderId">
+        update
+            sprm_pr_line
+        set attribute_bigint1 = #{shortlistHeaderId}
+        where pr_line_id = #{prLineId}
+    </update>
+    <update id="updatePrLineByShortlistHeader">
+        update
+            sprm_pr_line
+        set attribute_bigint1 = null,
+        attribute_varchar2 = null
+        where attribute_bigint1 = #{shortlistHeaderId}
+    </update>
+    <update id="updateRfxSourceMethod">
+        UPDATE ssrc_rfx_header h
+        set h.source_method = #{sourceMethod}
+        h.attribute_varchar23=#{shotListNum}
+        where h.rfx_header_id = #{rfxHeaderId}
+    </update>
+
+    <select id="selectPrLineByIdDontShortHeaderId" resultType="org.srm.source.share.domain.vo.PrLineVO">
+        select sph.pr_num,
+               spl.line_num,
+               spl.attribute_bigint1
+        from sprm_pr_line spl
+                 left join sprm_pr_header sph on sph.pr_header_id = spl.pr_header_id
+        where spl.pr_line_id = #{prLineId}
+          and spl.attribute_bigint1 != #{shortlistHeaderId}
+    </select>
+
+    <select id="selectShortlistHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        select srsh.shortlist_header_id,
+               srsh.tenant_id,
+               srsh.company_id,
+               srsh.sample_id,
+               srsh.shortlist_num,
+               srsh.project_name,
+               srsh.business_company_id,
+               srsh.source_category,
+               srsh.shortlist_category,
+               srsh.start_date,
+               srsh.finish_date,
+               srsh.capital,
+               srsh.years,
+               srsh.one_profit,
+               srsh.two_profit,
+               srsh.state,
+               srsh.examine,
+               srsh.publish,
+               srsh.sample,
+               srsh.request_content,
+               srsh.enabled_flag,
+               srsh.object_version_number,
+               srsh.created_by,
+               srsh.creation_date,
+               hc.company_num,
+               hc.company_name,
+               iu.real_name created_name,
+               hou.ou_code,
+               srsh.attribute_bigint2,
+               hou.ou_name
+        from scux_rcwl_shortlist_header srsh
+                 left join iam_user iu on iu.id = srsh.created_by
+                 left join hpfm_company hc on hc.company_id = srsh.company_id
+                 left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
+        where srsh.tenant_id = #{organizationId}
+          and srsh.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+
+    <select id="selectSupplierByShortlistHeaderId"
+            resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+        ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.status supplier_status,
+        slcs.stage_description,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.status,
+        srsh2.created_by,
+        srsh2.creation_date
+        from scux_rcwl_supplier_header srsh2
+        left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+        left join iam_user iu on iu.id = srsh2.created_by
+        left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+        AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        where
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+
+    <select id="selectUserInfoById" resultType="org.srm.source.share.api.dto.User">
+        select iu.real_name,
+               iu.phone
+        from iam_user iu
+        where iu.id = #{userId}
+    </select>
+    <select id="selectRcwlShortlistHeader" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        select
+        srsh.shortlist_header_id,
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        srsh.business_company_id,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.created_by,
+        srsh.creation_date,
+        hc.company_num,
+        hc.company_name,
+        iu.real_name created_name
+        from scux_rcwl_shortlist_header srsh
+        left join iam_user iu on iu.id = srsh.created_by
+        left join hpfm_company hc on hc.company_id = srsh.company_id
+        <where>
+            1=1
+            and srsh.state != 'delete'
+            <if test="shortlistNum != null and shortlistNum != '' ">
+                and srsh.shortlist_num = #{shortlistNum}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and srsh.project_name = #{projectName}
+            </if>
+            <if test="sourceCategory != null and sourceCategory != '' ">
+                and srsh.source_category = #{sourceCategory}
+            </if>
+            <if test="shortlistCategory != null and shortlistCategory != '' ">
+                and srsh.shortlist_category = #{shortlistCategory}
+            </if>
+            <if test="state != null and state != '' ">
+                and srsh.state = #{state}
+            </if>
+            <if test="startDateFrom != null">
+                and srsh.start_date >= #{startDateFrom}
+            </if>
+            <if test="finishDateTo != null">
+                and srsh.finish_date &lt;= #{finishDateTo}
+            </if>
+        </where>
+
+    </select>
+    <select id="selectStaticTextValueByCode" resultType="java.lang.String">
+        SELECT hstv.text
+        FROM hpfm_static_text hst
+                 LEFT JOIN hpfm_static_text_value hstv ON hst.text_id = hstv.text_id
+        WHERE hst.text_code = #{textCode}
+          AND hst.tenant_id = #{organizationId}
+    </select>
+    <select id="currentSupplierInfo" resultType="org.srm.source.cux.domain.vo.SupplierVO">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        hc.company_num supplier_num,
+        hc.company_id supplier_id,
+        ifnull(ssbt.company_name,hc.company_name) supplier_name,
+        slc.company_id company_id,
+        slcst.stage_id,
+        slcst.stage_description
+        FROM
+        iam_user iu
+        LEFT JOIN hpfm_company hc ON iu.organization_id = hc.tenant_id AND hc.source_key IS NOT NULL
+        LEFT JOIN sslm_life_cycle slc on slc.supplier_company_id = hc.company_id
+        LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+        LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        WHERE
+        iu.id = #{userId}
+    </select>
+    <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
+        SELECT scc.name        contact,
+               scc.mobilephone phone
+        FROM spfm_company_contacts scc
+        WHERE scc.company_id = #{companyId}
+          AND scc.default_flag = 1
+    </select>
+    <select id="supplierCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM scux_rcwl_supplier_header h
+        WHERE h.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+    <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh.sample_id,
+        ( SELECT hc.company_name FROM hpfm_company hc WHERE hc.company_id = srsh2.supplier_id ) supplier_name,
+        ( SELECT hc.company_num FROM hpfm_company hc WHERE hc.company_id = srsh2.supplier_id ) supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.STATUS supplier_status,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.STATUS,
+        srsh2.created_by,
+        srsh2.creation_date
+        FROM
+        scux_rcwl_supplier_header srsh2
+        LEFT JOIN scux_rcwl_shortlist_header srsh ON srsh2.shortlist_header_id = srsh.shortlist_header_id
+        LEFT JOIN iam_user iu ON iu.id = srsh2.created_by
+        where
+        srsh2.tenant_id = #{organizationId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+        and srsh2.selected = 1
+    </select>
+    <select id="queryPrLine" resultType="java.lang.Long">
+        select l.pr_line_id
+        from sprm_pr_line l
+        where l.attribute_bigint1 = #{shortlistHeaderId}
+    </select>
+    <select id="pageAssignList" resultType="org.srm.source.share.domain.vo.PrLineVO">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        SELECT
+        sph.attachment_Uuid head_attachment_Uuid,
+        spl.pr_line_id,
+        spl.pr_header_id,
+        spl.tenant_id,
+        spl.line_num,
+        spl.display_line_num,
+        spl.company_id,
+        spl.inv_organization_id,
+        spl.item_id,
+        spl.item_code,
+        spl.item_name,
+        spl.product_id,
+        spl.product_num,
+        spl.product_name,
+        spl.catalog_id,
+        spl.catalog_name,
+        spl.category_id,
+        spl.uom_id,
+        spl.quantity,
+        spl.tax_id,
+        spl.tax_rate,
+        spl.currency_code,
+        spl.unit_price,
+        spl.tax_included_unit_price,
+        spl.line_amount,
+        spl.tax_included_line_amount,
+        spl.needed_date,
+        spl.supplier_tenant_id,
+        spl.supplier_id,
+        spl.supplier_code,
+        spl.supplier_name,
+        spl.supplier_company_id,
+        spl.supplier_company_name,
+        spl.execution_status_code,
+        spl.executed_date,
+        spl.executed_by,
+        spl.execution_bill_id,
+        spl.execution_bill_num,
+        spl.execution_bill_data,
+        sph.execution_bill_id AS header_execution_bill_id,
+        sph.execution_bill_num AS header_execution_bill_num,
+        spl.assigned_flag,
+        spl.assigned_date,
+        spl.assigned_by,
+        spl.assigned_remark,
+        spl.cancelled_flag,
+        spl.cancelled_date,
+        spl.cancelled_by,
+        spl.cancelled_remark,
+        spl.closed_flag,
+        spl.closed_date,
+        spl.closed_by,
+        spl.closed_remark,
+        spl.suspend_flag,
+        spl.suspend_date,
+        spl.suspend_remark,
+        spl.incorrect_flag,
+        spl.incorrect_date,
+        spl.incorrect_msg,
+        spl.attachment_uuid,
+        spl.remark,
+        spl.object_version_number,
+        spl.creation_date,
+        spl.created_by,
+        spl.last_updated_by,
+        spl.line_freight,
+        spl.tax_without_freight_price,
+        spl.execution_header_bill_id,
+        spl.execution_header_bill_num,
+        spl.requested_by,
+        sph.request_date,
+        (CASE WHEN spl.pr_requested_name IS NULL THEN sph.pr_requested_name ELSE spl.pr_requested_name END) pr_requested_name,
+        spl.ou_id,
+        spl.purchase_org_id,
+        spl.purchase_agent_id,
+        spl.inventory_id,
+        spl.can_vat_flag,
+        spl.erp_edit_status,
+        spl.item_abc_class,
+        spl.drawing_num,
+        spl.project_num,
+        spl.project_name,
+        spl.crane_num,
+        spl.cost_id,
+        spl.cost_code,
+        spl.account_subject_id,
+        spl.account_subject_num,
+        spl.wbs,
+        spl.wbs_code,
+        spl.inner_po_num,
+        sas.account_subject_name,
+        scc.cost_name,
+        sph.pr_num,
+        sut.uom_name,
+        su.uom_code,
+        scbl.company_name,
+        hc.company_num,
+        hou.ou_name,
+        hou.ou_code,
+        hpo.organization_name AS purchaseorgname,
+        hpa.purchase_agent_name,
+        hhpa.purchase_agent_name AS header_purchase_agent_name,
+        hio.organization_name AS invorganizationname,
+        sph.sync_status AS header_sync_status,
+        sph.sync_response_msg,
+        sph.pr_source_platform,
+        sict.category_name,
+        hiy.inventory_name,
+        sph.display_pr_num,
+        sph.pr_status_code AS pr_line_status_code,
+        st.tax_code,
+        sph.unit_id,
+        sph.unit_name,
+        CASE
+        WHEN spl.pr_requested_name IS NOT NULL THEN iur.login_name
+        ELSE NULL
+        END pr_requested_num,
+        iu2.real_name AS creator_name,
+        spl.urgent_flag,
+        spl.urgent_date,
+        sph.pr_type_id,
+        spt.pr_type_code,
+        sptl.pr_type_name,
+        sph.inventory_id as header_inventory_id,
+        hiys.inventory_name as header_inventory_name,
+        spl.item_model,
+        spl.item_specs,
+        sph.parent_unit_id,
+        hu.unit_name as parent_unit_name,
+        sph.category_id as header_category_id,
+        sicst.category_name as header_category_name,
+        spl.drawing_version,
+        spl.supplier_item_code,
+        spl.supplier_item_name,
+        sph.expense_unit_name,
+        sph.title,
+        spl.account_assign_type_id,
+        saat.account_assign_type_code,
+        spl.surface_treat_flag,
+        spl.item_properties,
+        spl.occupied_quantity,
+        spl.unit_price_batch,
+        spl.project_category,
+        spl.assets,
+        spl.asset_child_num,
+        sph.changed_flag,
+        spl.quality_standard,
+        spl.tax_included_budget_unit_price,
+        spl.budget_io_flag,
+        spl.budget_account_id,
+        sba.budget_account_num,
+        sbat.budget_account_name,
+        sph.invoice_company_id,
+        iscbl.company_name as invoice_company_name,
+        spl.jd_price,
+        spl.execution_strategy_code,
+        spl.change_order_code,
+        spl.change_order_message,
+        spl.budget_account_deptno,
+        sph.remark header_remark,
+        spl.budget_account_price,
+        spl.exp_bear_dep_id,
+        ehut.unit_name AS exp_bear_dep,
+        ehu.unit_code AS exp_bear_dep_code,
+        (CASE WHEN sph.pr_source_platform = 'SRM' THEN sc.financial_precision ELSE NULL END) AS financial_precision,
+        (CASE WHEN sph.pr_source_platform = 'SRM' THEN sc.default_precision ELSE NULL END) AS default_precision,
+
+
+        spl.receive_contact_name,
+        spl.receive_address,
+        spl.receive_tel_num,
+        sph.pr_requested_name header_pr_requested_name,
+        spl.exp_bear_dep_id,
+        ehut.unit_name AS exp_bear_dep,
+        ehu.unit_code AS exp_bear_dep_code,
+        spl.budget_account_price
+        FROM
+        sprm_pr_line spl
+        JOIN sprm_pr_header sph ON spl.pr_header_id = sph.pr_header_id and spl.attribute_bigint1 = #{shortListId}
+        LEFT JOIN hpfm_company hc ON spl.company_id = hc.company_id
+        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status = 'COMPLETE' GROUP BY company_id) scba_max
+        on scba_max.company_id=hc.source_key
+        LEFT JOIN spfm_company_basic scb ON scb.company_id = scba_max.company_id AND scba_max.version_number = scb.version_number
+        LEFT JOIN spfm_company_basic_tl scbl ON scb.company_basic_id = scbl.company_basic_id
+        AND scbl.lang = #{lang}
+        LEFT JOIN hpfm_company ihc ON sph.invoice_company_id = ihc.company_id
+        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status = 'COMPLETE' GROUP BY company_id) iscba_max
+        on iscba_max.company_id=ihc.source_key
+        LEFT JOIN spfm_company_basic iscb ON iscb.company_id = iscba_max.company_id AND iscba_max.version_number = iscb.version_number
+        LEFT JOIN spfm_company_basic_tl iscbl ON iscb.company_basic_id = iscbl.company_basic_id
+        AND iscbl.lang = #{lang}
+        LEFT JOIN hpfm_operation_unit hou ON spl.ou_id = hou.ou_id
+        LEFT JOIN hpfm_inv_organization hio ON spl.inv_organization_id = hio.organization_id
+        LEFT JOIN iam_user iu2 ON spl.created_by = iu2.id
+        LEFT JOIN iam_user iur ON iur.id = spl.requested_by
+        LEFT JOIN hpfm_inventory hiy ON spl.inventory_id = hiy.inventory_id
+        LEFT JOIN smdm_uom su ON spl.uom_id = su.uom_id
+        LEFT JOIN smdm_uom_tl sut on sut.uom_id = su.uom_id and sut.lang = #{lang}
+        LEFT JOIN smdm_tax st ON spl.tax_id = st.tax_id
+        LEFT JOIN iam_user iu ON spl.executed_by = iu.id
+        LEFT JOIN smdm_item_category sic ON spl.category_id=sic.category_id
+        LEFT JOIN smdm_item_category_tl sict ON sict.category_id = sic.category_id AND sict.lang = #{lang}
+        LEFT JOIN hpfm_purchase_organization hpo ON spl.purchase_org_id = hpo.purchase_org_id
+        LEFT JOIN hpfm_purchase_agent hpa ON spl.purchase_agent_id = hpa.purchase_agent_id
+        LEFT JOIN hpfm_purchase_agent hhpa ON sph.purchase_agent_id = hhpa.purchase_agent_id
+        LEFT JOIN smdm_account_subject sas ON sas.account_subject_id = spl.account_subject_id
+        LEFT JOIN smdm_budget_account sba ON sba.budget_account_id = spl.budget_account_id
+        LEFT JOIN smdm_budget_account_tl sbat ON sbat.budget_account_id = sba.budget_account_id AND sbat.lang = #{lang}
+        LEFT JOIN smdm_cost_center scc ON scc.cost_id = spl.cost_id
+        LEFT JOIN sprm_pr_type spt ON sph.pr_type_id = spt.pr_type_id
+        LEFT JOIN sprm_pr_type_tl sptl ON sptl.pr_type_id = spt.pr_type_id AND sptl.lang = #{lang}
+        LEFT JOIN hpfm_unit hu ON sph.parent_unit_id = hu.unit_id
+        LEFT JOIN hpfm_inventory hiys ON sph.inventory_id = hiys.inventory_id
+        LEFT JOIN smdm_item_category sics ON sph.category_id=sics.category_id
+        LEFT JOIN smdm_item_category_tl sicst ON sicst.category_id = sics.category_id AND sicst.lang = #{lang}
+        LEFT JOIN sprm_account_assign_type saat ON saat.account_assign_type_id = spl.account_assign_type_id
+        LEFT JOIN sprm_pr_budget spb ON spb.pr_line_id = spl.pr_line_id
+        LEFT JOIN hpfm_unit ehu ON ehu.unit_id = spl.exp_bear_dep_id
+        LEFT JOIN hpfm_unit_tl ehut ON ehut.unit_id = ehu.unit_id AND ehut.lang = #{lang}
+        LEFT JOIN smdm_currency sc ON sph.original_currency = sc.currency_code AND sph.tenant_id = sc.tenant_id
+    </select>
+
+</mapper>
