@@ -5,6 +5,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hzero.core.base.BaseController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlClarifyService;
@@ -12,9 +13,12 @@ import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
+import org.srm.source.share.app.service.impl.ClarifyServiceImpl;
 import org.srm.source.share.domain.entity.Clarify;
+import org.srm.source.share.domain.entity.IssueLine;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Api(
         tags = {"Rcwl Clarify"}
@@ -24,6 +28,8 @@ import javax.annotation.Resource;
 public class RcwlClarifyController extends BaseController{
     @Resource
     private RcwlClarifyService rcwlClarifyService;
+    @Autowired
+    private ClarifyServiceImpl clarifyService;
 
     @ApiOperation("澄清函发布BPM模拟")
     @Permission(
@@ -32,7 +38,16 @@ public class RcwlClarifyController extends BaseController{
     )
     @PostMapping({"/release-bpm-simulate"})
     public ResponseData releaseClarifyByBPM(@PathVariable String organizationId,@RequestBody Clarify clarify) {
+        ResponseData responseData = new ResponseData();
         this.validObject(clarify, new Class[0]);
+        List<IssueLine> issueLines = clarifyService.validIssueLine(clarify.getIssueLineIdList(), clarify.getClarifyId());
+        clarify.setIssueLineList(issueLines);
+        try{
+            clarifyService.saveClarify(Long.valueOf(organizationId), clarify);
+        }catch (Exception e){
+            responseData.setMessage("澄清函保存失败！");
+            responseData.setCode("201");
+        }
         RcwlClarifyForBPM rcwlSonOfClarify = new RcwlClarifyForBPM();
         rcwlSonOfClarify.setClarifyId(clarify.getClarifyId());
         rcwlSonOfClarify.setTenantId(clarify.getTenantId());
@@ -47,8 +62,9 @@ public class RcwlClarifyController extends BaseController{
         rcwlSonOfClarify.setContext(clarify.getContext());
         rcwlSonOfClarify.setReferFlag(clarify.getReferFlag());
         rcwlSonOfClarify.setObjectVersionNumber(clarify.getObjectVersionNumber());
+        rcwlSonOfClarify.setIssueLineList(clarify.getIssueLineList());
+        rcwlSonOfClarify.setCreatedBy(clarify.getCreatedBy());
         rcwlSonOfClarify.setProcessInstanceId("0");
-        ResponseData responseData = new ResponseData();
         responseData = rcwlClarifyService.releaseClarifyByBPM(rcwlSonOfClarify);
         return responseData;
     }
