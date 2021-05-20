@@ -114,6 +114,8 @@ logging:
     io.choerodon.asgard: ${LOG_LEVEL:info}
     io.choerodon: ${LOG_LEVEL:debug}
     org.srm: ${LOG_LEVEL:debug}
+    o.s.m.i.m.M.getUnSendMqMessage: info
+    com.netflix.discovery.DiscoveryClient: warn
 
 hzero:
   resource:
@@ -126,8 +128,7 @@ hzero:
       database: ${SPRING_REDIS_DATABASE:1}
       password: ${SPRING_REDIS_PASSWORD:Zyun1234}
   scheduler:
-#    executor-code: SRM_SOURCE_EXECUTOR
-    executor-code: SFIN.EXECUTOR
+    executor-code: SRM_SOURCE_EXECUTOR
     auto-register: true
     upload-log: false
   export:
