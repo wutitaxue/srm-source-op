@@ -3,6 +3,7 @@ package org.srm.source.cux.api.controller.v1;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.core.base.BaseConstants;
@@ -18,9 +19,14 @@ import org.srm.source.cux.domain.entity.RcwlDBSPTGDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
 import org.srm.source.cux.domain.entity.ResponseCalibrationApprovalData;
+import org.srm.source.rfx.api.dto.CheckPriceDTO;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxLineItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Api(
         tags = {"Rcwl Update Calibration Approval"}
@@ -127,11 +133,24 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setTotalCost(rfxHeader.getTotalCost());
         checkPriceHeaderDTO.setTotalPrice(rfxHeader.getTotalPrice());
         checkPriceHeaderDTO.setCostRemark(rfxHeader.getCostRemark());
-
         checkPriceHeaderDTO.setObjectVersionNumber(rfxHeader.getObjectVersionNumber());
         checkPriceHeaderDTO.setCheckAttachmentUuid(rfxHeader.getCheckAttachmentUuid());
         checkPriceHeaderDTO.setSuppAttachmentUuid("");
         checkPriceHeaderDTO.setReleaseItemIds("");
+        checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate().toString());
+        checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate().toString());
+        checkPriceHeaderDTO.setCheckRemark(rfxHeader.getCheckRemark());
+        checkPriceHeaderDTO.setCreateItemFlag(0);
+        checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
+        checkPriceHeaderDTO.setSelectionStrategy("");
+        checkPriceHeaderDTO.setOnlyAllowAllWinBids(rfxHeader.getOnlyAllowAllWinBids());
+        List<CheckPriceDTO> checkPriceDTOLineList = new ArrayList<>();
+        CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
+
+        checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
+        List<RfxLineItem> rfxLineItemList = new ArrayList<>();
+
+        checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
         return  checkPriceHeaderDTO;
     }
 }
