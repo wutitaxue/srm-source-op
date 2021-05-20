@@ -8,7 +8,7 @@ public class RcwlGetDataCloseDTO {
     @JsonProperty("remark")
     private String remark;
     @JsonProperty("rfxNum")
-    private Long rfxNum;
+    private String rfxNum;
     @JsonProperty("tenantId")
     private Long tenantId;
 }

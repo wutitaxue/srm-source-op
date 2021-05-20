@@ -35,7 +35,7 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(Long rfxNum) {
+    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
         return rcwlRfxHeaderMapper.getRfxHeaderIdByRfxNum(rfxNum);
     }
 }

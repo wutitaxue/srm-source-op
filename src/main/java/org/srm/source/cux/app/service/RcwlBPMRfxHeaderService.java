@@ -10,5 +10,5 @@ public interface RcwlBPMRfxHeaderService {
 
     ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO);
 
-    Long getRfxHeaderIdByRfxNum(Long rfxNum);
+    Long getRfxHeaderIdByRfxNum(String rfxNum);
 }
