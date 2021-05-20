@@ -20,6 +20,7 @@ import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
 import org.srm.source.cux.domain.entity.ResponseCalibrationApprovalData;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.domain.entity.RfxHeader;
 
 @Api(
         tags = {"Rcwl Update Calibration Approval"}
@@ -119,5 +120,10 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             return responseData;
     }
 
+    public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId){
+        CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
+        RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
 
+        return  checkPriceHeaderDTO;
+    }
 }
