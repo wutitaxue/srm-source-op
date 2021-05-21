@@ -58,12 +58,14 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
     private EvaluateScoreService evaluateScoreService;
     @Autowired
     private CommonQueryRepository commonQueryRepository;
+    @Autowired
+    private EvaluateScoreLineService evaluateScoreLineService;
 
     /**
      * 新写的
      */
     @Autowired
-    private IRcwlEvaluateScoreLineService evaluateScoreLineService;
+    private IRcwlEvaluateScoreLineService iRcwlevaluateScoreLineService;
     @Autowired
     private RcwlAutoScoreStrategyService autoScoreStrategyService;
     @Autowired
@@ -82,12 +84,12 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
 
     @Override
     public void autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
+//        ((IRcwlEvaluateScoreLineService)this.self())._autoEvaluateScore(autoScoreDTO);
         this._autoEvaluateScore(autoScoreDTO);
     }
 
     public void _autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
-        LOGGER.debug("auto process start");
-
+        LOGGER.debug("RCWL _autoEvaluateScore auto evaluate score started");
         AUTO_FLAG.set(true);
         String sourceFrom = autoScoreDTO.getSourceFrom();
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
@@ -103,8 +105,8 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
         Map<Long, BigDecimal> quotationLineMaps = new HashMap<>();
         SourceTemplate sourceTemplate;
         if ("RFX".equals(sourceFrom)) {
-            RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
-            quotationLineMaps = this.evaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+//            RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
+            quotationLineMaps = this.iRcwlevaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
         Map<Long, BigDecimal> validQuotationLineMaps = (Map)quotationLineMaps.entrySet().stream().filter((map) -> {
@@ -162,7 +164,7 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
                             do {
                                 if (!var14.hasNext()) {
                                     evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
-                                    ((EvaluateScoreLineService)this.self()).saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO, sourceFrom, sourceHeaderId, tenantId);
+                                    this.evaluateScoreLineService.saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO, sourceFrom, sourceHeaderId, tenantId);
                                     break label72;
                                 }
 
