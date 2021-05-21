@@ -17,7 +17,7 @@ public interface IRcwlEvaluateScoreLineService {
      */
     void autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
-    void _autoEvaluateScore(AutoScoreDTO autoScoreDTO);
+    //void _autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
     /**
      * 获取报价头 ID，与价格组成的 Map

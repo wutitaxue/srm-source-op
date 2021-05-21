@@ -82,11 +82,12 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
 
     @Override
     public void autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
-        ((IRcwlEvaluateScoreLineService)this.self())._autoEvaluateScore(autoScoreDTO);
+        this._autoEvaluateScore(autoScoreDTO);
     }
 
-    @Override
     public void _autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
+        LOGGER.debug("auto process start");
+
         AUTO_FLAG.set(true);
         String sourceFrom = autoScoreDTO.getSourceFrom();
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
