@@ -203,7 +203,7 @@ public class RcwlEvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineS
     public Map<Long, BigDecimal> getRfxQuotationLineMaps(AutoScoreDTO autoScoreDTO, String priceTypeCode) {
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         Long tenantId = autoScoreDTO.getTenantId();
-        RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
+        RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
         if (Objects.isNull(rfxHeader)) {
             throw new CommonException("rfx header not exists!");
         } else {
