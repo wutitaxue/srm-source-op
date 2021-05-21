@@ -215,7 +215,7 @@
     </update>
     <update id="updateRfxSourceMethod">
         UPDATE ssrc_rfx_header h
-        set h.source_method = #{sourceMethod}
+        set h.source_method = #{sourceMethod},
         h.attribute_varchar23=#{shotListNum}
         where h.rfx_header_id = #{rfxHeaderId}
     </update>
