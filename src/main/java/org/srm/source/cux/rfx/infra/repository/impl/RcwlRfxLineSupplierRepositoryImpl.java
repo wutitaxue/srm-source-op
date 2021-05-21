@@ -1,5 +1,8 @@
 package org.srm.source.cux.rfx.infra.repository.impl;
 
+import io.choerodon.core.domain.Page;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.rfx.infra.constant.RcwlSourceConstant;
@@ -30,6 +33,19 @@ public class RcwlRfxLineSupplierRepositoryImpl extends RfxLineSupplierRepository
     @Override
     public List<RfxLineSupplierDTO> listAllRfxCheckSuppliers(RfxLineSupplier lineSupplier) {
         return this.rcwlRfxLineSupplierMapper.listRfxCheckSuppliers(lineSupplier);
+    }
+
+    /**
+     * 核价界面查询供应商信息
+     * @param pageRequest
+     * @param lineSupplier
+     * @return
+     */
+    @Override
+    public Page<RfxLineSupplierDTO> listRfxCheckSuppliers(PageRequest pageRequest, RfxLineSupplier lineSupplier) {
+        return PageHelper.doPageAndSort(pageRequest, () -> {
+            return this.rcwlRfxLineSupplierMapper.listRfxCheckSuppliers(lineSupplier);
+        });
     }
 
 }
