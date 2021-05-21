@@ -58,6 +58,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
     )
     @Override
     public ReturnT execute(Map<String, String> map, SchedulerTool tool) {
+        LOGGER.info("RCWL HELLO rcwlEvaluateIndicHandler");
         // 获取需要自动评分的所有数据
         List<RfxHeader> rfxHeaders = this.rfxHeaderRepository.selectRfxForAutoScore();
         if (CollectionUtils.isEmpty(rfxHeaders)) {

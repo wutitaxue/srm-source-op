@@ -59,10 +59,9 @@ public class RcwlUpdateClarifyController extends BaseController {
 
     @ApiOperation("澄清答疑发布")
     @Permission(
-            level = ResourceLevel.ORGANIZATION
+            permissionPublic = true
     )
     @PostMapping({"/release"})
-    @FilterSupplier
     public ResponseEntity<Clarify> releaseClarify(@RequestBody RcwlCarifyReleaseDTO rcwlCarifyReleaseDTO) {
         Long clarifyId = rcwlClarifyService.getClarifyIdByClarifyNum(rcwlCarifyReleaseDTO.getClarifyNum());
         Clarify clarify = clarifyService.queryClarifyDetail(rcwlCarifyReleaseDTO.getTenantid(),clarifyId);

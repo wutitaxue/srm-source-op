@@ -3,6 +3,7 @@ package org.srm.source.cux.domain.repository;
 import org.hzero.mybatis.base.BaseRepository;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import java.util.List;
 
@@ -26,4 +27,10 @@ public interface RcwlCalibrationApprovalRepository extends BaseRepository<RfxHea
     Long getRfxHeaderIdByRfxNum(String rfxNum);
 
     String getQuotationAmount(String s);
+
+    List<String> getQuotationHeaderIDByRfxHeaderId(Long rfxHeaderId,Long tenantId);
+
+    List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId);
+
+    List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
 }
