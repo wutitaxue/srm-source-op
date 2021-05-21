@@ -24,15 +24,15 @@ public class RcwlAutoScoreStrategyService {
 
     public RcwlAutoScoreStrategyService(List<IRcwlEvaluateIndicAutoScoreCalculator> calculators, List<IRcwlAutoScoreBenchmarkPriceCalculator> benchmarkPriceCalculators) {
         calculators.forEach((e) -> {
-            IRcwlEvaluateIndicAutoScoreCalculator var10000 = (IRcwlEvaluateIndicAutoScoreCalculator)this.calculatorMapMap.put(e.getFormulaType(), e);
+            IRcwlEvaluateIndicAutoScoreCalculator var10000 = this.calculatorMapMap.put(e.getFormulaType(), e);
         });
         benchmarkPriceCalculators.forEach((e) -> {
-            IRcwlAutoScoreBenchmarkPriceCalculator var10000 = (IRcwlAutoScoreBenchmarkPriceCalculator)this.benchmarkPriceCalculatorMap.put(e.calcMethodName(), e);
+            IRcwlAutoScoreBenchmarkPriceCalculator var10000 = this.benchmarkPriceCalculatorMap.put(e.calcMethodName(), e);
         });
     }
 
     public BigDecimal calcScore(String calculatorType, BigDecimal supplierQuotationPriceTotal, EvaluateScoreLineDTO evaluateScoreLineDTO, EvaluateIndicDetail evaluateIndicDetail, BigDecimal benchmarkPrice) {
-        IRcwlEvaluateIndicAutoScoreCalculator calculator = (IRcwlEvaluateIndicAutoScoreCalculator)this.calculatorMapMap.get(calculatorType);
+        IRcwlEvaluateIndicAutoScoreCalculator calculator = this.calculatorMapMap.get(calculatorType);
         if (Objects.isNull(calculator)) {
             throw new CommonException("没有找到对应计算策略");
         } else {
@@ -41,7 +41,7 @@ public class RcwlAutoScoreStrategyService {
     }
 
     public BigDecimal calcBenchmarkPrice(String methodName, String priceTypeCode, AutoScoreDTO autoScoreDTO, EvaluateIndicDetail evaluateIndicDetail) {
-        IRcwlAutoScoreBenchmarkPriceCalculator calculator = (IRcwlAutoScoreBenchmarkPriceCalculator)this.benchmarkPriceCalculatorMap.get(methodName);
+        IRcwlAutoScoreBenchmarkPriceCalculator calculator = this.benchmarkPriceCalculatorMap.get(methodName);
         if (Objects.isNull(calculator)) {
             throw new CommonException("没有找到对应计算策略");
         } else {
