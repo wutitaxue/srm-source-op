@@ -707,7 +707,7 @@
         FROM sprm_pr_header h,
              sprm_pr_line l
         WHERE l.pr_header_id = h.pr_header_id
-          AND tenant_id = #{organizationId}
+          AND h.tenant_id = #{organizationId}
           AND l.attribute_bigint1 = #{shortlistHeaderId}
     </select>
     <select id="rcwlSelectBpmFile"
