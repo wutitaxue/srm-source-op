@@ -39,4 +39,9 @@ public class RcwlProportionCalculator extends ProportionCalculator {
 
         return res;
     }
+
+    @Override
+    public String getFormulaType() {
+        return "PROPORTION";
+    }
 }
