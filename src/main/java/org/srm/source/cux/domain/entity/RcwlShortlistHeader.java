@@ -152,9 +152,25 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @Transient
     private Long supplierHeaderId;
 
+    @ApiModelProperty("bpmUrl")
+    @Transient
+
+    private String url;
+
+
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
+
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     /**
      * @return 主键ID，PK
