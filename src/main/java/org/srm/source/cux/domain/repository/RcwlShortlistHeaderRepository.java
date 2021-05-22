@@ -1,5 +1,6 @@
 package org.srm.source.cux.domain.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.mybatis.base.BaseRepository;
@@ -11,6 +12,7 @@ import org.srm.source.cux.domain.vo.SupplierVO;
 import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -124,7 +126,7 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @param rcwlShortlistHeader 入围单
      * @return RcwlShortlistHeader
      */
-    RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader);
+    RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader) throws IOException;
 
     /**
      * 获取当前供应商信息
@@ -140,8 +142,18 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
 
     /**
      * 更新寻源方式
+     *
      * @param sourceMethod
      * @param rfxHeaderId
      */
-    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId,String shotListNum);
+    void updateRfxSourceMethod(String sourceMethod, Long rfxHeaderId, String shotListNum);
+
+    /**
+     * 通过code查询ID
+     *
+     * @param organizationId
+     * @param shotListNum
+     * @return
+     */
+    Long rcwlSelectShortListHeaderIdByCode(Long organizationId, String shotListNum);
 }

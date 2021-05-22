@@ -1,5 +1,6 @@
 package org.srm.source.cux.api.controller.v1;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -25,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 import org.srm.source.cux.domain.vo.SupplierVO;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -105,7 +107,7 @@ public class RcwlShortlistHeaderController extends BaseController {
     @ApiOperation(value = "提交")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/submit")
-    public ResponseEntity<RcwlShortlistHeader> submit(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
+    public ResponseEntity<RcwlShortlistHeader> submit(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) throws IOException {
         RcwlShortlistHeader rcwlShortlistHeader1 =  rcwlShortlistHeaderRepository.submit(rcwlShortlistHeader);
         return Results.success(rcwlShortlistHeader1);
     }
@@ -124,6 +126,40 @@ public class RcwlShortlistHeaderController extends BaseController {
     public ResponseEntity<SupplierVO> currentSupplierInfo(@PathVariable Long organizationId) {
         SupplierVO value = rcwlShortlistHeaderRepository.currentSupplierInfo();
         return Results.success(value);
+    }
+
+    //--------------------BPM操作----------------
+
+
+    @ApiOperation(value = "入围单BPM提交成功")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit-to-bpm-successed")
+    public ResponseEntity<Void> ShortListsubmitToBpmSuccessed( @PathVariable("organizationId") Long tenantId, @RequestParam("ShorListNum") String ShorListNum ) {
+        rcwlShortlistHeaderService.rcwlSubmitBpmSuccessed(tenantId, ShorListNum);
+        return Results.success();
+    }
+
+    @ApiOperation(value = "入围单BPM审批通过")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit-to-bpm-approved")
+    public ResponseEntity<Void> ShortListbpmApproved( @PathVariable("organizationId") Long tenantId, @RequestParam("ShorListNum") String ShorListNum ) {
+        rcwlShortlistHeaderService.rcwlSubmitBpmApproved(tenantId, ShorListNum);
+        return Results.success();
+    }
+
+    @ApiOperation(value = "入围单BPM审批拒绝")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit-to-bpm-rejected")
+    public ResponseEntity<Void> ShortListbpmReject( @PathVariable("organizationId") Long tenantId, @RequestParam("ShorListNum") String ShorListNum ) {
+        rcwlShortlistHeaderService.rcwlSubmitBpmReject(tenantId, ShorListNum);
+        return Results.success();
+    }
+    @ApiOperation(value = "入围单BPM审批修改id接口")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/submit-to-bpm-rejected3")
+    public ResponseEntity<Void> ShortListbpmUpdate( @PathVariable("organizationId") Long tenantId,@RequestParam("ShorListNum") String ShorListNum ,@RequestParam("attributeVarchar8") String attributeVarchar8,@RequestParam("attributeVarchar9") String attributeVarchar9) {
+        rcwlShortlistHeaderService.RcwlBpmUpateInstance(tenantId, ShorListNum,attributeVarchar8,attributeVarchar9);
+        return Results.success();
     }
 
 

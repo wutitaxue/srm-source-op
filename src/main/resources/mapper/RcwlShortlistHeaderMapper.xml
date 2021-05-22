@@ -209,14 +209,13 @@
     <update id="updatePrLineByShortlistHeader">
         update
             sprm_pr_line
-        set attribute_bigint1 = null,
-        attribute_varchar2 = null
+        set attribute_bigint1  = null,
+            attribute_varchar2 = null
         where attribute_bigint1 = #{shortlistHeaderId}
     </update>
     <update id="updateRfxSourceMethod">
         UPDATE ssrc_rfx_header h
-        set h.source_method = #{sourceMethod},
-        h.attribute_varchar23=#{shotListNum}
+        set h.source_method = #{sourceMethod} h.attribute_varchar23=#{shotListNum}
         where h.rfx_header_id = #{rfxHeaderId}
     </update>
 
@@ -520,7 +519,8 @@
         spl.execution_header_bill_num,
         spl.requested_by,
         sph.request_date,
-        (CASE WHEN spl.pr_requested_name IS NULL THEN sph.pr_requested_name ELSE spl.pr_requested_name END) pr_requested_name,
+        (CASE WHEN spl.pr_requested_name IS NULL THEN sph.pr_requested_name ELSE spl.pr_requested_name END)
+        pr_requested_name,
         spl.ou_id,
         spl.purchase_org_id,
         spl.purchase_agent_id,
@@ -629,15 +629,19 @@
         sprm_pr_line spl
         JOIN sprm_pr_header sph ON spl.pr_header_id = sph.pr_header_id and spl.attribute_bigint1 = #{shortListId}
         LEFT JOIN hpfm_company hc ON spl.company_id = hc.company_id
-        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status = 'COMPLETE' GROUP BY company_id) scba_max
+        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status =
+        'COMPLETE' GROUP BY company_id) scba_max
         on scba_max.company_id=hc.source_key
-        LEFT JOIN spfm_company_basic scb ON scb.company_id = scba_max.company_id AND scba_max.version_number = scb.version_number
+        LEFT JOIN spfm_company_basic scb ON scb.company_id = scba_max.company_id AND scba_max.version_number =
+        scb.version_number
         LEFT JOIN spfm_company_basic_tl scbl ON scb.company_basic_id = scbl.company_basic_id
         AND scbl.lang = #{lang}
         LEFT JOIN hpfm_company ihc ON sph.invoice_company_id = ihc.company_id
-        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status = 'COMPLETE' GROUP BY company_id) iscba_max
+        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status =
+        'COMPLETE' GROUP BY company_id) iscba_max
         on iscba_max.company_id=ihc.source_key
-        LEFT JOIN spfm_company_basic iscb ON iscb.company_id = iscba_max.company_id AND iscba_max.version_number = iscb.version_number
+        LEFT JOIN spfm_company_basic iscb ON iscb.company_id = iscba_max.company_id AND iscba_max.version_number =
+        iscb.version_number
         LEFT JOIN spfm_company_basic_tl iscbl ON iscb.company_basic_id = iscbl.company_basic_id
         AND iscbl.lang = #{lang}
         LEFT JOIN hpfm_operation_unit hou ON spl.ou_id = hou.ou_id
@@ -669,6 +673,58 @@
         LEFT JOIN hpfm_unit ehu ON ehu.unit_id = spl.exp_bear_dep_id
         LEFT JOIN hpfm_unit_tl ehut ON ehut.unit_id = ehu.unit_id AND ehut.lang = #{lang}
         LEFT JOIN smdm_currency sc ON sph.original_currency = sc.currency_code AND sph.tenant_id = sc.tenant_id
+    </select>
+    <select id="rcwlSelectBpmSuppier"
+            resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListSuppierDTO">
+
+        SELECT (SELECT hc.company_name FROM hpfm_company hc WHERE hc.company_id = h.supplier_id)                 supplier_name,
+               (SELECT hc.company_num
+                FROM hpfm_company hc
+                WHERE hc.company_id = h.supplier_id)                                                             company_id,
+               (CASE h.selected WHEN 1 THEN '是' ELSE '否' END)                                                    short_list_status,
+               h.attribute_varchar5                                                                              investigate,
+               h.attribute_varchar6                                                                              investigatereasons,
+               (CASE h.enroll WHEN 1 THEN '是' ELSE '否' END)                                                      enroll,
+               h.enroll_date,
+               h.contacts,
+               h.phone,
+               (SELECT slcs.stage_description FROM sslm_life_cycle_stages slcs WHERE slcs.stage_id = h.stage_id) period,
+               h.qualification                                                                                   enabled_flag,
+               h.qualification_info                                                                              period_info,
+               h.sample_id                                                                                       short_list_num
+        FROM scux_rcwl_supplier_header h
+        WHERE h.tenant_id = #{organizationId}
+          and h.shortlist_header_id = #{shortlistHeaderId}
+
+    </select>
+    <select id="rcwlSelectBpmPr" resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListPrDTO">
+        SELECT h.pr_num                                                                               pr_header_id,
+               l.line_num,
+               (SELECT m.category_name FROM smdm_item_category m WHERE m.category_id = l.category_id) category_id,
+               l.item_code,
+               l.item_name,
+               h.pr_header_id                                                                         url_mx
+        FROM sprm_pr_header h,
+             sprm_pr_line l
+        WHERE l.pr_header_id = h.pr_header_id
+          AND tenant_id = #{organizationId}
+          AND l.attribute_bigint1 = #{shortlistHeaderId}
+    </select>
+    <select id="rcwlSelectBpmFile"
+            resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListFilesDto">
+        SELECT h.attachment_name file_name,
+               h.attachment_url  url_mx,
+               h.attachment_name description,
+               NULL AS           file_size
+        FROM scux_rcwl_shortlist_attachment h
+        WHERE h.tenant_id = #{organizationId}
+          AND h.shortlist_id = #{shortlistHeaderId}
+    </select>
+    <select id="rcwlSelectShortListHeaderIdByCode" resultType="java.lang.Long">
+        SELECT h.shortlist_header_id
+        from scux_rcwl_shortlist_header h
+        where h.tenant_id = #{organizationId}
+          and h.shortlist_num = #{shotListNum}
     </select>
 
 </mapper>

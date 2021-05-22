@@ -3,6 +3,9 @@ package org.srm.source.cux.infra.mapper;
 import io.choerodon.core.domain.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListFilesDto;
+import org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListPrDTO;
+import org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListSuppierDTO;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import io.choerodon.mybatis.common.BaseMapper;
@@ -129,5 +132,40 @@ public interface RcwlShortlistHeaderMapper extends BaseMapper<RcwlShortlistHeade
 
     List<PrLineVO> pageAssignList(Long shortlistHeaderId);
 
-    void updateRfxSourceMethod(@Param("sourceMethod") String sourceMethod, @Param("rfxHeaderId") Long rfxHeaderId,@Param("shotListNum") String shotListNum);
+    void updateRfxSourceMethod(@Param("sourceMethod") String sourceMethod, @Param("rfxHeaderId") Long rfxHeaderId, @Param("shotListNum") String shotListNum);
+
+    /**
+     * bpm查询入围供应商
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlBpmShortListSuppierDTO> rcwlSelectBpmSuppier(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
+
+    /**
+     * 查询pr
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlBpmShortListPrDTO> rcwlSelectBpmPr(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId") Long shortlistHeaderId);
+
+    /**
+     * 查询附件
+     *
+     * @param organizationId
+     * @param shortlistHeaderId
+     * @return
+     */
+    List<RcwlBpmShortListFilesDto> rcwlSelectBpmFile(@Param("organizationId") Long organizationId, @Param("shortlistHeaderId")Long shortlistHeaderId);
+
+    /**
+     * 通过code查id
+     * @param organizationId
+     * @param shotListNum
+     * @return
+     */
+    Long rcwlSelectShortListHeaderIdByCode(@Param("organizationId") Long organizationId, @Param("shotListNum") String shotListNum);
 }
