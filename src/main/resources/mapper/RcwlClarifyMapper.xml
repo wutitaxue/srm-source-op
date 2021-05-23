@@ -9,6 +9,7 @@
             <if test="clarifyStatus!=null and clarifyStatus != ''">clarify_status=#{clarifyStatus},</if>
         </trim>
         WHERE clarify_num=#{clarifyNum}
+        AND tenant_id = #{tenantid}
     </update>
 
     <select id="getSourceNumAndNameAndClarifyNumberById" resultType="String">
@@ -34,6 +35,11 @@
     </select>
     <select id="getClarifyIdByClarifyNum" resultType="java.lang.Long">
         SELECT clarify_id
+        FROM    ssrc_clarify
+        WHERE   clarify_num = #{clarifyNum}
+    </select>
+    <select id="getTenantIdByclarifyNum" resultType="String">
+        SELECT tenant_id
         FROM    ssrc_clarify
         WHERE   clarify_num = #{clarifyNum}
     </select>

@@ -9,6 +9,7 @@ import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.cux.infra.mapper.RcwlClarifyMapper;
 import org.srm.source.share.domain.entity.Clarify;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -31,9 +32,6 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
 
     @Override
     public void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
-        if("1".equals(rcwlUpdateDTO.getProcessInstanceId()) && !"".equals(rcwlUpdateDTO.getClarifyStatus())){
-            rcwlUpdateDTO.setClarifyStatus("RELEASED");
-        }
         rcwlClarifyMapper.updateClarifyData(rcwlUpdateDTO);
     }
 
@@ -52,5 +50,14 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     public Long getClarifyIdByClarifyNum(String clarifyNum) {
         Long l = rcwlClarifyMapper.getClarifyIdByClarifyNum(clarifyNum);
         return l == null ? 0l:l;
+    }
+
+    @Override
+    public List<String> getTenantIdByclarifyNum(String clarifyNum) {
+        List<String> l = rcwlClarifyMapper.getTenantIdByclarifyNum(clarifyNum);
+        if(l == null || l.size()==0){
+            l = new ArrayList<String>();
+        }
+        return l;
     }
 }

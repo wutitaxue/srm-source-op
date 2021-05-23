@@ -21,4 +21,6 @@ public interface RcwlClarifyMapper extends BaseMapper<RcwlClarifyForBPM> {
     String getRoundNumber(Long id);
 
     Long getClarifyIdByClarifyNum(String clarifyNum);
+
+    List<String> getTenantIdByclarifyNum(String clarifyNum);
 }

@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class RcwlUpdateDataDTO {
-    @JsonProperty("tenantid")
-    private String tenantid;
+    @JsonProperty("tenantId")
+    private String tenantId;
     @JsonProperty("clarifyNum")
     private String clarifyNum;
     @JsonProperty("processInstanceId")

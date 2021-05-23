@@ -21,6 +21,7 @@ import org.srm.source.share.app.service.ClarifyService;
 import org.srm.source.share.domain.entity.Clarify;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Api(
         tags = {"Rcwl Update Clarify"}
@@ -47,7 +48,7 @@ public class RcwlUpdateClarifyController extends BaseController {
             return responseData;
         }
         if((rcwlUpdateDataDTO.getClarifyNum() == null || "".equals(rcwlUpdateDataDTO.getClarifyNum()))&&
-                (rcwlUpdateDataDTO.getTenantid() == null || "".equals(rcwlUpdateDataDTO.getTenantid()))){
+                (rcwlUpdateDataDTO.getTenantId() == null || "".equals(rcwlUpdateDataDTO.getTenantId()))){
             responseData.setCode("201");
             responseData.setMessage("单据编号或人员ID获取异常！");
             return responseData;
@@ -59,7 +60,14 @@ public class RcwlUpdateClarifyController extends BaseController {
             responseData.setMessage("所需更新数据至少有一个值！");
             return responseData;
         }
-        responseData = rcwlClarifyService.updateClarifyData(rcwlUpdateDataDTO);
+        //判断当前TenantId是否有圈先更改数据
+        List<String> l = rcwlClarifyService.getTenantIdByclarifyNum(rcwlUpdateDataDTO.getClarifyNum());
+        if(l.contains(rcwlUpdateDataDTO.getTenantId())){
+            responseData = rcwlClarifyService.updateClarifyData(rcwlUpdateDataDTO);
+        }else {
+            responseData.setCode("201");
+            responseData.setMessage("当前角色没有修改权限！");
+        }
         return responseData;
     }
 
