@@ -39,7 +39,12 @@ public class RcwlUpdateClarifyController extends BaseController {
     @PostMapping({"/update-clarify"})
     public ResponseData updateClarifyData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
-        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
+        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO() ;
+        if(null == rcwlUpdateDTO || null == rcwlUpdateDataDTO){
+            responseData.setCode("201");
+            responseData.setMessage("数据接收为null,获取异常！");
+            return responseData;
+        }
         if((rcwlUpdateDataDTO.getClarifyNum() == null || "".equals(rcwlUpdateDataDTO.getClarifyNum()))&&
                 (rcwlUpdateDataDTO.getTenantid() == null || "".equals(rcwlUpdateDataDTO.getTenantid()))){
             responseData.setCode("201");
