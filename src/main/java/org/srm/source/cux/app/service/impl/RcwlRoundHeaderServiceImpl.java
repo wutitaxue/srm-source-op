@@ -14,6 +14,8 @@ import org.springframework.util.Assert;
 import org.srm.boot.platform.message.MessageHelper;
 import org.srm.boot.platform.message.entity.SpfmMessageSender;
 import org.srm.source.cux.app.service.RcwlRoundHeaderService;
+import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
+import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.app.service.common.SendMessageHandle;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
@@ -64,12 +66,15 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
     private RfxLineSupplierRepository rfxLineSupplierRepository;
     @Autowired
     private CommonQueryRepository commonQueryRepository;
+    @Autowired
+    private RfxQuotationHeaderService rfxQuotationHeaderService;
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
     public void startQuotation(Long tenantId, Long sourceHeaderId, Date roundQuotationEndDate, String startingReason, List<RfxQuotationHeader> rfxQuotationHeaderList) {
 
+        rfxQuotationHeaderService.offLineQuotationHeaderUpdate(tenantId, rfxQuotationHeaderList);
         RoundHeader roundHeaderDb = (RoundHeader) this.roundHeaderRepository.selectOne(new RoundHeader(tenantId, sourceHeaderId, "RFX"));
         Assert.isTrue(DateUtil.beforeNow(roundQuotationEndDate, (String) null), "error.round_quotation_end_date");
         Assert.isTrue(!DateUtil.beforeNow(roundHeaderDb.getRoundQuotationEndDate(), (String) null), "error.round_deadline_is_not_reached");
