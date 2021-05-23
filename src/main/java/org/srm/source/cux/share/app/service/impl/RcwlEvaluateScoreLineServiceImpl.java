@@ -10,18 +10,32 @@ import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.bid.domain.entity.BidHeader;
 import org.srm.source.bid.domain.repository.BidHeaderRepository;
 import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
+import org.srm.source.cux.rfx.domain.strategy.RcwlAutoScoreStrategyService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.share.api.dto.AutoScoreDTO;
+import org.srm.source.share.api.dto.EvaluateExpertFullDTO;
+import org.srm.source.share.api.dto.EvaluateScoreDTO;
+import org.srm.source.share.api.dto.EvaluateScoreLineDTO;
+import org.srm.source.share.api.dto.EvaluateScoreQueryDTO;
+import org.srm.source.share.api.dto.EvaluateSectionDTO;
+import org.srm.source.share.app.service.EvaluateScoreService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
+import org.srm.source.share.domain.entity.EvaluateExpert;
+import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.entity.SourceTemplate;
+import org.srm.source.share.domain.repository.EvaluateExpertRepository;
 import org.srm.source.share.domain.repository.SourceTemplateRepository;
+import org.srm.source.share.domain.strategy.AutoScoreStrategyService;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,12 +63,19 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private CommonQueryRepository commonQueryRepository;
     @Autowired
     private SourceTemplateRepository sourceTemplateRepository;
-
+    @Autowired
+    private EvaluateExpertRepository evaluateExpertRepository;
+    @Autowired
+    private EvaluateScoreService evaluateScoreService;
+    @Autowired
+    private AutoScoreStrategyService autoScoreStrategyService;
     /**
      * 新写的
      */
     @Autowired
     private IRcwlRfxQuotationLineRepository rcwlRfxQuotationLineRepository;
+    @Autowired
+    private RcwlAutoScoreStrategyService rcwlAutoScoreStrategyService;
 
     public RcwlEvaluateScoreLineServiceImpl() {
         super();
@@ -107,8 +128,116 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     }
 
     @Override
+    public void simulateExpertDoScore(AutoScoreDTO autoScoreDTO, String subjectMatterRule, Map<Long, BigDecimal> quotationLineMaps, String priceTypeCode) {
+        Long tenantId = autoScoreDTO.getTenantId();
+        Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
+        String sourceFrom = autoScoreDTO.getSourceFrom();
+        List<EvaluateExpert> evaluateExperts = this.evaluateExpertRepository.queryEvaluateExpertAll(tenantId, sourceHeaderId, sourceFrom, (String)null, (String)null);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("evaluate experts : {}", evaluateExperts);
+        }
+
+        Iterator var9 = evaluateExperts.iterator();
+
+        while(true) {
+            EvaluateExpert evaluateExpert;
+            do {
+                if (!var9.hasNext()) {
+                    return;
+                }
+
+                evaluateExpert = (EvaluateExpert)var9.next();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("evaluateExpert : {}", evaluateExpert.getEvaluateExpertId());
+                }
+            } while("TECHNOLOGY".equals(evaluateExpert.getTeam()));
+
+            EvaluateScoreQueryDTO evaluateScoreQueryDTO = new EvaluateScoreQueryDTO(sourceHeaderId, tenantId, evaluateExpert.getExpertId(), evaluateExpert.getExpertUserId(), sourceFrom);
+            evaluateScoreQueryDTO.setEvaluateExpertId(evaluateExpert.getEvaluateExpertId());
+            evaluateScoreQueryDTO.setExpertSequenceNum(evaluateExpert.getSequenceNum());
+            evaluateScoreQueryDTO.setSubjectMatterRule(subjectMatterRule);
+            EvaluateExpertFullDTO evaluateExpertFullDTO = this.evaluateScoreService.selectAllEvaluateScore(evaluateScoreQueryDTO);
+            evaluateExpertFullDTO.setExpertUserId(evaluateExpert.getExpertUserId());
+            evaluateExpertFullDTO.setEvaluateExpertId(evaluateExpert.getEvaluateExpertId());
+            if ("NONE".equals(subjectMatterRule)) {
+                List<EvaluateScoreLineDTO> evaluateScoreLineDTOS = evaluateExpertFullDTO.getEvaluateScoreLineDTOS();
+                Iterator var14 = evaluateScoreLineDTOS.iterator();
+
+                label72:
+                while(true) {
+                    EvaluateScoreLineDTO evaluateScoreLineDTO;
+                    EvaluateIndicDetail evaluateIndicDetail;
+                    BigDecimal benchmarkPrice;
+                    List evaluateScoreDTOS;
+                    do {
+                        do {
+                            do {
+                                if (!var14.hasNext()) {
+                                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
+                                    this.self().saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO, sourceFrom, sourceHeaderId, tenantId);
+                                    break label72;
+                                }
+
+                                evaluateScoreLineDTO = (EvaluateScoreLineDTO)var14.next();
+                            } while(!"AUTO".equals(evaluateScoreLineDTO.getCalculateType()));
+
+                            evaluateIndicDetail = evaluateScoreLineDTO.getEvaluateIndicDetail();
+                        } while(Objects.isNull(evaluateIndicDetail));
+
+                        if (!"PRICE".equals(evaluateScoreLineDTO.getScoreType())) {
+                            throw new CommonException("only support price!", new Object[0]);
+                        }
+
+                        benchmarkPrice = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                        evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
+                    } while(CollectionUtils.isEmpty(evaluateScoreDTOS));
+
+                    Iterator var19 = evaluateScoreDTOS.iterator();
+
+                    while(var19.hasNext()) {
+                        EvaluateScoreDTO evaluateScoreDTO = (EvaluateScoreDTO)var19.next();
+                        evaluateIndicDetail.setMaxScore(evaluateScoreDTO.getMaxScore());
+                        // RCWL 计算评分
+                        BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), (BigDecimal)quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+                        List<BigDecimal> scores = new ArrayList();
+                        scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score) > 0 ? score : evaluateScoreLineDTO.getMaxScore());
+                        scores.add(evaluateScoreLineDTO.getMinScore());
+                        score = (BigDecimal) Collections.max(scores);
+                        evaluateScoreDTO.setIndicScore(score);
+                    }
+                }
+            }
+
+            if ("PACK".equals(subjectMatterRule)) {
+                this.bidAutoScorePACK(autoScoreDTO, priceTypeCode, evaluateExpert, evaluateExpertFullDTO);
+                EvaluateExpertFullDTO evaluateExpertFullDTONew = this.rebuildEvaluateExpertFullDTO(evaluateExpertFullDTO);
+                this.saveOrUpdateAllEvaluateScore(evaluateExpertFullDTONew, autoScoreDTO.getSourceFrom(), autoScoreDTO.getSourceHeaderId(), autoScoreDTO.getTenantId());
+            }
+        }
+    }
+
+    private EvaluateExpertFullDTO rebuildEvaluateExpertFullDTO(EvaluateExpertFullDTO evaluateExpertFullDTO) {
+        EvaluateExpertFullDTO fullDTO = new EvaluateExpertFullDTO();
+        List<EvaluateScoreLineDTO> evaluateScoreLineDTOS = new ArrayList();
+        Iterator var4 = evaluateExpertFullDTO.getEvaluateSectionDTOS().iterator();
+
+        while(var4.hasNext()) {
+            EvaluateSectionDTO evaluateSectionDTO = (EvaluateSectionDTO)var4.next();
+            evaluateScoreLineDTOS.addAll(evaluateSectionDTO.getEvaluateScoreLineDTOS());
+        }
+
+        fullDTO.setEvaluateScoreLineDTOS(evaluateScoreLineDTOS);
+        fullDTO.setSectionFlag(1);
+        fullDTO.setEvaluateExpertId(evaluateExpertFullDTO.getEvaluateExpertId());
+        fullDTO.setExpertUserId(evaluateExpertFullDTO.getExpertUserId());
+        return fullDTO;
+    }
+
+    @Override
     public Map<Long, BigDecimal> getRfxQuotationLineMaps(AutoScoreDTO autoScoreDTO, String priceTypeCode) {
-        LOGGER.debug("24769---RCWL getRfxQuotationLineMaps");
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug("24769---RCWL getRfxQuotationLineMaps");
+        }
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         Long tenantId = autoScoreDTO.getTenantId();
         RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
