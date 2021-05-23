@@ -10,10 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.share.api.dto.AutoScoreDTO;
-import org.srm.source.share.app.service.EvaluateScoreLineService;
+//import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
 import org.srm.source.share.infra.handle.EvaluateIndicHandler;
 
@@ -35,7 +36,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
     private RfxHeaderRepository rfxHeaderRepository;
 
     @Autowired
-    private EvaluateScoreLineService evaluateScoreLineService;
+    private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateIndicHandler.class);
 
@@ -64,7 +65,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
                 LOGGER.debug("rfx header :{}", rfxHeaders);
 
                 try {
-                    this.evaluateScoreLineService.autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
+                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
                     rfxHeader.setScoreProcessFlag(1);
                 } catch (Exception var10) {
                     LOGGER.error("rfx header auto score process error", var10);

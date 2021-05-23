@@ -11,6 +11,7 @@ import org.srm.source.bid.domain.entity.BidHeader;
 import org.srm.source.bid.domain.repository.BidHeaderRepository;
 import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.rfx.domain.strategy.RcwlAutoScoreStrategyService;
+import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Tenant("SRM-RCWL")
-public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceImpl {
+public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateScoreLineServiceImpl.class);
 
