@@ -45,6 +45,11 @@ public class RcwlUpdateRfxHeaderController {
     public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxDTO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
         RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
+        if(null ==  rcwlUpdateDTO || null == rcwlUpdateDataDTO){
+            responseData.setCode("201");
+            responseData.setMessage("参数为null，获取异常！");
+            return responseData;
+        }
         if((rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum()))&&
                 (rcwlUpdateDataDTO.getTenantId() == null || "".equals(rcwlUpdateDataDTO.getTenantId()))){
             responseData.setCode("201");
