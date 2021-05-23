@@ -4,6 +4,8 @@ import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
 
+import java.util.List;
+
 public interface RcwlClarifyService {
 
     ResponseData releaseClarifyByBPM(RcwlClarifyForBPM clarify);
@@ -11,4 +13,6 @@ public interface RcwlClarifyService {
     ResponseData updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO);
 
     Long getClarifyIdByClarifyNum(String clarifyNum);
+
+    List<String> getTenantIdByclarifyNum(String clarifyNum);
 }

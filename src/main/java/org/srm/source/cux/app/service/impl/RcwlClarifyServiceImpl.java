@@ -124,4 +124,10 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     public Long getClarifyIdByClarifyNum(String clarifyNum) {
         return rcwlClarifyRepository.getClarifyIdByClarifyNum(clarifyNum);
     }
+
+    @Override
+    public List<String> getTenantIdByclarifyNum(String clarifyNum) {
+        List<String> l  = rcwlClarifyRepository.getTenantIdByclarifyNum(clarifyNum);
+        return l;
+    }
 }
