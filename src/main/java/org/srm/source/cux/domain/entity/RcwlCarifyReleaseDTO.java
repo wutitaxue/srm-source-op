@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class RcwlCarifyReleaseDTO {
-    @JsonProperty("tenantid")
-    private Long tenantid;
+    @JsonProperty("tenantId")
+    private Long tenantId;
     @JsonProperty("clarifyNum")
     private String clarifyNum;
 }

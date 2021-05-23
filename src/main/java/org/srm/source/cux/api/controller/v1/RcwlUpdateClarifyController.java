@@ -1,6 +1,7 @@
 package org.srm.source.cux.api.controller.v1;
 
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,11 +67,25 @@ public class RcwlUpdateClarifyController extends BaseController {
     @Permission(
             permissionPublic = true
     )
-    @PostMapping({"/release"})
-    public ResponseEntity<Clarify> releaseClarify(@RequestBody RcwlCarifyReleaseDTO rcwlCarifyReleaseDTO) {
+    @PostMapping({"/release/cqdy"})
+    public ResponseData releaseClarify(@RequestBody RcwlCarifyReleaseDTO rcwlCarifyReleaseDTO) {
+        ResponseData responseData = new ResponseData();
+        responseData.setCode("200");
+        responseData.setMessage("操作成功！");
+        if(0l == rcwlCarifyReleaseDTO.getTenantId() || null == rcwlCarifyReleaseDTO.getClarifyNum() || "".equals(rcwlCarifyReleaseDTO.getClarifyNum())){
+            responseData.setCode("201");
+            responseData.setMessage("参数获取失败!");
+        }
+        DetailsHelper.setCustomUserDetails(rcwlCarifyReleaseDTO.getTenantId(),"zh_CN");
         Long clarifyId = rcwlClarifyService.getClarifyIdByClarifyNum(rcwlCarifyReleaseDTO.getClarifyNum());
-        Clarify clarify = clarifyService.queryClarifyDetail(rcwlCarifyReleaseDTO.getTenantid(),clarifyId);
+        Clarify clarify = clarifyService.queryClarifyDetail(rcwlCarifyReleaseDTO.getTenantId(),clarifyId);
         this.validObject(clarify, new Class[0]);
-        return Results.success(clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify));
+        try{
+            clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantId(), clarify);
+        }catch(Exception e){
+            responseData.setCode("201");
+            responseData.setMessage("澄清答疑发布失败！");
+        }
+        return responseData;
     }
 }

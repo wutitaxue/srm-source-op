@@ -31,6 +31,9 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
 
     @Override
     public void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
+        if("1".equals(rcwlUpdateDTO.getProcessInstanceId()) && !"".equals(rcwlUpdateDTO.getClarifyStatus())){
+            rcwlUpdateDTO.setClarifyStatus("RELEASED");
+        }
         rcwlClarifyMapper.updateClarifyData(rcwlUpdateDTO);
     }
 
