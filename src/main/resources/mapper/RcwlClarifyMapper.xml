@@ -9,7 +9,6 @@
             <if test="clarifyStatus!=null and clarifyStatus != ''">clarify_status=#{clarifyStatus},</if>
         </trim>
         WHERE clarify_num=#{clarifyNum}
-        AND tenant_id = #{tenantid}
     </update>
 
     <select id="getSourceNumAndNameAndClarifyNumberById" resultType="String">
