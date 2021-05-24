@@ -5,14 +5,12 @@ import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
-import org.srm.source.share.domain.entity.Clarify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +105,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     }
 
     @Override
-    public ResponseData updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
+    public ResponseData updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
         responseData.setMessage("数据更新成功！");
         responseData.setCode("200");

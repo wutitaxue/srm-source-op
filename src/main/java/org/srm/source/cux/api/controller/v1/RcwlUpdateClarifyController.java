@@ -1,22 +1,17 @@
 package org.srm.source.cux.api.controller.v1;
 
-import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hzero.core.base.BaseController;
-import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.RcwlCarifyReleaseDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateVO;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
-import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.share.app.service.ClarifyService;
 import org.srm.source.share.domain.entity.Clarify;
 
@@ -39,9 +34,9 @@ public class RcwlUpdateClarifyController extends BaseController {
             permissionPublic = true
     )
     @PostMapping({"/update-clarify"})
-    public ResponseData updateClarifyData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
+    public ResponseData updateClarifyData(@RequestBody RcwlUpdateVO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
-        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO() ;
+        RcwlUpdateDataVO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO() ;
         if(null == rcwlUpdateDTO || null == rcwlUpdateDataDTO){
             responseData.setCode("201");
             responseData.setMessage("数据接收为null,获取异常！");

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class RcwlUpdateDataDTO {
-    @JsonProperty("tenantId")
-    private String tenantId;
+public class RcwlUpdateDataVO {
+    @JsonProperty("tenantid")
+    private String tenantid;
     @JsonProperty("clarifyNum")
     private String clarifyNum;
     @JsonProperty("processInstanceId")
