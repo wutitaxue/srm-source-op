@@ -3,11 +3,10 @@ package org.srm.source.cux.infra.repository.impl;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.cux.infra.mapper.RcwlClarifyMapper;
-import org.srm.source.share.domain.entity.Clarify;
+
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     }
 
     @Override
-    public void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
+    public void updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO) {
         rcwlClarifyMapper.updateClarifyData(rcwlUpdateDTO);
     }
 

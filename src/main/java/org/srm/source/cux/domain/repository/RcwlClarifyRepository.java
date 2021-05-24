@@ -2,9 +2,7 @@ package org.srm.source.cux.domain.repository;
 
 import org.hzero.mybatis.base.BaseRepository;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
-import org.srm.source.share.domain.entity.Clarify;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 
 import java.util.List;
 
@@ -14,7 +12,7 @@ public interface RcwlClarifyRepository extends BaseRepository<RcwlClarifyForBPM>
 
     String getCountOfAlikeSourceId(Long id,Long referFlag);
 
-    void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO);
+    void updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO);
 
     List<String> getAttachmentList(String id);
 
