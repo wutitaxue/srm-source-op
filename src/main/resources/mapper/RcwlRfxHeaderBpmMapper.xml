@@ -124,7 +124,7 @@
             srh.source_category ShortListCategory,
             srh.attribute_varchar9 AttributeVarchar9,
             '单标段' SectionNumber,
-            (select hlvt.meaning  from hpfm_lov_value_tl hlvt ON hlvt.lov_value_id = hlv.lov_value_id where hlvt.lov_value_id = srh.attribute_varchar16
+            (select hlvt.meaning  from hpfm_lov_value_tl hlvt left join hpfm_lov_value hlv ON hlvt.lov_value_id = hlv.lov_value_id where hlvt.lov_value_id = srh.attribute_varchar16
             AND hlvt.lang = #{lang}
             ) AttributeVarchar11,
             srh.checked_by CheckedBy,
