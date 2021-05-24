@@ -4,6 +4,7 @@ import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.srm.boot.platform.configcenter.CnfHelper;
@@ -107,8 +108,14 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             sourceTemplate = this.sourceTemplateRepository.selectByPrimaryKey(rfxHeader.getTemplateId());
             parameter.put("sourceTemplate", sourceTemplate.getTemplateNum());
             priceTypeCode = CnfHelper.select(tenantId, "SITE.SSRC.QUOTATION_SET", String.class).invokeWithParameter(parameter);
-            // 获取报价头id，与报价行价格
-            quotationLineMaps = this.self().getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            // 获取报价头id，与报价行价格；
+            try {
+                IRcwlEvaluateScoreLineService self = (IRcwlEvaluateScoreLineService) AopContext.currentProxy();
+                quotationLineMaps = self.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            } catch (Exception e) {
+                e.printStackTrace();
+                quotationLineMaps = this.self().getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            }
         } else {
             BidHeader bidHeader = this.bidHeaderRepository.selectByPrimaryKey(sourceHeaderId);
             parameter.put("company", bidHeader.getCompanyId().toString());
