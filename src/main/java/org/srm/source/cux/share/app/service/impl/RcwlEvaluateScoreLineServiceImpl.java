@@ -85,7 +85,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
 
     @Override
     public void _autoEvaluateScore(AutoScoreDTO autoScoreDTO) {
-        LOGGER.debug("24769---RCWL _autoEvaluateScore auto evaluate score started");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("24769---RCWL _autoEvaluateScore auto evaluate score started");
+        }
 
         AUTO_FLAG.set(true);
         String sourceFrom = autoScoreDTO.getSourceFrom();
@@ -111,8 +113,11 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             // 获取报价头id，与报价行价格；
             try {
                 IRcwlEvaluateScoreLineService self = (IRcwlEvaluateScoreLineService) AopContext.currentProxy();
+                LOGGER.info("24769 RCWL self: {}",self);
+                System.out.println(self);
                 quotationLineMaps = self.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
             } catch (Exception e) {
+                LOGGER.info("24769 RCWL self Exception:");
                 e.printStackTrace();
                 quotationLineMaps = this.self().getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
             }
