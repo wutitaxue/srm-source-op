@@ -207,7 +207,10 @@
                 and see.tenant_id = #{tenantId}
                 and see.source_header_id = #{sourceHeaderId}
                 and see.source_from = #{sourceFrom}
-                and see.evaluate_leader_flag !=1
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
             </when>
             <when test="sourceFrom !='' and sourceFrom =='RFX'">
                 SELECT count(evaluate_expert_id)
@@ -218,7 +221,10 @@
                 and see.tenant_id = #{tenantId}
                 and see.source_header_id = #{sourceHeaderId}
                 and see.source_from = #{sourceFrom}
-                and see.evaluate_leader_flag !=1
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
             </when>
         </choose>
 

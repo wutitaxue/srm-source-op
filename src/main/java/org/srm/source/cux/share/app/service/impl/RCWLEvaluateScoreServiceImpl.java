@@ -222,10 +222,11 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
 
 
     private void updateSourceHeaderStateAndSentMessage(EvaluateScoreQueryDTO evaluateScoreQueryDTO, BidHeader header, RfxHeader rfxHeader) {
+        evaluateScoreQueryDTO.setCurrentSequenceNum(rfxHeader.getCurrentSequenceNum());
         int count = this.evaluateExpertService.selectExpertScoreNumByExpertIdAndSourceHeaderId(evaluateScoreQueryDTO);
         if (count == 0) {
 
-            //评分负责人不评分，给各个评分人的均值
+            //技术评分评分负责人不评分，给各个评分人的均值
             this.evaluateLeaderScore(header, rfxHeader);
 
             if (header.getBidHeaderId() != null) {
