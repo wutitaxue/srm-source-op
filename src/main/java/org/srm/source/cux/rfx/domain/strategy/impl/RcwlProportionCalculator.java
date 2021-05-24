@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.srm.source.cux.rfx.domain.strategy.IRcwlEvaluateIndicAutoScoreCalculator;
 import org.srm.source.share.api.dto.EvaluateScoreLineDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
+import org.srm.source.share.domain.strategy.impl.ProportionCalculator;
+import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,9 +19,9 @@ import java.math.RoundingMode;
  */
 
 @Component
-//@Tenant("SRM-RCWL")
-//public class RcwlProportionCalculator extends ProportionCalculator {
-public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+@Tenant("SRM-RCWL")
+//public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+public class RcwlProportionCalculator extends ProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlProportionCalculator.class);
 
     public RcwlProportionCalculator() {

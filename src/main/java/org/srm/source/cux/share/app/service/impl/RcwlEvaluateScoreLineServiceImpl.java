@@ -212,6 +212,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                         evaluateIndicDetail.setMaxScore(evaluateScoreDTO.getMaxScore());
                         // RCWL 计算评分
                         BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), (BigDecimal)quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), (BigDecimal)quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
                         List<BigDecimal> scores = new ArrayList();
                         scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score) > 0 ? score : evaluateScoreLineDTO.getMaxScore());
                         scores.add(evaluateScoreLineDTO.getMinScore());
