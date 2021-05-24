@@ -3,7 +3,6 @@
 <mapper namespace="org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper">
     <select id="rcwlQueryEvaluateIndicate" resultType="org.srm.source.share.domain.entity.EvaluateIndic">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
-
         select ei.evaluate_indic_id,
         ei.tenant_id,
         ei.source_header_id,
@@ -33,10 +32,10 @@
         ei.score_type
         from ssrc_evaluate_indic ei
         WHERE
-        ei.tenant_id = #{tenantId}
-        AND ei.source_header_id = #{sourceHeaderId}
+        ei.tenant_id = #{evaluateIndicDTO.tenantId}
+        AND ei.source_header_id = #{evaluateIndicDTO.sourceHeaderId}
         <if test="indicStatus != null and indicStatus != ''">
-            AND ei.indic_status = #{indicStatus}
+            AND ei.indic_status = #{evaluateIndicDTO.indicStatus}
         </if>
         <if test="bidRuleType != null and bidRuleType == 'DIFF'">
             AND team IN ('BUSINESS', 'TECHNOLOGY')
@@ -45,11 +44,11 @@
             AND team = 'BUSINESS_TECHNOLOGY'
         </if>
         <if test="team != null and team!= ''">
-            and ei.team = #{team}
+            and ei.team = #{evaluateIndicDTO.team}
         </if>
         <choose>
             <when test="sourceFrom != null and sourceFrom != ''">
-                AND ei.source_from = #{sourceFrom}
+                AND ei.source_from = #{evaluateIndicDTO.sourceFrom}
             </when>
             <otherwise>
                 AND ei.source_from = 'BID'
@@ -87,10 +86,10 @@
         ssrc_evaluate_indic ei
         right JOIN ssrc_score_indic sic ON ei.evaluate_indic_id = sic.parent_indicate_id and sic.source_type='MANUAL' and sic.enabled_flag = 1
         WHERE
-        ei.tenant_id = #{tenantId}
-        AND ei.source_header_id = #{sourceHeaderId}
+        ei.tenant_id = #{evaluateIndicDTO.tenantId}
+        AND ei.source_header_id = #{evaluateIndicDTO.sourceHeaderId}
         <if test="indicStatus != null and indicStatus != ''">
-            AND ei.indic_status = #{indicStatus}
+            AND ei.indic_status = #{evaluateIndicDTO.indicStatus}
         </if>
         <if test="bidRuleType != null and bidRuleType == 'DIFF'">
             AND team IN ('BUSINESS', 'TECHNOLOGY')
@@ -99,14 +98,14 @@
             AND team = 'BUSINESS_TECHNOLOGY'
         </if>
         <if test="indicateLevel != null and indicateLevel != ''">
-            AND sic.indicate_level = #{indicateLevel}
+            AND sic.indicate_level = #{evaluateIndicDTO.indicateLevel}
         </if>
         <if test="team != null and team!= ''">
-            and ei.team = #{team}
+            and ei.team = #{evaluateIndicDTO.team}
         </if>
         <choose>
             <when test="sourceFrom != null and sourceFrom != ''">
-                AND ei.source_from = #{sourceFrom}
+                AND ei.source_from = #{evaluateIndicDTO.sourceFrom}
             </when>
             <otherwise>
                 AND ei.source_from = 'BID'
