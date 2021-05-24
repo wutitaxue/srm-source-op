@@ -172,7 +172,7 @@
         left JOIN iam_user i ON i.organization_id = see.tenant_id
         AND i.id = see.expert_user_id
         where source_from = 'RFX'
-        and source_header_id = #{rfxHeader.rfx_header_id}
+        and source_header_id = #{rfxHeader.rfxHeaderId}
         and tenant_id =  #{organizationId}
     </select>
     <select id="prepareSupplierData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlSupplierData">
@@ -188,7 +188,7 @@
             AND hc.tenant_id = srls.supplier_tenant_id
             LEFT JOIN iam_user i ON i.organization_id = srls.supplier_tenant_id
         where srls.tenant_id = #{organizationId}
-        and srls.rfx_header_id = #{rfxHeader.rfx_header_id}
+        and srls.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
     <select id="prepareDetailData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlDetailData">
         SELECT
@@ -203,7 +203,7 @@
             ssrc_rfx_line_item srli
             LEFT JOIN smdm_item si ON si.item_id = srli.item_id
             where srli.tenant_id = #{organizationId}
-        and srli.rfx_header_id = #{rfxHeader.rfx_header_id}
+        and srli.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
     <select id="prepareAttachmentData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlAttachmentData">
         SELECT
@@ -223,7 +223,7 @@
             srh1.tenant_id = #{organizationId}
             AND srh1.rfx_header_id = #{rfxHeader.rfx_header_id}
             AND srh2.tenant_id = #{organizationId}
-            AND srh2.rfx_header_id = #{rfxHeader.rfx_header_id}
+            AND srh2.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
 
 </mapper>
