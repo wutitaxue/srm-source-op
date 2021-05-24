@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class RcwlUpdateVO {
-    @JsonProperty("RcwlUpdateVO")
+    @JsonProperty("rcwlUpdateDataVO")
     private RcwlUpdateDataVO rcwlUpdateDataVO;
 
     public RcwlUpdateDataVO getRcwlUpdateDataVO() {
