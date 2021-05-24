@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class RcwlUpdateRfxHeaderDataDTO {
+public class RcwlUpdateRfxHeaderDataVO {
     @JsonProperty("tenantId")
     private String tenantId;
     @JsonProperty("rfxNum")
