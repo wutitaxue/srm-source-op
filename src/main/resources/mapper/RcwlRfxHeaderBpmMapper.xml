@@ -150,7 +150,7 @@
             attribute_varchar18 AttributeVarchar19
         from
             ssrc_rfx_header srh
-        where srh.tenant_id = #{quotationHeaderId}
+        where srh.tenant_id = #{organizationId}
         and srh.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
     <select id="prepareScoringTeamData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlScoringTeamData">
