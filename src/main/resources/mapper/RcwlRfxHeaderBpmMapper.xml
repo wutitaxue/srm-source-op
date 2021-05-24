@@ -221,7 +221,7 @@
             ) t
         WHERE
             srh1.tenant_id = #{organizationId}
-            AND srh1.rfx_header_id = #{rfxHeader.rfx_header_id}
+            AND srh1.rfx_header_id = #{rfxHeader.rfxHeaderId}
             AND srh2.tenant_id = #{organizationId}
             AND srh2.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
