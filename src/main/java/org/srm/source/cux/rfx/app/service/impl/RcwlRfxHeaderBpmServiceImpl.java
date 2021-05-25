@@ -94,7 +94,8 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         //业务数据
         RcwlSendBpmData rcwlSendBpmData = rfxHeaderBpmMapper.prepareDate(organizationId, rfxHeader);
         //设置头URL_MX
-        String URL = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
+        String URL = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SRM_URL");
+        String URL2 = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
         String RCWL_SRM_URL = URL + "app/ssrc/new-inquiry-hall/rfx-detail/"+ rfxFullHeader.getRfxHeader().getRfxHeaderId() +"?current=newInquiryHall";
         rcwlSendBpmData.setUrlMx(RCWL_SRM_URL);
         //设置行参数
@@ -114,6 +115,6 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
             throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
         }
 
-        return URL+"Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
+        return "http://"+URL2+"/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
     }
 }
