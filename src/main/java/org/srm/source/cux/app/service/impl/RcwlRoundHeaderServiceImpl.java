@@ -23,6 +23,7 @@ import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.repository.RfxLineSupplierRepository;
+import org.srm.source.rfx.domain.repository.RfxQuotationHeaderRepository;
 import org.srm.source.rfx.domain.service.IRfxActionDomainService;
 import org.srm.source.share.domain.entity.RoundHeader;
 import org.srm.source.share.domain.entity.RoundHeaderDate;
@@ -68,13 +69,16 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
     private CommonQueryRepository commonQueryRepository;
     @Autowired
     private RfxQuotationHeaderService rfxQuotationHeaderService;
+    @Autowired
+    private RfxQuotationHeaderRepository rfxQuotationHeaderRepository;
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
     public void startQuotation(Long tenantId, Long sourceHeaderId, Date roundQuotationEndDate, String startingReason, List<RfxQuotationHeader> rfxQuotationHeaderList) {
 
-        rfxQuotationHeaderService.offLineQuotationHeaderUpdate(tenantId, rfxQuotationHeaderList);
+        this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaderList, new String[]{"attributeVarchar2"});
+        logger.info("------------更新寻源--------多伦报价-------");
         RoundHeader roundHeaderDb = (RoundHeader) this.roundHeaderRepository.selectOne(new RoundHeader(tenantId, sourceHeaderId, "RFX"));
         Assert.isTrue(DateUtil.beforeNow(roundQuotationEndDate, (String) null), "error.round_quotation_end_date");
         Assert.isTrue(!DateUtil.beforeNow(roundHeaderDb.getRoundQuotationEndDate(), (String) null), "error.round_deadline_is_not_reached");
