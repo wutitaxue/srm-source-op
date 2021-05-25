@@ -27,8 +27,8 @@
                   AND ses.invalid_flag = 0
                   AND ses.source_from = 'RFX'
                   AND ses.round_number = srqh.round_number
-                  AND ses.evaluate_summary_type = 'SCORE'
-                  AND ses.summary_status = 'SUBMITTED'
+                  AND ses.evaluate_summary_type = 'REVIEW_SCORE'
+                  AND ses.summary_review_result = 'APPROVED'
             )
         GROUP BY srqh.quotation_header_id;
     </select>

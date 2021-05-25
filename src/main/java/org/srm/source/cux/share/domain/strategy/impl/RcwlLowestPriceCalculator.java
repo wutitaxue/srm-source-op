@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.cux.share.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
 import org.srm.source.share.api.dto.AutoScoreDTO;
-import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.LowestPriceCalculator;
 import org.srm.web.annotation.Tenant;
