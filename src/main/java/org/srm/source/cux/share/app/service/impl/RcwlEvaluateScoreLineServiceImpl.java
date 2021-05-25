@@ -181,6 +181,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     EvaluateScoreLineDTO evaluateScoreLineDTO;
                     EvaluateIndicDetail evaluateIndicDetail;
                     BigDecimal benchmarkPrice;
+                    BigDecimal benchmarkPrice1;
                     List evaluateScoreDTOS;
                     do {
                         do {
@@ -202,6 +203,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                         }
 
                         benchmarkPrice = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                        benchmarkPrice1 = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                        LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice : {}", benchmarkPrice1,benchmarkPrice);
                         evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
                     } while(CollectionUtils.isEmpty(evaluateScoreDTOS));
 
