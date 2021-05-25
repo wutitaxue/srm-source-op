@@ -35,8 +35,6 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
      */
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
-    @Autowired
-    private EvaluateScoreLineService evaluateScoreLineService;
 
     /**
      * 新写的

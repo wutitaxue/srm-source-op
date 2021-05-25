@@ -15,5 +15,5 @@ public interface IRcwlRfxQuotationLineRepository {
      * @param rfxHeaderId rfx 头 ID
      * @return
      */
-    List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId);
+    List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId, Long tenantId);
 }

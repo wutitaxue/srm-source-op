@@ -9,5 +9,5 @@ import java.util.List;
  * @date 2021-05-19 16:20
  */
 public interface IRcwlRfxQuotationLineMapper {
-    List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId);
+    List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId, Long tenantId);
 }
