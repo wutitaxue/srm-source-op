@@ -46,7 +46,11 @@ public class RcwlDataForBPM {
         sb.append("\"CLARIFYNUM\":\"").append(this.getCLARIFYNUM()).append("\",");
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER()).append("\",");
         sb.append("\"CLARIFYNUMBER\":\"").append(this.getCLARIFYNUMBER()).append("\",");
-        sb.append("\"CONTEXT\":\"").append(this.getCONTEXT()).append("\",");
+        String newCONTEXT = this.getCONTEXT();
+        if(newCONTEXT.contains("\n")){
+            newCONTEXT = newCONTEXT.replace("\n","\\n");
+        }
+        sb.append("\"CONTEXT\":\"").append(newCONTEXT).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
         sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
