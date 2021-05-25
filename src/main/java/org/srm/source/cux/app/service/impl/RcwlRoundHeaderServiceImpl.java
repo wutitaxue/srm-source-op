@@ -1,5 +1,7 @@
 package org.srm.source.cux.app.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -77,6 +79,15 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
     @Override
     public void startQuotation(Long tenantId, Long sourceHeaderId, Date roundQuotationEndDate, String startingReason, List<RfxQuotationHeader> rfxQuotationHeaderList) {
 
+        ObjectMapper mapper = new ObjectMapper();
+        for (RfxQuotationHeader e : rfxQuotationHeaderList
+        ) {
+            try {
+                logger.info("-------------供应商列表：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(e));
+            } catch (JsonProcessingException jsonProcessingException) {
+                jsonProcessingException.printStackTrace();
+            }
+        }
         this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaderList, new String[]{"attributeVarchar2"});
         logger.info("------------更新寻源--------多伦报价-------");
         RoundHeader roundHeaderDb = (RoundHeader) this.roundHeaderRepository.selectOne(new RoundHeader(tenantId, sourceHeaderId, "RFX"));
