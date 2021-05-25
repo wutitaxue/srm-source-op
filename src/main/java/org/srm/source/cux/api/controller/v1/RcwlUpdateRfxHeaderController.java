@@ -81,7 +81,7 @@ public class RcwlUpdateRfxHeaderController {
         try{
             rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
         }catch (Exception e){
-            responseData.setCode("200");
+            responseData.setCode("201");
             responseData.setMessage("操作失败！");
         }
         return responseData;
