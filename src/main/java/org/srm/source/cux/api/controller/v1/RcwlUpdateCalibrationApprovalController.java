@@ -34,6 +34,7 @@ import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxQuotationLineService rfxQuotationLineService;
     @Autowired
     private RfxLineItemService rfxLineItemService;
+    @Autowired
+    private RfxHeaderRepository rfxHeaderRepository;
 
     @ApiOperation("更新定标字段")
     @Permission(
@@ -91,7 +94,14 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
         try{
-            rfxHeaderService.checkPriceApproved(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId);
+            RfxHeader rfxHeaderDb = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+            DetailsHelper.getUserDetails().setUserId(rfxHeaderDb.getCreatedBy());
+            if (!"CHECK_REJECTED".equals(rfxHeaderDb.getRfxStatus()) && !"FINISHED".equals(rfxHeaderDb.getRfxStatus())) {
+                rfxHeaderService.checkPriceApproved(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId);
+            }else{
+                responseData.setCode("201");
+                responseData.setMessage("rfx status error!status:{"+rfxHeaderDb.getRfxStatus()+"}！");
+            }
         }catch(Exception e){
             responseData.setCode("201");
             responseData.setMessage("操作失败！");
@@ -163,6 +173,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setCreateItemFlag(0);
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
         checkPriceHeaderDTO.setSelectionStrategy("");
+        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
         checkPriceHeaderDTO.setOnlyAllowAllWinBids(rfxHeader.getOnlyAllowAllWinBids());
         //获取checkPriceDTOLineList所需值
         List<CheckPriceDTO> checkPriceDTOLineList = new ArrayList<>();
