@@ -10,7 +10,8 @@ import java.util.Map;
  * @author kaibo.li
  * @date 2021-05-18 20:53
  */
-public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService {
+//public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService {
+public interface IRcwlEvaluateScoreLineService  {
 
     /**
      * 商务，自动评分
@@ -18,7 +19,6 @@ public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService 
      */
 //    void autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
-    @Override
     void _autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
     /**
@@ -27,6 +27,5 @@ public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService 
      * @param priceTypeCode 价格类型（未使用）
      * @return
      */
-    @Override
     Map<Long, BigDecimal> getRfxQuotationLineMaps(AutoScoreDTO autoScoreDTO, String priceTypeCode);
 }
