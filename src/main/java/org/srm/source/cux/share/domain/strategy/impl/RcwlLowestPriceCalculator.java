@@ -28,11 +28,6 @@ import java.util.stream.Collectors;
 //public class RcwlLowestPriceCalculator extends LowestPriceCalculator {
 public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements IRcwlAutoScoreBenchmarkPriceCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlLowestPriceCalculator.class);
-    /**
-     * 原始的
-     */
-    @Autowired
-    private EvaluateScoreLineService evaluateScoreLineService;
 
     /**
      * 新写的
@@ -54,7 +49,7 @@ public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements 
             }
             quotationLineMaps = this.rcwlEvaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
         } else {
-            quotationLineMaps = this.evaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            quotationLineMaps = this.rcwlEvaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
         Map<Long, BigDecimal> validQuotationLineMaps = (Map)quotationLineMaps.entrySet().stream().filter((map) -> {
