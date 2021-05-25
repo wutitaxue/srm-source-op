@@ -13,6 +13,27 @@
             AND srql.round_number = srli.current_round_number
                  JOIN ssrc_rfx_header srh ON srh.rfx_header_id = srqh.rfx_header_id
         WHERE srqh.rfx_header_id = #{rfxHeaderId}
+          AND srqh.tenant_id = #{tenantId}
+          AND srql.valid_quotation_price IS NOT NULL
+          AND srql.round_number = (SELECT MAX(h.round_number)
+                                   FROM ssrc_rfx_header h
+                                   WHERE h.rfx_header_id =
+                                         srli.rfx_header_id)
+        GROUP BY srqh.quotation_header_id;
+    </select>
+    <!--<select id="querySumQuotationByRfxHeaderId" resultType="org.srm.source.rfx.domain.entity.RfxQuotationLine">
+        SELECT srqh.quotation_header_id,
+               SUM(srql.net_amount)   net_amount,
+               SUM(srql.total_amount) total_amount
+        FROM ssrc_rfx_quotation_line srql
+                 JOIN ssrc_rfx_quotation_header srqh ON srql.quotation_header_id = srqh.quotation_header_id AND
+                                                        srqh.quotation_status IN ('QUOTED', 'ROUND_QUOTATION', 'FINISHED')
+            AND srql.round_number = srqh.round_number
+                 JOIN ssrc_rfx_line_item srli ON srql.rfx_line_item_id = srli.rfx_line_item_id
+            AND srql.round_number = srli.current_round_number
+                 JOIN ssrc_rfx_header srh ON srh.rfx_header_id = srqh.rfx_header_id
+        WHERE srqh.rfx_header_id = #{rfxHeaderId}
+          AND srqh.tenant_id = #{tenantId}
           AND srql.valid_quotation_price IS NOT NULL
           AND srql.round_number = (SELECT MAX(h.round_number)
                                    FROM ssrc_rfx_header h
@@ -31,5 +52,5 @@
                   AND ses.summary_review_result = 'APPROVED'
             )
         GROUP BY srqh.quotation_header_id;
-    </select>
+    </select>-->
 </mapper>

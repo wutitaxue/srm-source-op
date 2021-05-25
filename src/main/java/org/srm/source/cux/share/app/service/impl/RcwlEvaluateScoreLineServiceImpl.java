@@ -258,12 +258,17 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         }
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         Long tenantId = autoScoreDTO.getTenantId();
+        // 有效报价头表id
+        List<Long> invalidQuotationHeaderIdList = autoScoreDTO.getInvalidQuotationHeaderIdList();
         RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
         if (Objects.isNull(rfxHeader)) {
             throw new CommonException("rfx header not exists!");
         } else {
             // RCWL 获取有效报价行数据
-            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId);
+            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId,tenantId)
+                    .stream()
+                    .filter(item -> !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId()))
+                    .collect(Collectors.toList());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rfx quotation lines : {}", rfxQuotationLines);
             }

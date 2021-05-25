@@ -21,7 +21,7 @@ public class RcwlRfxQuotationLineRepositoryImpl implements IRcwlRfxQuotationLine
     private IRcwlRfxQuotationLineMapper rcwlRfxQuotationLineMapper;
 
     @Override
-    public List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId) {
-        return this.rcwlRfxQuotationLineMapper.querySumQuotationByRfxHeaderId(rfxHeaderId);
+    public List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId, Long tenantId) {
+        return this.rcwlRfxQuotationLineMapper.querySumQuotationByRfxHeaderId(rfxHeaderId, tenantId);
     }
 }
