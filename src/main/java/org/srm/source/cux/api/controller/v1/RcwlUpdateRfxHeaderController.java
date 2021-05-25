@@ -1,5 +1,6 @@
 package org.srm.source.cux.api.controller.v1;
 
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,10 +69,21 @@ public class RcwlUpdateRfxHeaderController {
             targetField = {"body"}
     )
     public ResponseData controlClose(@RequestBody RcwlGetDataCloseDTO rcwlGetDataCloseDTO) {
+        DetailsHelper.setCustomUserDetails(rcwlGetDataCloseDTO.getTenantId(),"zh_CN");
+        if(rcwlGetDataCloseDTO.getRemark() == null){
+            rcwlGetDataCloseDTO.setRemark("备注");
+        }
         ResponseData responseData = new ResponseData();
+        responseData.setCode("200");
+        responseData.setMessage("操作成功！");
         List<Long> rfxHeaderIds = new ArrayList<>();
         rfxHeaderIds.add(rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum()));
-        rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+        try{
+            rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+        }catch (Exception e){
+            responseData.setCode("200");
+            responseData.setMessage("操作失败！");
+        }
         return responseData;
     }
 
