@@ -43,6 +43,7 @@ public class RcwlRoundHeaderController extends BaseController {
     public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason, @RequestParam List<RfxQuotationHeader> eliminateSupplier) {
         log.info("eliminateSupplier=========================>"+eliminateSupplier.toString());
         log.info("eliminateSupplier=========================>"+eliminateSupplier);
+        log.info("=========================++++++++++++++++++++++======================");
         this.rcwlRoundHeaderService.startQuotation(organizationId, sourceHeaderId, roundQuotationEndDate, startingReason,eliminateSupplier);
         return Results.success();
     }
