@@ -3,6 +3,7 @@ package org.srm.source.cux.api.controller.v1;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -26,7 +27,7 @@ import java.util.List;
  * @date 2021/5/17 14:14
  * @version:1.0
  */
-
+@Slf4j
 @RestController("RcwlRoundHeaderController.v1")
 @RequestMapping({"/v1/{organizationId}/round-headers"})
 @Tenant("SRM-RCWL")
@@ -40,6 +41,8 @@ public class RcwlRoundHeaderController extends BaseController {
     @PostMapping({"/section/start-quotation"})
     @FilterSupplier
     public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason, @RequestParam List<RfxQuotationHeader> eliminateSupplier) {
+        log.info("eliminateSupplier=========================>"+eliminateSupplier.toString());
+        log.info("eliminateSupplier=========================>"+eliminateSupplier);
         this.rcwlRoundHeaderService.startQuotation(organizationId, sourceHeaderId, roundQuotationEndDate, startingReason,eliminateSupplier);
         return Results.success();
     }
