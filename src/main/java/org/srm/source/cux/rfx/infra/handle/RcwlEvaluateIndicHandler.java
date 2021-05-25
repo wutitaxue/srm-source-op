@@ -72,8 +72,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
                 LOGGER.debug("rfx header :{}", rfxHeaders);
 
                 try {
-//                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
-                    this.evaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
+                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
                     rfxHeader.setScoreProcessFlag(1);
                 } catch (Exception var10) {
                     LOGGER.error("rfx header auto score process error", var10);
