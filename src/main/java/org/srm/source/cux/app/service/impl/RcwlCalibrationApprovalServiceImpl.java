@@ -39,7 +39,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         CalibrationApprovalDbdbjgDataForBPM dbdbjgDataForBPM = new CalibrationApprovalDbdbjgDataForBPM();
         CalibrationApprovalAttachmentDataForBPM attachmentDataForBPM = new CalibrationApprovalAttachmentDataForBPM();
         List<CalibrationApprovalDbdbjgDataForBPM> dbdbjgDataForBPMList = new ArrayList<CalibrationApprovalDbdbjgDataForBPM>();
-        List<String> listDbdbjgData = new ArrayList<String>();
+        List<RcwlDBGetDataFromDatabase> listDbdbjgData = new ArrayList<>();
         List<CalibrationApprovalAttachmentDataForBPM> attachmentDataForBPMList = new ArrayList<CalibrationApprovalAttachmentDataForBPM>();
         List<String> listAttachmentData = new ArrayList<String>();
         //详情路径
@@ -73,22 +73,22 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setURL_MX(sbUrl.toString());
             //组装供应商列表
         if(!CollectionUtils.isEmpty(listDbdbjgData)){
-            for(String dbdbjgListData : listDbdbjgData){
+            for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
-                rald.setSECTIONNAME(dbdbjgListData.split("|\\+|")[1]);
-                rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.split("|\\+|")[2]);
-                rald.setIP(dbdbjgListData.split("|\\+|")[3]);
-                rald.setAPPENDREMARK(this.getAppendRemark(dbdbjgListData.split("|\\+|")[0]) == 0 ? "0":"1");
-                rald.setTECHNICALSCORE(dbdbjgListData.split("|\\+|")[4]);
-                rald.setBUSINESSSCORE(dbdbjgListData.split("|\\+|")[5]);
-                rald.setCOMPREHENSIVE(dbdbjgListData.split("|\\+|")[6]);
-                rald.setCOMPREHENSIVERANK(dbdbjgListData.split("|\\+|")[7]);
-                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.split("|\\+|")[1]));
-                rald.setFIXEDPRICE(dbdbjgListData.split("|\\+|")[8]);
-                rald.setREMARKS(this.getRemark(dbdbjgListData.split("|\\+|")[0]));
+                rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
+                rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.getCompanyNum());
+                rald.setIP(dbdbjgListData.getSupplierCompanyIp());
+                rald.setAPPENDREMARK(this.getAppendRemark(dbdbjgListData.getQuotationHeaderId()) == 0 ? "0":"1");
+                rald.setTECHNICALSCORE(dbdbjgListData.getTechnologyScore());
+                rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
+                rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
+                rald.setCOMPREHENSIVERANK(dbdbjgListData.getScoreRank());
+                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.getSupplierCompanyName()));
+                rald.setFIXEDPRICE(dbdbjgListData.getTotal_amount());
+                rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
                 dbdbjgDataForBPMList.add(rald);
             }
-            forBPMData.setATTACHMENTS(attachmentDataForBPMList);
+            forBPMData.setDBDBJGS(dbdbjgDataForBPMList);
         }
             //组装附件列表
         if(!CollectionUtils.isEmpty(listAttachmentData)){
