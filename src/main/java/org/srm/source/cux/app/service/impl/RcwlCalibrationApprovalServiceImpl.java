@@ -139,7 +139,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     }
 
     @Override
-    public ResponseCalibrationApprovalData updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO) {
+    public ResponseCalibrationApprovalData updateClarifyData(RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO) {
         ResponseCalibrationApprovalData responseCalibrationApprovalData = new ResponseCalibrationApprovalData();
         responseCalibrationApprovalData.setMessage("数据更新成功！");
         responseCalibrationApprovalData.setCode("200");

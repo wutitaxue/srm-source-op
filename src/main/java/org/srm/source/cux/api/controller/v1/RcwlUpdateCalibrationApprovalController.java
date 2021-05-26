@@ -1,28 +1,17 @@
 package org.srm.source.cux.api.controller.v1;
 
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
-import org.hzero.core.util.Results;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
-import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.RcwlDBSPTGDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalVO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.entity.ResponseCalibrationApprovalData;
 import org.srm.source.rfx.api.dto.CheckPriceDTO;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
@@ -63,9 +52,9 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             permissionPublic = true
     )
     @PostMapping({"/update-calibration-approval"})
-    public ResponseCalibrationApprovalData updateClarifyData(@RequestBody RcwlUpdateCalibrationApprovalDTO rcwlUpdateDTO) {
+    public ResponseCalibrationApprovalData updateClarifyData(@RequestBody RcwlUpdateCalibrationApprovalVO rcwlUpdateDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateCalibrationApprovalDataDTO();
+        RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateCalibrationApprovalDataVO();
         if(rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum())){
             responseData.setCode("201");
             responseData.setMessage("单据编号获取异常！");

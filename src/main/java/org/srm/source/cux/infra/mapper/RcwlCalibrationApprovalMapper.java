@@ -1,6 +1,6 @@
 package org.srm.source.cux.infra.mapper;
 
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface RcwlCalibrationApprovalMapper {
 
     String getRemark(String id);
 
-    void updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO);
+    void updateClarifyData(RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO);
 
     Long getRfxHeaderIdByRfxNum(String rfxNum);
 
