@@ -68,38 +68,28 @@ public class RcwlSendBpmData {
 
     //计划发标时间
     @JSONField(name = "ATTRIBUTEDATETIME10")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date AttributeDateTime10;
+
+    private String AttributeDateTime10;
 
     //计划回标时间
     @JSONField(name = "QUOTATIONSTARTDATE")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date QuotationStartDate;
+
+    private String QuotationStartDate;
 
     //计划定标时间
     @JSONField(name = "ATTRIBUTEDATETIME11")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date AttributeDateTime11;
+
+    private String AttributeDateTime11;
 
     //计划开标时间
     @JSONField(name = "QUOTATIONENDDATE")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date QuotationEndDate;
+
+    private String QuotationEndDate;
 
     //质疑截止时间
     @JSONField(name = "ATTRIBUTEDATETIME12")
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss"
-    )
-    private Date AttributeDateTime12;
+
+    private String AttributeDateTime12;
 
     //中标供应商数
     @JSONField(name = "ATTRIBUTEVARCHAR13")
@@ -313,43 +303,43 @@ public class RcwlSendBpmData {
         TechnologyWeight = technologyWeight;
     }
 
-    public Date getAttributeDateTime10() {
+    public String getAttributeDateTime10() {
         return AttributeDateTime10;
     }
 
-    public void setAttributeDateTime10(Date attributeDateTime10) {
+    public void setAttributeDateTime10(String attributeDateTime10) {
         AttributeDateTime10 = attributeDateTime10;
     }
 
-    public Date getQuotationStartDate() {
+    public String getQuotationStartDate() {
         return QuotationStartDate;
     }
 
-    public void setQuotationStartDate(Date quotationStartDate) {
+    public void setQuotationStartDate(String quotationStartDate) {
         QuotationStartDate = quotationStartDate;
     }
 
-    public Date getAttributeDateTime11() {
+    public String getAttributeDateTime11() {
         return AttributeDateTime11;
     }
 
-    public void setAttributeDateTime11(Date attributeDateTime11) {
+    public void setAttributeDateTime11(String attributeDateTime11) {
         AttributeDateTime11 = attributeDateTime11;
     }
 
-    public Date getQuotationEndDate() {
+    public String getQuotationEndDate() {
         return QuotationEndDate;
     }
 
-    public void setQuotationEndDate(Date quotationEndDate) {
+    public void setQuotationEndDate(String quotationEndDate) {
         QuotationEndDate = quotationEndDate;
     }
 
-    public Date getAttributeDateTime12() {
+    public String getAttributeDateTime12() {
         return AttributeDateTime12;
     }
 
-    public void setAttributeDateTime12(Date attributeDateTime12) {
+    public void setAttributeDateTime12(String attributeDateTime12) {
         AttributeDateTime12 = attributeDateTime12;
     }
 
