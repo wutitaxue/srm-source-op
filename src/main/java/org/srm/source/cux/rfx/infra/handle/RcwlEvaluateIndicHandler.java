@@ -5,11 +5,13 @@ import org.hzero.boot.scheduler.infra.annotation.JobHandler;
 import org.hzero.boot.scheduler.infra.enums.ReturnT;
 import org.hzero.boot.scheduler.infra.handler.IJobHandler;
 import org.hzero.boot.scheduler.infra.tool.SchedulerTool;
+import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
@@ -17,11 +19,13 @@ import org.srm.source.share.api.dto.AutoScoreDTO;
 //import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
+import org.srm.source.share.domain.entity.EvaluateSummary;
 import org.srm.source.share.infra.handle.EvaluateIndicHandler;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * RCWL 寻源执行器
@@ -42,6 +46,8 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
     @Autowired
     private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
 
+    @Autowired
+    private IRcwlRfxQuotationLineRepository rcwlRfxQuotationLineRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateIndicHandler.class);
 
@@ -70,7 +76,21 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
                 LOGGER.debug("rfx header :{}", rfxHeaders);
 
                 try {
-                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
+                    // 获取专家评分汇总信息
+                    List<EvaluateSummary> evaluateSummary = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(rfxHeader.getTenantId(),rfxHeader.getRfxHeaderId(),"RFX",rfxHeader.getRoundNumber()));
+
+                    // 获取无效报价头 ID
+                    List<Long> invalidQuotationHeaderIdList = evaluateSummary
+                            .stream()
+                            .filter(item -> BaseConstants.Flag.YES.equals(item.getInvalidFlag()))
+                            .map(EvaluateSummary::getQuotationHeaderId)
+                            .collect(Collectors.toList());
+
+                    /*List<EvaluateSummary> evaluateSummaries = evaluateSummary.stream().filter(item -> {
+                        return !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId());
+                    }).collect(Collectors.toList());*/
+                    // 自动评分
+                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId(),invalidQuotationHeaderIdList));
                     rfxHeader.setScoreProcessFlag(1);
                 } catch (Exception var10) {
                     LOGGER.error("rfx header auto score process error", var10);

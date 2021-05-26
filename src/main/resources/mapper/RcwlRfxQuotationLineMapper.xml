@@ -53,4 +53,38 @@
             )
         GROUP BY srqh.quotation_header_id;
     </select>-->
+    <select id="queryEvaluateSummary"
+            resultType="org.srm.source.share.domain.entity.EvaluateSummary">
+        SELECT ses.evaluate_summary_id,
+               ses.tenant_id,
+               ses.source_header_id,
+               ses.source_from,
+               ses.round_number,
+               ses.section_flag,
+               ses.section_id,
+               ses.quotation_header_id,
+               ses.business_score,
+               ses.technology_score,
+               ses.score,
+               ses.invalid_flag,
+               ses.candidate_flag,
+               ses.candidate_suggestion,
+               ses.score_rank,
+               ses.summary_status,
+               ses.sequence_num,
+               ses.object_version_number,
+               ses.creation_date,
+               ses.created_by,
+               ses.last_updated_by,
+               ses.last_update_date,
+               ses.evaluate_summary_type,
+               ses.summary_review_result
+        FROM ssrc_evaluate_summary ses
+                 JOIN ssrc_rfx_quotation_header srqh ON ses.quotation_header_id = srqh.quotation_header_id
+                 JOIN ssrc_rfx_header srh ON srh.rfx_header_id = ses.source_header_id AND srh.round_number = srqh.round_number
+        WHERE IFNULL(ses.evaluate_summary_type, 'SCORE') = 'SCORE'
+          AND ses.source_from = #{sourceFrom}
+          AND ses.tenant_id = #{tenantId}
+          AND ses.source_header_id = #{sourceHeaderId}
+    </select>
 </mapper>

@@ -26,23 +26,26 @@ import java.util.Objects;
 public class RcwlAutoScoreStrategyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlAutoScoreStrategyService.class);
 
-//    private Map<String, IEvaluateIndicAutoScoreCalculator> calculatorMapMap = new HashMap();
     private Map<String, IRcwlEvaluateIndicAutoScoreCalculator> calculatorMapMap = new HashMap();
 
-//    private Map<String, AutoScoreBenchmarkPriceCalculator> benchmarkPriceCalculatorMap = new HashMap();
     private Map<String, IRcwlAutoScoreBenchmarkPriceCalculator> benchmarkPriceCalculatorMap = new HashMap();
 
     public RcwlAutoScoreStrategyService(List<IRcwlEvaluateIndicAutoScoreCalculator> calculators, List<IRcwlAutoScoreBenchmarkPriceCalculator> benchmarkPriceCalculators) {
         /*super(calculators.stream().map(item -> (IEvaluateIndicAutoScoreCalculator) item).collect(Collectors.toList()),
                 benchmarkPriceCalculators.stream().map(item -> (AutoScoreBenchmarkPriceCalculator)item).collect(Collectors.toList()));*/
-        calculators.forEach((e) -> {
-            IRcwlEvaluateIndicAutoScoreCalculator var10000 = this.calculatorMapMap.put(e.getFormulaType(), e);
-        });
-        benchmarkPriceCalculators.forEach((e) -> {
-            IRcwlAutoScoreBenchmarkPriceCalculator var10000 = this.benchmarkPriceCalculatorMap.put(e.calcMethodName(), e);
-        });
+        calculators.forEach(e->calculatorMapMap.put(e.getFormulaType(),e));
+        benchmarkPriceCalculators.forEach(e->benchmarkPriceCalculatorMap.put(e.calcMethodName(),e));
     }
 
+    /**
+     *
+     * @param calculatorType 计算公式类型
+     * @param supplierQuotationPriceTotal 供应商投标总价
+     * @param evaluateScoreLineDTO 评分要素行（这里用于取单据配置的最低分和最高分）
+     * @param evaluateIndicDetail 评分细则（配置的计算公式相关的信息）
+     * @param benchmarkPrice 基准价
+     * @return score 得分
+     */
     public BigDecimal calcScore(String calculatorType, BigDecimal supplierQuotationPriceTotal, EvaluateScoreLineDTO evaluateScoreLineDTO, EvaluateIndicDetail evaluateIndicDetail, BigDecimal benchmarkPrice) {
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug("24769 RCWL calcScore : {}", calculatorType);
