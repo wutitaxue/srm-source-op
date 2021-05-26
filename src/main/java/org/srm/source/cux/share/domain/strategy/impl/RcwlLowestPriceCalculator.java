@@ -51,10 +51,10 @@ public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements 
             quotationLineMaps = this.rcwlEvaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
-        Map<Long, BigDecimal> validQuotationLineMaps = (Map)quotationLineMaps.entrySet().stream().filter((map) -> {
+        Map<Long, BigDecimal> validQuotationLineMaps = quotationLineMaps.entrySet().stream().filter((map) -> {
             return CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(map.getKey());
         }).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-        BigDecimal min = (BigDecimal)validQuotationLineMaps.values().stream().filter((a) -> {
+        BigDecimal min = validQuotationLineMaps.values().stream().filter((a) -> {
             return BigDecimal.ZERO.compareTo(a) < 0;
         }).min(BigDecimal::compareTo).get();
         if (LOGGER.isDebugEnabled()) {

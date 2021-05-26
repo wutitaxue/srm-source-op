@@ -1,6 +1,7 @@
 package org.srm.source.cux.rfx.domain.repository;
 
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
+import org.srm.source.share.domain.entity.EvaluateSummary;
 
 import java.util.List;
 
@@ -16,4 +17,11 @@ public interface IRcwlRfxQuotationLineRepository {
      * @return
      */
     List<RfxQuotationLine> querySumQuotationByRfxHeaderId(Long rfxHeaderId, Long tenantId);
+
+    /**
+     * 获取专家评分汇总信息
+     * @param evaluateSummary EvaluateSummary
+     * @return 专家评分汇总列表
+     */
+    List<EvaluateSummary> queryEvaluateSummary(EvaluateSummary evaluateSummary);
 }
