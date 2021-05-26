@@ -2,8 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.infra.mapper.RcwlCalibrationApprovalMapper;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -11,7 +10,6 @@ import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -56,7 +54,7 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     }
 
     @Override
-    public void updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO) {
+    public void updateClarifyData(RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO) {
         rcwlCalibrationApprovalMapper.updateClarifyData(rcwlUpdateDataDTO);
     }
 
