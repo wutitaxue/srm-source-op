@@ -1,27 +1,28 @@
 package org.srm.source.cux.rfx.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class RcwlAttachmentData {
 
     //序号
-    @JsonProperty(value = "FILENUMBER")
+    @JSONField(name = "FILENUMBER")
     private String FileNumber;
 
     //名称
-    @JsonProperty(value = "FILENAME")
+    @JSONField(name = "FILENAME")
     private String FileName;
 
     //大小
-    @JsonProperty(value = "FILESIZE")
+    @JSONField(name = "FILESIZE")
     private String FileSize;
 
     //名称
-    @JsonProperty(value = "DESCRIPTION")
+    @JSONField(name = "DESCRIPTION")
     private String Description;
 
     //附件URL
-    @JsonProperty(value = "URL")
+    @JSONField(name = "URL")
     private String Url;
 
     public String getFileNumber() {

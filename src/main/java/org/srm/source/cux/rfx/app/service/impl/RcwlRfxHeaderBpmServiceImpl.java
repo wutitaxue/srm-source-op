@@ -61,7 +61,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
-//        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
+        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
             rfxHeaderService.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
@@ -86,7 +86,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         //子账户账号
         rcwlGxBpmStartDataDTO.setUserId(DetailsHelper.getUserDetails().getUsername());
         //业务单据ID（业务类型）
-        rcwlGxBpmStartDataDTO.setBtid("RCWLSRMYSDSP");
+        rcwlGxBpmStartDataDTO.setBtid("RCWLSRMZBLX");
         //单据编号
         rcwlGxBpmStartDataDTO.setBoid(rfxFullHeader.getRfxHeader().getRfxNum());
         //流程id：默认0，如果是退回修改的流程，则需要将流程ID回传回来
