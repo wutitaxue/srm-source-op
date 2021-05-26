@@ -50,7 +50,7 @@ public class RcwlRoundHeaderController extends BaseController {
     )
     @PostMapping({"/start-quotation/{sourceHeaderId}"})
     @FilterSupplier
-    public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason,@RequestParam List<RfxQuotationHeader> eliminateSupplier) {
+    public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason,@RequestBody List<RfxQuotationHeader> eliminateSupplier) {
         this.rcwlRoundHeaderService.startQuotation(organizationId, sourceHeaderId, roundQuotationEndDate, startingReason,eliminateSupplier);
         return Results.success();
     }
