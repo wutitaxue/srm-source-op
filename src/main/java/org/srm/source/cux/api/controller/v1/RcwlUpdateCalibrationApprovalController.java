@@ -158,7 +158,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId,Long tenantId){
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         //获取询价单头表信息
-        RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
+        RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+//        RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
         checkPriceHeaderDTO.setRfxHeaderId(rfxHeader.getRfxHeaderId());
         checkPriceHeaderDTO.setTotalCost(rfxHeader.getTotalCost());
         checkPriceHeaderDTO.setTotalPrice(rfxHeader.getTotalPrice());
