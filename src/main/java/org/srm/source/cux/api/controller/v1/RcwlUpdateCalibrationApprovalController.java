@@ -137,20 +137,31 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @PostMapping({"/check/submit/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceSubmit(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
+//        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
         //填充DTO数据
         CheckPriceHeaderDTO checkPriceHeaderDTO = this.getCheckPriceHeaderDTOByData(rfxHeaderId,rcwlDBSPTGDTO.getTenantId());
+        try{
+            this.rfxHeaderService.checkPriceSubmitValidate(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
+        }catch (Exception e){
+            responseData.setCode("201");
+            responseData.setMessage("数据校验失败！");
+        }
         CheckPriceHeaderDTO validPriceHeaderDTO = this.rfxHeaderService.latestValidCreateItemCheck(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
         if(!BaseConstants.Flag.NO.equals(validPriceHeaderDTO.getCreateItemFlag())) {
             responseData.setCode("201");
             responseData.setMessage("操作驳回！");
         } else {
             this.validObject(checkPriceHeaderDTO, new Class[0]);
-            this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
+            try{
+                this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
+            }catch (Exception e){
+                responseData.setCode("201");
+                responseData.setMessage("定标提交失败！");
+            }
         }
             return responseData;
     }
