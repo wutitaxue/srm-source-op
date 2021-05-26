@@ -214,16 +214,13 @@
             hf.file_url Url
         FROM
             hfle_file hf
-            LEFT JOIN ssrc_rfx_header srh1 ON srh1.tech_attachment_uuid = hf.attachment_uuid
-            LEFT JOIN ssrc_rfx_header srh2 ON srh2.business_attachment_uuid = hf.attachment_uuid,(
-            SELECT
-                @rowno := 0
-            ) t
+            LEFT JOIN ssrc_rfx_header srh ON srh.tech_attachment_uuid = hf.attachment_uuid or srh.business_attachment_uuid = hf.attachment_uuid,(
+                    SELECT
+                        @rowno := 0
+                    ) t
         WHERE
-            srh1.tenant_id = #{organizationId}
-            AND srh1.rfx_header_id = #{rfxHeader.rfxHeaderId}
-            AND srh2.tenant_id = #{organizationId}
-            AND srh2.rfx_header_id = #{rfxHeader.rfxHeaderId}
+            srh.tenant_id = #{organizationId}
+            AND srh.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
 
 </mapper>

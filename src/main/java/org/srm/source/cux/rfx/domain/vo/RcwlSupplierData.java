@@ -1,27 +1,27 @@
 package org.srm.source.cux.rfx.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class RcwlSupplierData {
 
     //供应商编码
-    @JsonProperty(value = "SUPPLIERCOMPANYNUM")
+    @JSONField(name = "SUPPLIERCOMPANYNUM")
     private String SupplierCompanyNum;
 
     //供应商名称
-    @JsonProperty(value = "SUPPLIERCOMPANYNAME")
+    @JSONField(name = "SUPPLIERCOMPANYNAME")
     private String SupplierCompanyName;
 
     //注册资金
-    @JsonProperty(value = "REGISTEREDCAPITAL")
+    @JSONField(name = "REGISTEREDCAPITAL")
     private String RegisteredCapital;
 
     //第一联系人姓名
-    @JsonProperty(value = "CONTACTNAME")
+    @JSONField(name = "CONTACTNAME")
     private String ContactName;
 
     //联系方式
-    @JsonProperty(value = "CONTACTMOBILEPHONE")
+    @JSONField(name = "CONTACTMOBILEPHONE")
     private String ContactMobilePhone;
 
     public String getSupplierCompanyNum() {
