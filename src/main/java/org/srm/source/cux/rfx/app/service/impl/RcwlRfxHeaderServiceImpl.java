@@ -37,8 +37,8 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
         Assert.notNull(sourceTemplate, "source.template.not.found");
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
-        rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
-        rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
+//        rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
+//        rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
         RfxFullHeader rtnFullHeader = ((RfxHeaderService)this.self()).saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
