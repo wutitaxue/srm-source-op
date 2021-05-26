@@ -19,6 +19,7 @@ import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
+import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.PrequalHeader;
 import org.srm.source.share.domain.entity.SourceTemplate;
@@ -49,33 +50,38 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
     private IPrequelDomainService prequelDomainService;
     @Autowired
     private RfxHeaderService rfxHeaderService;
+    @Autowired
+    private RfxEventUtil rfxEventUtil;
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
-        //原校验逻辑
+        //原校验逻辑 rfxHeaderService
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
         Assert.notNull(sourceTemplate, "source.template.not.found");
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
+        rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
         RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
             rfxHeaderService.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
         }
-        rfxHeaderService.validateLadderInquiry(rfxFullHeader);
+        rfxHeaderService.validateLadderInquiry(rtnFullHeader);
         this.rfxHeaderDomainService.removeOrValidRfxItemSupAssign(rfxFullHeader);
         PrequalHeader prequalHeader = rfxFullHeader.getPrequalHeader();
         if (null != prequalHeader) {
             prequalHeader.preData(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX");
         }
         this.prequelDomainService.checkPrequalHeader(sourceTemplate, rfxFullHeader.getPrequalHeader());
+        if (!"SELF".equals(sourceTemplate.getReleaseApproveType())) {
+            this.rfxEventUtil.eventSend("SSRC_RFX_RELEASE", "RELEASE", rfxHeader);
+        }
 
-
-
+        //获取系统配置
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
 
