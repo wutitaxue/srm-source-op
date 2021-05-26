@@ -29,4 +29,6 @@ public interface RcwlCalibrationApprovalMapper {
     List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId);
 
     List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
+
+    RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id);
 }

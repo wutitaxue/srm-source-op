@@ -1,5 +1,6 @@
 package org.srm.source.cux.api.controller.v1;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
@@ -24,7 +25,9 @@ import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.share.domain.entity.ProjectLineSection;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,7 +109,6 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     public ResponseCalibrationApprovalData checkPriceReject(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
-//        DetailsHelper.getUserDetails().setUserId(rcwlDBSPTGDTO.getTenantId());
         DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
@@ -160,6 +162,9 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         //获取询价单头表信息
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
 //        RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
+        checkPriceHeaderDTO.setAttributeVarchar1(rfxHeader.getAttributeVarchar1());//招采模式
+        checkPriceHeaderDTO.setAttributeVarchar8(rfxHeader.getAttributeVarchar8());//招采模式
+
         checkPriceHeaderDTO.setRfxHeaderId(rfxHeader.getRfxHeaderId());
         checkPriceHeaderDTO.setTotalCost(rfxHeader.getTotalCost());
         checkPriceHeaderDTO.setTotalPrice(rfxHeader.getTotalPrice());
@@ -188,23 +193,23 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             rfxLineItemList.add(rfxLineItemService.selectByPrimaryKey(id));
         }
         for(String id : quotationHeaderIDs){
-            RfxQuotationHeader quotationHeader = rfxQuotationHeaderService.getQuotationHeader(Long.valueOf(id));
-            RfxQuotationLine rfxQuotationLine = new RfxQuotationLine();
+            RfxQuotationHeader quotationHeader = (RfxQuotationHeader)rfxQuotationHeaderService.getQuotationHeader(Long.valueOf(id));
+            RfxQuotationLine rfxQuotationLineData = rcwlCalibrationApprovalService.getRfxQuotationLineDataByQuotationHeaderIDs(id);
             CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
             checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
             checkPriceDTO.setSelectionStrategy("RECOMMENDATION");//选择策略
-            checkPriceDTO.setRfxLineItemId(null);//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
-            checkPriceDTO.setRfxLineItemNum(null);//rfxLineItemList.get(0).getRfxLineItemNum()
+            checkPriceDTO.setRfxLineItemId(rfxLineItemList.get(0).getRfxLineItemId());//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
+            checkPriceDTO.setRfxLineItemNum(rfxLineItemList.get(0).getRfxLineItemNum());//rfxLineItemList.get(0).getRfxLineItemNum()
             checkPriceDTO.setType("");
-            checkPriceDTO.setObjectVersionNumber(null);//物料行版本号//rfxLineItemList.get(0).getObjectVersionNumber()
-            checkPriceDTO.setWholeSuggestFlag(null);//整包推荐//rfxQuotationLine
+            checkPriceDTO.setObjectVersionNumber(rfxLineItemList.get(0).getObjectVersionNumber());//物料行版本号//rfxLineItemList.get(0).getObjectVersionNumber()
+            checkPriceDTO.setWholeSuggestFlag(rfxQuotationLineData.getSuggestedFlag());//整包推荐//ssrc_rfx_quotation_line.suggested_flag  1
+            checkPriceDTO.setSuggestedRemark(rfxQuotationLineData.getSuggestedRemark());//ssrc_rfx_quotation_line.Suggested_Remark
+            checkPriceDTO.setAllottedQuantity(rfxQuotationLineData.getAllottedQuantity());//ssrc_rfx_quotation_line
+            checkPriceDTO.setAllottedRatio(rfxQuotationLineData.getAllottedRatio());//ssrc_rfx_quotation_line
+            checkPriceDTO.setChangePercent(rfxQuotationLineData.getChangePercent());//ssrc_rfx_quotation_line
             checkPriceDTO.setRfxLineSupplierId(null);//rfxQuotationLine
-            checkPriceDTO.setSupplierTenantId(null);//rfxQuotationLine
+            checkPriceDTO.setSupplierTenantId(quotationHeader.getSupplierTenantId());//rfxQuotationLine
             checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
-            checkPriceDTO.setAllottedQuantity(null);//rfxQuotationLine
-            checkPriceDTO.setSuggestedRemark(null);//rfxQuotationLine
-            checkPriceDTO.setAllottedRatio(null);//rfxQuotationLine
-            checkPriceDTO.setChangePercent(null);//rfxQuotationLine
             //放一个RfxQuotationLine    list
             List<RfxQuotationLine> quotationLineList = rcwlCalibrationApprovalService.getQuotationLineListByQuotationHeaderID(Long.valueOf(id));
             checkPriceDTO.setQuotationLineList(quotationLineList);
@@ -213,6 +218,13 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         }
         checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
         checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
+        List<ProjectLineSection> projectLineSectionList = new ArrayList<>();
+
+        checkPriceHeaderDTO.setProjectLineSectionList(projectLineSectionList);
+        List<ProjectLineSection> allProjectLineSectionList = new ArrayList<>();
+
+        checkPriceHeaderDTO.setAllProjectLineSectionList(allProjectLineSectionList);
+        String json = JSONObject.toJSONString(checkPriceHeaderDTO);
         return  checkPriceHeaderDTO;
     }
 }
