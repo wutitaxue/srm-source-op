@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class RcwlUpdateCalibrationApprovalDTO {
-    @JsonProperty("RcwlUpdateCalibrationApprovalDTO")
+    @JsonProperty("rcwlUpdateCalibrationApprovalDataVO")
     private RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateCalibrationApprovalDataDTO;
 
     public RcwlUpdateCalibrationApprovalDataDTO getRcwlUpdateCalibrationApprovalDataDTO() {
