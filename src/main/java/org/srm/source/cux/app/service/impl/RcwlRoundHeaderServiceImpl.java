@@ -154,7 +154,7 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
                 List<RfxLineSupplier> list = new ArrayList<>();
                 for (RfxQuotationHeader e : rfxQuotationHeaderList
                 ) {
-                    if ("1".equals(e.getAttributeVarchar2())) {
+                    if (!"1".equals(e.getAttributeVarchar2())) {
                         Optional<RfxLineSupplier> optional = rfxLineSupplierList.stream().filter(suppier -> suppier.getSupplierCompanyId().equals(e.getSupplierCompanyId())).findFirst();
                         if (optional.isPresent()) {
                             RfxLineSupplier rfxLineSupplier = optional.get();
