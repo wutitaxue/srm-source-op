@@ -1,6 +1,7 @@
 package org.srm.source.cux.domain.repository;
 
 import org.hzero.mybatis.base.BaseRepository;
+import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
@@ -16,7 +17,7 @@ public interface RcwlCalibrationApprovalRepository extends BaseRepository<RfxHea
 
     String getquotationRoundNum(Long rfxHeaderId);
 
-    List<String> getDbdbjgList(Long rfxHeaderId);
+    List<RcwlDBGetDataFromDatabase> getDbdbjgList(Long rfxHeaderId);
 
     Integer getAppendRemark(String id);
 

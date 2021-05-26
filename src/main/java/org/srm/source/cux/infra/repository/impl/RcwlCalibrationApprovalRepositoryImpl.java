@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.infra.mapper.RcwlCalibrationApprovalMapper;
@@ -36,10 +37,9 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     }
 
     @Override
-    public List<String> getDbdbjgList(Long rfxHeaderId) {
-        List<String> l = new ArrayList<>();
-        l = rcwlCalibrationApprovalMapper.getDbdbjgList(rfxHeaderId);
-        return l;
+    public List<RcwlDBGetDataFromDatabase> getDbdbjgList(Long rfxHeaderId) {
+        List<RcwlDBGetDataFromDatabase> l = rcwlCalibrationApprovalMapper.getDbdbjgList(rfxHeaderId);
+        return l == null ? new ArrayList<RcwlDBGetDataFromDatabase>() : l ;
     }
 
     @Override

@@ -38,20 +38,16 @@
             ssrc_round_header t
         where  t.source_header_id = #{rfxHeaderId}
     </select>
-    <select id="getDbdbjgList" resultType="String">
-        SELECT
-            CONCAT_WS( '|+|', quotation_header_id, supplier_company_name, company_num, supplier_company_ip, technology_score, business_score, score, score_rank, total_amount )
-        FROM
-            (
+    <select id="getDbdbjgList" resultType="org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase">
                 SELECT
-                    t.quotation_header_id,
-                    t.supplier_company_name,
-                    y.company_num,
-                    t.supplier_company_ip,
-                    x.technology_score,
-                    x.business_score,
-                    x.score,
-                    x.score_rank,
+                    t.quotation_header_id quotationHeaderId,
+                    t.supplier_company_name supplierCompanyName,
+                    y.company_num companyNum,
+                    t.supplier_company_ip supplierCompanyIp,
+                    x.technology_score technologyScore,
+                    x.business_score businessScore,
+                    x.score score,
+                    x.score_rank scoreRank,
                     sum( z.total_amount ) total_amount
                 FROM
                     ssrc_rfx_quotation_header t
@@ -64,7 +60,6 @@
                     t.quotation_header_id
                 ORDER BY
                     x.score_rank
-            ) q
     </select>
     <select id="getAppendRemark" resultType="Integer">
         SELECT

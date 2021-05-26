@@ -103,12 +103,12 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"COMPANYID\":\"").append(rfxHeader.getCompanyName()).append("\",");
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
-        sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8()).append("\",");
-        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay()).append("\",");
-        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory()).append("\",");
+        sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rfxHeader.getAttributeVarchar8()).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay() == null ? "":rfxHeader.getScoreWay()).append("\",");
+        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rfxHeader.getSourceCategory()).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
-        sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark()).append("\",");
+        sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark() == null ? "":rfxHeader.getTerminatedRemark()).append("\",");
         sb.append("\"URL_MX\":\"").append(sbUrl.toString()).append("\",");
         sb.append("\"FKGLYSD\":[");
         if(!CollectionUtils.isEmpty(list) && list.size()>0){

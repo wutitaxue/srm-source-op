@@ -1,5 +1,6 @@
 package org.srm.source.cux.infra.mapper;
 
+import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
@@ -12,7 +13,7 @@ public interface RcwlCalibrationApprovalMapper {
 
     String getquotationRoundNum(Long rfxHeaderId);
 
-    List<String> getDbdbjgList(Long rfxHeaderId);
+    List<RcwlDBGetDataFromDatabase> getDbdbjgList(Long rfxHeaderId);
 
     Integer getAppendRemark(String id);
 
