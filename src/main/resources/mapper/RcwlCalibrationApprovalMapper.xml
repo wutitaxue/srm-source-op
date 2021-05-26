@@ -4,8 +4,8 @@
     <update id="updateClarifyData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
-            <if test="attribute_varchar4!=null and attribute_varchar4 != ''">attribute_varchar4=#{attribute_varchar4},</if>
-            <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attribute_varchar5},</if>
+            <if test="attribute_varchar4!=null and attribute_varchar4 != ''">attribute_varchar4=#{attributeVarchar4},</if>
+            <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attributeVarchar5},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
         AND tenant_id = #{tenantId}
