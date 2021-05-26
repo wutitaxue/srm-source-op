@@ -265,10 +265,10 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             throw new CommonException("rfx header not exists!");
         } else {
             // RCWL 获取有效报价行数据
-            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId,tenantId)
-                    .stream()
+            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId,tenantId);
+                   /* .stream()
                     .filter(item -> !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId()))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList());*/
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rfx quotation lines : {}", rfxQuotationLines);
             }
