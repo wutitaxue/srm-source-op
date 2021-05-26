@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.srm.boot.platform.message.MessageHelper;
 import org.srm.boot.platform.message.entity.SpfmMessageSender;
 import org.srm.source.cux.app.service.RcwlRoundHeaderService;
+import org.srm.source.cux.domain.repository.RcwlRfxQuotationOtherRepository;
 import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
 import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.app.service.common.SendMessageHandle;
@@ -73,10 +75,14 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
     private RfxQuotationHeaderService rfxQuotationHeaderService;
     @Autowired
     private RfxQuotationHeaderRepository rfxQuotationHeaderRepository;
+    @Autowired
+    private RcwlRfxQuotationOtherRepository rcwlRfxQuotationOtherRepository;
+
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void startQuotation(Long tenantId, Long sourceHeaderId, Date roundQuotationEndDate, String startingReason, List<RfxQuotationHeader> rfxQuotationHeaderList) {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -88,7 +94,10 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
                 jsonProcessingException.printStackTrace();
             }
         }
-        this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaderList, new String[]{"attributeVarchar2"});
+        //this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaderList, new String[]{"attributeVarchar2"});
+        //修改为手动更新状态
+
+        this.rcwlRfxQuotationOtherRepository.updateSuppierFlag(rfxQuotationHeaderList);
         logger.info("------------更新寻源--------多伦报价-------");
         RoundHeader roundHeaderDb = (RoundHeader) this.roundHeaderRepository.selectOne(new RoundHeader(tenantId, sourceHeaderId, "RFX"));
         Assert.isTrue(DateUtil.beforeNow(roundQuotationEndDate, (String) null), "error.round_quotation_end_date");
