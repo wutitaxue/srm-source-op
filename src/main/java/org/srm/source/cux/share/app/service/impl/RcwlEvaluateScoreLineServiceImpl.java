@@ -99,7 +99,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("auto evaluate score started, params => [sourceFrom : {},sourceHeaderId:{},tenantId:{}]", sourceFrom, sourceHeaderId, tenantId);
         }
-
+        LOGGER.info("invalidQuotationHeaderIdList : {}",invalidQuotationHeaderIdList);
         Map<String, String> parameter = new HashMap(1);
         String priceTypeCode = "";
         Map<Long, BigDecimal> quotationLineMaps;
@@ -191,9 +191,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     if(!"PRICE".equals(evaluateScoreLineDTO.getScoreType())){
                         throw new CommonException("only support price!");
                     }
-                    BigDecimal benchmarkPrice = autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(),priceTypeCode,autoScoreDTO,evaluateIndicDetail);
-                    BigDecimal benchmarkPrice1 = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice : {}", benchmarkPrice1,benchmarkPrice);
+                    // RCWL 计算基准价
+                    BigDecimal benchmarkPrice = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                    LOGGER.info("24769  benchmarkPrice RCWL : {} ", benchmarkPrice);
                     //每一个供应商
                     List<EvaluateScoreDTO> evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
                     if (CollectionUtils.isEmpty(evaluateScoreDTOS)) {
