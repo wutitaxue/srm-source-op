@@ -175,6 +175,11 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         return l;
     }
 
+    @Override
+    public RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id) {
+        return  rcwlCalibrationApprovalRepository.getRfxQuotationLineDataByQuotationHeaderIDs(id);
+    }
+
     private String getRemark(String s) {
         return rcwlCalibrationApprovalRepository.getRemark(s);
     }

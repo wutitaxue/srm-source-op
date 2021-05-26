@@ -87,4 +87,10 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
         List<RfxQuotationLine> l = rcwlCalibrationApprovalMapper.getQuotationLineListByQuotationHeaderID(id);
         return l == null ? new ArrayList<RfxQuotationLine>() : l;
     }
+
+    @Override
+    public RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id) {
+        RfxQuotationLine s =  rcwlCalibrationApprovalMapper.getRfxQuotationLineDataByQuotationHeaderIDs(id);
+        return s == null ? new RfxQuotationLine() : s;
+    }
 }

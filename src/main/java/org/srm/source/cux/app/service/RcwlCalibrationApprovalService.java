@@ -19,4 +19,6 @@ public interface RcwlCalibrationApprovalService {
     List<Long> getRfxLineItemIdByRfxHeaderId(Long rfxHeaderId);
 
     List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
+
+    RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id);
 }

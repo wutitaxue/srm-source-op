@@ -130,4 +130,10 @@
         WHERE
             t.quotation_header_id = #{id}
     </select>
+    <select id="getRfxQuotationLineDataByQuotationHeaderIDs" resultType="org.srm.source.rfx.domain.entity.RfxQuotationLine">
+        SELECT suggested_flag,suggested_remark,allotted_quantity,allotted_ratio,change_percent
+        FROM    ssrc_rfx_quotation_line
+        WHERE   quotation_header_id = #{id}
+            limit 0,1
+    </select>
 </mapper>
