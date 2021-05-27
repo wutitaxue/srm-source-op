@@ -35,7 +35,6 @@ public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements 
     private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
 
     public RcwlLowestPriceCalculator() {
-        super();
     }
 
     @Override
