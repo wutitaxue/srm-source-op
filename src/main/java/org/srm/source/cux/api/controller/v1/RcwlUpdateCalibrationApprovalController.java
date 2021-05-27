@@ -179,8 +179,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setCreateItemFlag(rfxHeader.getItemGeneratePolicy() == null ? null:Integer.parseInt(rfxHeader.getItemGeneratePolicy()));
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
         checkPriceHeaderDTO.setSelectionStrategy("RECOMMENDATION");
-//        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
-        checkPriceHeaderDTO.setSelectSectionReadFlag(0);
+        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
         checkPriceHeaderDTO.setOnlyAllowAllWinBids(rfxHeader.getOnlyAllowAllWinBids());
         //获取checkPriceDTOLineList所需值
         List<CheckPriceDTO> checkPriceDTOLineList = new ArrayList<>();
