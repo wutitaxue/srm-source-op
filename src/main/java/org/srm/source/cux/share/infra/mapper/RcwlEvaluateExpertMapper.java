@@ -10,7 +10,7 @@ import org.srm.source.share.api.dto.EvaluateScoreQueryDTO;
  * @version:1.0
  */
 @Component
-public interface RCWLEvaluateExpertMapper {
+public interface RcwlEvaluateExpertMapper {
     /**
      * 查询除去评分负责人之外未评分的数量
      * @param evaluateScoreQueryDTO
