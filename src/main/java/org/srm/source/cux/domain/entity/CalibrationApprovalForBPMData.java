@@ -43,7 +43,7 @@ public class CalibrationApprovalForBPMData {
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("{\"FSUBJECT\":\"").append(this.getFSUBJECT() == null ? "":this.getFSUBJECT()).append("\",");
+        sb.append("{\"FSubject\":\"").append(this.getFSUBJECT() == null ? "":this.getFSUBJECT()).append("\",");
         sb.append("\"COMPANYID\":\"").append(this.getCOMPANYID() == null ? "":this.getCOMPANYID()).append("\",");
         sb.append("\"RFXNAME\":\"").append(this.getRFXNAME() == null ? "":this.getRFXNAME()).append("\",");
         sb.append("\"RFXNUM\":\"").append(this.getRFXNUM() == null ? "":this.getRFXNUM()).append("\",");
@@ -65,7 +65,7 @@ public class CalibrationApprovalForBPMData {
             sb.deleteCharAt(sb.length()-1);
         }
         sb.append("],");
-        sb.append("\"ATTACHMENTS\":[");
+        sb.append("\"ATTACHMENTS1\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(CalibrationApprovalAttachmentDataForBPM at : this.getATTACHMENTS()){
                 sb.append(at.toString()).append(",");
