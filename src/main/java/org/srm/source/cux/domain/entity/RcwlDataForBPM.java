@@ -37,7 +37,7 @@ public class RcwlDataForBPM {
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("{\"FSUBJECT\":\"").append(this.getFSUBJECT()).append("\",");
+        sb.append("{\"FSubject\":\"").append(this.getFSUBJECT()).append("\",");
         sb.append("\"SUBMITTEDBY\":\"").append(this.getSUBMITTEDBY()).append("\",");
         sb.append("\"TITLE\":\"").append(this.getTITLE()).append("\",");
         sb.append("\"FILE\":\"").append(this.getTITLE()).append("\",");
@@ -52,7 +52,7 @@ public class RcwlDataForBPM {
         }
         sb.append("\"CONTEXT\":\"").append(newCONTEXT).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
-        sb.append("\"FKGLYSD\":[");
+        sb.append("\"ATTACHMENTS1\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
             for(RcwlAttachmentListDataForBPM ra : this.getATTACHMENTS()){
                 sb.append(ra.toString()).append(",");

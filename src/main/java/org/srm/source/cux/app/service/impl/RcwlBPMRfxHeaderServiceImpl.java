@@ -99,7 +99,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
         StringBuffer sb = new StringBuffer();
-        sb.append("{\"FSUBJECT\":\"").append(rfxHeader.getCompanyName())
+        sb.append("{\"FSubject\":\"").append(rfxHeader.getCompanyName())
                 .append("-").append(rfxHeader.getRfxTitle()).append("-").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"COMPANYID\":\"").append(rfxHeader.getCompanyName()).append("\",");
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
@@ -111,7 +111,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark() == null ? "":rfxHeader.getTerminatedRemark()).append("\",");
         sb.append("\"URL_MX\":\"").append(sbUrl.toString()).append("\",");
-        sb.append("\"FKGLYSD\":[");
+        sb.append("\"ATTACHMENTS1\":[");
         if(!CollectionUtils.isEmpty(list) && list.size()>0){
             for(RcwlRfxHeaderAttachmentListDataForBPM ra : list){
                 sb.append(ra.toString()).append(",");
