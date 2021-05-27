@@ -1,5 +1,6 @@
 package org.srm.source.cux.infra.mapper;
 
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
@@ -7,7 +8,7 @@ import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import java.util.List;
 
 public interface RcwlCalibrationApprovalMapper {
-    List<String> getAttachmentList(String data);
+    List<RcwlAttachmentListData> getAttachmentList(String data);
 
     String getWinningSupplyNum(Long rfxHeaderId);
 

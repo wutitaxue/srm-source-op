@@ -1,6 +1,7 @@
 package org.srm.source.cux.domain.repository;
 
 import org.hzero.mybatis.base.BaseRepository;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface RcwlCalibrationApprovalRepository extends BaseRepository<RfxHeader> {
 
 
-    List<String> getAttachmentList(String data);
+    List<RcwlAttachmentListData> getAttachmentList(String data);
 
     String getWinningSupplyNum(Long rfxHeaderId);
 
