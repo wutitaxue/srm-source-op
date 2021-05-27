@@ -66,6 +66,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         Assert.notNull(sourceTemplate, "source.template.not.found");
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
+        rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
         RfxFullHeader rtnFullHeader = rfxHeaderServiceV2.saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
