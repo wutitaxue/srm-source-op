@@ -1,10 +1,13 @@
 package org.srm.source.cux.rfx.app.service.impl;
 
+import io.choerodon.core.oauth.DetailsHelper;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.srm.source.cux.infra.constant.Constants;
+import org.srm.source.cux.infra.constant.RcwlShareConstants;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.impl.RfxHeaderServiceImpl;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -15,7 +18,11 @@ import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.PrequalHeader;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.service.IPrequelDomainService;
+import org.srm.source.share.infra.constant.ShareConstants;
 import org.srm.web.annotation.Tenant;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 @Tenant("SRM-RCWL")
@@ -39,6 +46,11 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
 //        rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
 //        rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
+        if (Constants.SELF.equals(sourceTemplate.getReleaseApproveType())) {
+            rfxHeader.setRfxStatus(Constants.IN_QUOTATION) ;
+        } else {
+            rfxHeader.setRfxStatus(Constants.RELEASE_APPROVING);
+        }
         RfxFullHeader rtnFullHeader = ((RfxHeaderService)this.self()).saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
