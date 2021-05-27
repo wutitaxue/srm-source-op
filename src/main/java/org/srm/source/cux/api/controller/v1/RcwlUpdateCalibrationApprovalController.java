@@ -176,7 +176,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate() == null ? "":rfxHeader.getPriceEffectiveDate().toString());
         checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate() == null ? "":rfxHeader.getPriceExpiryDate().toString());
         checkPriceHeaderDTO.setCheckRemark(rfxHeader.getCheckRemark());
-        checkPriceHeaderDTO.setCreateItemFlag(Integer.parseInt(rfxHeader.getItemGeneratePolicy()));
+        checkPriceHeaderDTO.setCreateItemFlag(rfxHeader.getItemGeneratePolicy() == null ? null:Integer.parseInt(rfxHeader.getItemGeneratePolicy()));
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
         checkPriceHeaderDTO.setSelectionStrategy("RECOMMENDATION");
 //        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
