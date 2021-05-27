@@ -16,6 +16,7 @@ import org.srm.source.cux.rfx.domain.vo.RcwlSendBpmData;
 import org.srm.source.cux.rfx.infra.constant.RcwlMessageCode;
 import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
@@ -27,6 +28,7 @@ import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.web.annotation.Tenant;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 @Service
@@ -49,7 +51,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
     @Lazy
     private IPrequelDomainService prequelDomainService;
     @Autowired
-    private RfxHeaderService rfxHeaderService;
+    private RfxHeaderService rfxHeaderServiceV1;
+    @Autowired
+    private RfxHeaderServiceV2 rfxHeaderServiceV2;
     @Autowired
     private RfxEventUtil rfxEventUtil;
 
@@ -57,24 +61,27 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
-        //原校验逻辑 rfxHeaderService
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
         Assert.notNull(sourceTemplate, "source.template.not.found");
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
-        rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
-        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
+        RfxFullHeader rtnFullHeader = rfxHeaderServiceV2.saveOrUpdateFullHeader(rfxFullHeader);
+        this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
-            rfxHeaderService.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
+            this.rfxHeaderServiceV1.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
         }
-        rfxHeaderService.validateLadderInquiry(rtnFullHeader);
+        this.rfxHeaderServiceV1.validateLadderInquiry(rtnFullHeader);
         this.rfxHeaderDomainService.removeOrValidRfxItemSupAssign(rfxFullHeader);
         PrequalHeader prequalHeader = rfxFullHeader.getPrequalHeader();
         if (null != prequalHeader) {
             prequalHeader.preData(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX");
+        }
+        if ("PRE".equals(sourceTemplate.getQualificationType()) || "PRE_POST".equals(sourceTemplate.getQualificationType())) {
+            Assert.notNull(rfxHeader.getQuotationStartDate(), "error.quotation_start_time_not_found");
+            prequalHeader.checkBeforeUpdate(Objects.isNull(rfxHeader.getQuotationStartDate()) ? rfxHeader.getEstimatedStartTime() : rfxHeader.getQuotationStartDate());
         }
         this.prequelDomainService.checkPrequalHeader(sourceTemplate, rfxFullHeader.getPrequalHeader());
         if (!"SELF".equals(sourceTemplate.getReleaseApproveType())) {
