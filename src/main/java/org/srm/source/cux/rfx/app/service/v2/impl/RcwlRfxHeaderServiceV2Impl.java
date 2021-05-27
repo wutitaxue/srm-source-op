@@ -20,7 +20,7 @@ import org.srm.web.annotation.Tenant;
 
 import java.util.Objects;
 
-@Service
+@Service("RcwlRfxHeaderServiceImpl.v2")
 @Tenant("SRM-RCWL")
 public class RcwlRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
 
