@@ -21,6 +21,7 @@ import org.srm.source.cux.rfx.app.service.RcwlRfxHeaderBpmService;
 import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxMemberService;
+import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
@@ -57,6 +58,8 @@ public class RcwlRfxHeaderController {
     private RfxLineItemRepository rfxLineItemRepository;
     @Autowired
     private RfxLineSupplierRepository rfxLineSupplierRepository;
+    @Autowired
+    private RfxHeaderServiceV2 rfxHeaderServiceV2;
     @Autowired
     private RfxHeaderService rfxHeaderService;
     @Autowired
@@ -157,7 +160,7 @@ public class RcwlRfxHeaderController {
         List<RfxLineSupplier> RfxLineSuppliers = rfxLineSupplierRepository.select(rfxLineSupplier);
         rfxFullHeader.setRfxLineSupplierList(RfxLineSuppliers);
         //
-        rfxHeaderService.releaseRfx(organizationId, rfxFullHeader);
+        rfxHeaderServiceV2.releaseRfx(organizationId, rfxFullHeader);
         return Results.success();
     }
 
