@@ -27,11 +27,6 @@ import org.srm.web.annotation.Tenant;
 import java.util.Objects;
 
 @Service("RcwlRfxHeaderServiceImpl.v2")
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-@Service
 @Tenant("SRM-RCWL")
 public class RcwlRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
 
