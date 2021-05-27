@@ -12,6 +12,7 @@ import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.impl.RfxHeaderServiceImpl;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
 import org.srm.source.rfx.infra.util.RfxEventUtil;
@@ -36,6 +37,8 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
     @Autowired
     @Lazy
     private IPrequelDomainService prequelDomainService;
+    @Autowired
+    private RfxHeaderRepository rfxHeaderRepository;
 
 
     @Override
