@@ -81,7 +81,6 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private RcwlAutoScoreStrategyService rcwlAutoScoreStrategyService;
 
     public RcwlEvaluateScoreLineServiceImpl() {
-        super();
     }
 
     @Override
@@ -193,7 +192,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     }
                     // RCWL 计算基准价
                     BigDecimal benchmarkPrice = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    LOGGER.info("24769  benchmarkPrice RCWL : {} ", benchmarkPrice);
+                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                    LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice1 : {} ", benchmarkPrice,benchmarkPrice1);
                     //每一个供应商
                     List<EvaluateScoreDTO> evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
                     if (CollectionUtils.isEmpty(evaluateScoreDTOS)) {
