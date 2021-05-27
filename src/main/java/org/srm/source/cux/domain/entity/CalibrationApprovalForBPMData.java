@@ -57,7 +57,7 @@ public class CalibrationApprovalForBPMData {
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER() == null ? "":this.getROUNDNUMBER()).append("\",");
         sb.append("\"OPINION\":\"").append(this.getOPINION() == null ? "":this.getOPINION()).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
-        sb.append("\"DBDBJGS\":[");
+        sb.append("\"DBDBJG\":[");
         if(!CollectionUtils.isEmpty(this.getDBDBJGS()) && this.getDBDBJGS().size()>0){
             for(CalibrationApprovalDbdbjgDataForBPM db : this.getDBDBJGS()){
                 sb.append(db.toString()).append(",");

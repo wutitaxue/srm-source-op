@@ -176,10 +176,11 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate() == null ? "":rfxHeader.getPriceEffectiveDate().toString());
         checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate() == null ? "":rfxHeader.getPriceExpiryDate().toString());
         checkPriceHeaderDTO.setCheckRemark(rfxHeader.getCheckRemark());
-        checkPriceHeaderDTO.setCreateItemFlag(0);
+        checkPriceHeaderDTO.setCreateItemFlag(Integer.parseInt(rfxHeader.getItemGeneratePolicy()));
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
-        checkPriceHeaderDTO.setSelectionStrategy("");
-        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
+        checkPriceHeaderDTO.setSelectionStrategy("RECOMMENDATION");
+//        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
+        checkPriceHeaderDTO.setSelectSectionReadFlag(0);
         checkPriceHeaderDTO.setOnlyAllowAllWinBids(rfxHeader.getOnlyAllowAllWinBids());
         //获取checkPriceDTOLineList所需值
         List<CheckPriceDTO> checkPriceDTOLineList = new ArrayList<>();
@@ -200,7 +201,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             checkPriceDTO.setSelectionStrategy("RECOMMENDATION");//选择策略
             checkPriceDTO.setRfxLineItemId(rfxLineItemList.get(0).getRfxLineItemId());//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
             checkPriceDTO.setRfxLineItemNum(rfxLineItemList.get(0).getRfxLineItemNum());//rfxLineItemList.get(0).getRfxLineItemNum()
-            checkPriceDTO.setType("");
+            checkPriceDTO.setType(rfxHeader.getSourceType());
             checkPriceDTO.setObjectVersionNumber(rfxLineItemList.get(0).getObjectVersionNumber());//物料行版本号//rfxLineItemList.get(0).getObjectVersionNumber()
             checkPriceDTO.setWholeSuggestFlag(rfxQuotationLineData.getSuggestedFlag());//整包推荐//ssrc_rfx_quotation_line.suggested_flag  1
             checkPriceDTO.setSuggestedRemark(rfxQuotationLineData.getSuggestedRemark());//ssrc_rfx_quotation_line.Suggested_Remark
