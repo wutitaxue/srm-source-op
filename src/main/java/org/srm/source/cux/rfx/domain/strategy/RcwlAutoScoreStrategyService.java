@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.share.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.share.api.dto.AutoScoreDTO;
 import org.srm.source.share.api.dto.EvaluateScoreLineDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
@@ -21,7 +22,7 @@ import java.util.Objects;
  * @date 2021-05-23 10:52
  */
 @Service
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 //public class RcwlAutoScoreStrategyService extends AutoScoreStrategyService {
 public class RcwlAutoScoreStrategyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlAutoScoreStrategyService.class);

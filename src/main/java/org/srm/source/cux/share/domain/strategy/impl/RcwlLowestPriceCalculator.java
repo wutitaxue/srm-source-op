@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.cux.share.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.share.api.dto.AutoScoreDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.LowestPriceCalculator;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  * @date 2021-05-24 18:26
  */
 @Component
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 //public class RcwlLowestPriceCalculator extends LowestPriceCalculator {
 public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements IRcwlAutoScoreBenchmarkPriceCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlLowestPriceCalculator.class);

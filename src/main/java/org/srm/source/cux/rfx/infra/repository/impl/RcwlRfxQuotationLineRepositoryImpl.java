@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.rfx.infra.mapper.IRcwlRfxQuotationLineMapper;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.share.domain.entity.EvaluateSummary;
 import org.srm.web.annotation.Tenant;
@@ -15,7 +16,7 @@ import java.util.List;
  * @date 2021-05-19 16:17
  */
 @Component
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 public class RcwlRfxQuotationLineRepositoryImpl implements IRcwlRfxQuotationLineRepository {
 
     @Autowired
