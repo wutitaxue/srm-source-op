@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.srm.source.cux.infra.constant.Constants;
 import org.srm.source.cux.infra.constant.RcwlShareConstants;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.impl.RfxHeaderServiceImpl;
@@ -45,10 +46,10 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
 //        rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
 //        rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
-        if ("SELF".equals(sourceTemplate.getReleaseApproveType())) {
-            rfxHeader.setRfxStatus("IN_QUOTATION") ;
+        if (Constants.SELF.equals(sourceTemplate.getReleaseApproveType())) {
+            rfxHeader.setRfxStatus(Constants.IN_QUOTATION) ;
         } else {
-            rfxHeader.setRfxStatus("RELEASE_APPROVING");
+            rfxHeader.setRfxStatus(Constants.RELEASE_APPROVING);
         }
         RfxFullHeader rtnFullHeader = ((RfxHeaderService)this.self()).saveOrUpdateFullHeader(rfxFullHeader);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
