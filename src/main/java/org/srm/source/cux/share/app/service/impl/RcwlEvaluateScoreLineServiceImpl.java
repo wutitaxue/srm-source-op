@@ -270,7 +270,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                 // key供应商 value供应商投标总价,（含税/不含税）之和，过滤勾选无效报价供应商
                 Map<Long, BigDecimal> quotationLineMaps = rfxQuotationLines
                         .stream()
-                        .filter(item -> !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId()))
+                        .filter(item -> CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId()))
                         .collect(Collectors.toMap(RfxQuotationLine::getQuotationHeaderId, (quotationLine) -> {
                             // 获取租户编码
                             String tenantNum = this.commonQueryRepository.selectTenantExists(tenantId).get(0);
