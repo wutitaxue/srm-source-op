@@ -1,4 +1,4 @@
-package org.srm.source.cux.rfx.app.service.impl;
+package org.srm.source.cux.rfx.app.service.v2.impl;
 
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
