@@ -1,6 +1,7 @@
 package org.srm.source.cux.domain.repository;
 
 import org.hzero.mybatis.base.BaseRepository;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 
@@ -14,7 +15,7 @@ public interface RcwlClarifyRepository extends BaseRepository<RcwlClarifyForBPM>
 
     void updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO);
 
-    List<String> getAttachmentList(String id);
+    List<RcwlAttachmentListData> getAttachmentList(String id);
 
     String getRoundNumber(Long id);
 

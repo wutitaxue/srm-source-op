@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
@@ -35,7 +36,7 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     }
 
     @Override
-    public List<String> getAttachmentList(String id) {
+    public List<RcwlAttachmentListData> getAttachmentList(String id) {
         return rcwlClarifyMapper.getAttachmentList(id);
     }
 

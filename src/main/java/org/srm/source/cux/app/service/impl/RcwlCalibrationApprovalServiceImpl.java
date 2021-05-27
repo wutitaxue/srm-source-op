@@ -41,7 +41,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         List<CalibrationApprovalDbdbjgDataForBPM> dbdbjgDataForBPMList = new ArrayList<CalibrationApprovalDbdbjgDataForBPM>();
         List<RcwlDBGetDataFromDatabase> listDbdbjgData = new ArrayList<>();
         List<CalibrationApprovalAttachmentDataForBPM> attachmentDataForBPMList = new ArrayList<CalibrationApprovalAttachmentDataForBPM>();
-        List<String> listAttachmentData = new ArrayList<String>();
+        List<RcwlAttachmentListData> listAttachmentData = new ArrayList<RcwlAttachmentListData>();
         //详情路径
         String URL_MX_HEADER = profileClient.getProfileValueByOptions("RCWL_DBSP_TO_BPM_URL");
         StringBuilder sbUrl = new StringBuilder();
@@ -93,13 +93,13 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             //组装附件列表
         if(!CollectionUtils.isEmpty(listAttachmentData)){
             int i = 1;
-            for(String attachmentListData : listAttachmentData){
+            for(RcwlAttachmentListData attachmentListData : listAttachmentData){
                 CalibrationApprovalAttachmentDataForBPM rald = new CalibrationApprovalAttachmentDataForBPM();
                 rald.setFILENUMBER(Integer.toString(i));
-                rald.setFILENAME(attachmentListData.split("|\\+|")[0]);
-                rald.setFILESIZE(attachmentListData.split("|\\+|")[1]);
-                rald.setDESCRIPTION(attachmentListData.split("|\\+|")[0]);
-                rald.setURL(attachmentListData.split("|\\+|")[2]);
+                rald.setFILENAME(attachmentListData.getFileName());
+                rald.setFILESIZE(attachmentListData.getFileSize());
+                rald.setDESCRIPTION(attachmentListData.getFileName());
+                rald.setURL(attachmentListData.getFileUrl());
                 attachmentDataForBPMList.add(rald);
                 i++;
             }

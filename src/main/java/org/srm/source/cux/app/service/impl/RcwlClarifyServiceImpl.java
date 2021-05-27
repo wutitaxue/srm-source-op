@@ -44,7 +44,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
             //查询此表相同source_id的refer_flag（是否引用问题）值为1的数量
         String countOfAlikeSourceId = rcwlClarifyRepository.getCountOfAlikeSourceId(clarify.getSourceId(),1l);
             //附件list
-        List<String> attachmentList = rcwlClarifyRepository.getAttachmentList(clarify.getAttachmentUuid());
+        List<RcwlAttachmentListData> attachmentList = rcwlClarifyRepository.getAttachmentList(clarify.getAttachmentUuid());
         //方法区结束
         rcwlDataForBPM.setFILE(clarify.getReferFlag() == 0l ? "澄清":"答疑");//值为1传描述“答疑” 值为0传描述“ 澄清”
         //立项编号不确定----------
@@ -69,13 +69,13 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         List<RcwlAttachmentListDataForBPM> dataList = new ArrayList<RcwlAttachmentListDataForBPM>();
         if(!CollectionUtils.isEmpty(attachmentList)){
                 int i = 1;
-            for(String attachmentListData : attachmentList){
+            for(RcwlAttachmentListData attachmentListData : attachmentList){
                 RcwlAttachmentListDataForBPM rald = new RcwlAttachmentListDataForBPM();
                 rald.setFILENUMBER(Integer.toString(i));
-                rald.setFILENAME(attachmentListData.split("|\\+|")[0]);
-                rald.setFILESIZE(attachmentListData.split("|\\+|")[1]);
-                rald.setDESCRIPTION(attachmentListData.split("|\\+|")[0]);
-                rald.setURL(attachmentListData.split("|\\+|")[2]);
+                rald.setFILENAME(attachmentListData.getFileName());
+                rald.setFILESIZE(attachmentListData.getFileSize());
+                rald.setDESCRIPTION(attachmentListData.getFileName());
+                rald.setURL(attachmentListData.getFileUrl());
                 dataList.add(rald);
                 i++;
             }

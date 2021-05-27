@@ -9,6 +9,7 @@ import org.hzero.boot.platform.profile.ProfileClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
@@ -40,23 +41,23 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         responseData.setMessage("操作成功！");
         responseData.setCode("200");
         String userName = DetailsHelper.getUserDetails().getUsername();
-        List<String> listData = new ArrayList<String>();
+        List<RcwlAttachmentListData> listData = new ArrayList<RcwlAttachmentListData>();
         List<RcwlRfxHeaderAttachmentListDataForBPM> list = new ArrayList<RcwlRfxHeaderAttachmentListDataForBPM>();
         //方法区，获取调用BPM接口所需值DATA并填充
-        RfxHeader rfxHeader = rfxHeaderRepository.selectSimpleRfxHeaderById(rfxHeaderId);
+        RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         listData = rcwlRfxHeaderRepository.getAttachmentList(rfxHeader.getAttributeVarchar20());
         rcwlRfxHeaderRepository.updateRfxHeader(rfxHeader.getRfxHeaderId(), remark,tenantId);
         //方法区结束
         //data数据填充附件信息
         if(!CollectionUtils.isEmpty(listData)){
             int i = 1;
-            for(String attachmentListData : listData){
+            for(RcwlAttachmentListData attachmentListData : listData){
                 RcwlRfxHeaderAttachmentListDataForBPM rald = new RcwlRfxHeaderAttachmentListDataForBPM();
                 rald.setFILENUMBER(Integer.toString(i));
-                rald.setFILENAME(attachmentListData.split("|\\+|")[0]);
-                rald.setFILESIZE(attachmentListData.split("|\\+|")[1]);
-                rald.setDESCRIPTION(attachmentListData.split("|\\+|")[0]);
-                rald.setURL(attachmentListData.split("|\\+|")[2]);
+                rald.setFILENAME(attachmentListData.getFileName());
+                rald.setFILESIZE(attachmentListData.getFileSize());
+                rald.setDESCRIPTION(attachmentListData.getFileName());
+                rald.setURL(attachmentListData.getFileUrl());
                 list.add(rald);
                 i++;
             }

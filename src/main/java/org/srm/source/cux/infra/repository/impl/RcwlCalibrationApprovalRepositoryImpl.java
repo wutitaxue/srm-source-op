@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
@@ -20,8 +21,8 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     private RcwlCalibrationApprovalMapper rcwlCalibrationApprovalMapper;
 
     @Override
-    public List<String> getAttachmentList(String data) {
-        List<String> list = new ArrayList<>();
+    public List<RcwlAttachmentListData> getAttachmentList(String data) {
+        List<RcwlAttachmentListData> list = new ArrayList<>();
         list = rcwlCalibrationApprovalMapper.getAttachmentList(data);
         return list;
     }
