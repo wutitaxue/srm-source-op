@@ -76,19 +76,8 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
                 LOGGER.debug("rfx header :{}", rfxHeaders);
 
                 try {
-                    // 获取专家评分汇总信息
-                    List<EvaluateSummary> evaluateSummary = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(rfxHeader.getTenantId(),rfxHeader.getRfxHeaderId(),"RFX",rfxHeader.getRoundNumber()));
-
                     // 获取无效报价头 ID
-                    List<Long> invalidQuotationHeaderIdList = evaluateSummary
-                            .stream()
-                            .filter(item -> BaseConstants.Flag.YES.equals(item.getInvalidFlag()))
-                            .map(EvaluateSummary::getQuotationHeaderId)
-                            .collect(Collectors.toList());
-
-                    /*List<EvaluateSummary> evaluateSummaries = evaluateSummary.stream().filter(item -> {
-                        return !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId());
-                    }).collect(Collectors.toList());*/
+                    List<Long> invalidQuotationHeaderIdList = this.rcwlEvaluateScoreLineService.getInvalidQuotationHeaderIdList(rfxHeader);
                     // 自动评分
                     this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId(),invalidQuotationHeaderIdList));
                     rfxHeader.setScoreProcessFlag(1);

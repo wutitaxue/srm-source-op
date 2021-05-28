@@ -2,6 +2,7 @@ package org.srm.source.cux.share.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
@@ -14,6 +15,7 @@ import org.srm.source.bid.infra.constant.BidConstants;
 import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.rfx.domain.strategy.RcwlAutoScoreStrategyService;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
@@ -28,6 +30,7 @@ import org.srm.source.share.app.service.EvaluateScoreService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
 import org.srm.source.share.domain.entity.EvaluateExpert;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
+import org.srm.source.share.domain.entity.EvaluateSummary;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.repository.EvaluateExpertRepository;
 import org.srm.source.share.domain.repository.SourceTemplateRepository;
@@ -50,7 +53,7 @@ import java.util.stream.Collectors;
  * @date 2021-05-21 17:52
  */
 @Service
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateScoreLineServiceImpl.class);
@@ -70,8 +73,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private EvaluateExpertRepository evaluateExpertRepository;
     @Autowired
     private EvaluateScoreService evaluateScoreService;
-    @Autowired
-    private AutoScoreStrategyService autoScoreStrategyService;
+//    @Autowired
+//    private AutoScoreStrategyService autoScoreStrategyService;
     /**
      * 新写的
      */
@@ -192,8 +195,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     }
                     // RCWL 计算基准价
                     BigDecimal benchmarkPrice = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice1 : {} ", benchmarkPrice,benchmarkPrice1);
+//                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                    LOGGER.info("24769  benchmarkPrice RCWL : {} ", benchmarkPrice);
                     //每一个供应商
                     List<EvaluateScoreDTO> evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
                     if (CollectionUtils.isEmpty(evaluateScoreDTOS)) {
@@ -203,8 +206,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                         evaluateIndicDetail.setMaxScore(evaluateScoreDTO.getMaxScore());
                         // RCWL 计算评分
                         BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
+//                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+//                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
+                        LOGGER.info("24769  scoreRcwl : {} ", score);
                         //取最大分数
                         List<BigDecimal> scores = new ArrayList<>();
                         scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score)>0?score:evaluateScoreLineDTO.getMaxScore());
@@ -280,5 +284,18 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                 return quotationLineMaps;
             }
         }
+    }
+
+    @Override
+    public List<Long> getInvalidQuotationHeaderIdList(RfxHeader rfxHeader) {
+        // 获取专家评分汇总信息
+        List<EvaluateSummary> evaluateSummary = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(rfxHeader.getTenantId(),rfxHeader.getRfxHeaderId(),"RFX",rfxHeader.getRoundNumber()));
+
+        // 获取无效报价头 ID
+        return evaluateSummary
+                .stream()
+                .filter(item -> BaseConstants.Flag.YES.equals(item.getInvalidFlag()))
+                .map(EvaluateSummary::getQuotationHeaderId)
+                .collect(Collectors.toList());
     }
 }

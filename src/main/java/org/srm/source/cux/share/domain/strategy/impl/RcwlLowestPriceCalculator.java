@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
+import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.share.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.share.api.dto.AutoScoreDTO;
+import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.LowestPriceCalculator;
 import org.srm.web.annotation.Tenant;
@@ -23,16 +25,19 @@ import java.util.stream.Collectors;
  * @date 2021-05-24 18:26
  */
 @Component
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 //public class RcwlLowestPriceCalculator extends LowestPriceCalculator {
 public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements IRcwlAutoScoreBenchmarkPriceCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlLowestPriceCalculator.class);
+
+    @Autowired
+    private EvaluateScoreLineService evaluateScoreLineService;
 
     /**
      * 新写的
      */
     @Autowired
-    private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
+    private IRcwlRfxQuotationLineRepository rcwlRfxQuotationLineRepository;
 
     public RcwlLowestPriceCalculator() {
     }
@@ -45,9 +50,9 @@ public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("24769  getBenchmarkPrice : {}", priceTypeCode);
             }
-            quotationLineMaps = this.rcwlEvaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            quotationLineMaps = this.rcwlRfxQuotationLineRepository.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
         } else {
-            quotationLineMaps = this.rcwlEvaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            quotationLineMaps = this.evaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
         Map<Long, BigDecimal> validQuotationLineMaps = quotationLineMaps.entrySet().stream().filter((map) -> {
