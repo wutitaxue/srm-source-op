@@ -1,19 +1,19 @@
 package org.srm.source.cux.rfx.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class RcwlScoringTeamData {
 
     //成员姓名
-    @JsonProperty(value = "EXPERTNAME")
+    @JSONField(name = "EXPERTNAME")
     private String ExpertName;
 
     //手机号
-    @JsonProperty(value = "EXPERTPHONE")
+    @JSONField(name = "EXPERTPHONE")
     private String ExpertPhone;
 
     //角色
-    @JsonProperty(value = "EXPERTCATEGORYMEANING")
+    @JSONField(name = "EXPERTCATEGORYMEANING")
     private String ExpertCategoryMeaning;
 
     public String getExpertName() {

@@ -8,6 +8,12 @@ public class Constants {
 
     private Constants() {
     }
+
+
+    public static final String SELF = "SELF";
+    public static final String IN_QUOTATION = "IN_QUOTATION";
+    public static final String RELEASE_APPROVING = "RELEASE_APPROVING";
+
     /**
      * 采购计划状态
      */

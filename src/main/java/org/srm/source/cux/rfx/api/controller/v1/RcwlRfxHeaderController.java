@@ -8,6 +8,7 @@ import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.srm.source.cux.rfx.api.controller.dto.UrlDTO;
 import org.srm.source.cux.rfx.app.service.RcwlRfxHeaderAttachmentService;
 import org.srm.source.rfx.api.dto.RfxHeaderDTO;
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -20,6 +21,7 @@ import org.srm.source.cux.rfx.app.service.RcwlRfxHeaderBpmService;
 import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxMemberService;
+import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
@@ -57,6 +59,8 @@ public class RcwlRfxHeaderController {
     @Autowired
     private RfxLineSupplierRepository rfxLineSupplierRepository;
     @Autowired
+    private RfxHeaderServiceV2 rfxHeaderServiceV2;
+    @Autowired
     private RfxHeaderService rfxHeaderService;
     @Autowired
     private RcwlRfxHeaderBpmMapper rcwlRfxHeaderBpmMapper;
@@ -78,9 +82,11 @@ public class RcwlRfxHeaderController {
     )
     @PostMapping({"/bpmRelease"})
     @FilterSupplier
-    public ResponseEntity<String> rcwlReleaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
+    public ResponseEntity<UrlDTO> rcwlReleaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
         String s = rcwlRfxHeaderBpmService.rcwlReleaseRfx(organizationId, rfxFullHeader);
-        return Results.success(s);
+        UrlDTO urlDTO = new UrlDTO();
+        urlDTO.setBackUrl(s);
+        return Results.success(urlDTO);
     }
 
     @ApiOperation("bpm立项拒绝后修改字段")
@@ -154,7 +160,7 @@ public class RcwlRfxHeaderController {
         List<RfxLineSupplier> RfxLineSuppliers = rfxLineSupplierRepository.select(rfxLineSupplier);
         rfxFullHeader.setRfxLineSupplierList(RfxLineSuppliers);
         //
-        rfxHeaderService.releaseRfx(organizationId, rfxFullHeader);
+        rfxHeaderServiceV2.releaseRfx(organizationId, rfxFullHeader);
         return Results.success();
     }
 
