@@ -1,51 +1,49 @@
-package org.srm.source.cux.rfx.app.v2.service.impl;
+package org.srm.source.cux.rfx.app.service.v2.impl;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.lang3.StringUtils;
-import org.hzero.boot.customize.service.CustomizeClient;
-import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
-import org.hzero.boot.platform.lov.handler.LovValueHandle;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.srm.source.bid.api.dto.BiddingWorkDTO;
-import org.srm.source.bid.app.service.SourceNoticeService;
-import org.srm.source.bid.domain.entity.SourceNotice;
 import org.srm.source.bid.domain.service.ISourceNoticeDomainService;
+import org.srm.source.cux.infra.constant.Constants;
 import org.srm.source.cux.infra.constant.RcwlShareConstants;
+import org.srm.source.bid.domain.entity.SourceNotice;
+import org.srm.source.cux.rfx.infra.constant.RfxBaseConstant;
 import org.srm.source.cux.share.infra.constant.SourceBaseConstant;
 import org.srm.source.rfx.api.dto.FieldPropertyDTO;
 import org.srm.source.rfx.api.dto.HeaderAdjustDateDTO;
 import org.srm.source.rfx.api.dto.SourceHeaderDTO;
-import org.srm.source.rfx.app.service.*;
-import org.srm.source.rfx.app.service.common.SendMessageHandle;
+import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.app.service.RfxLineItemService;
+import org.srm.source.rfx.app.service.RfxMemberService;
 import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.app.service.v2.impl.RfxHeaderServiceV2Impl;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
 import org.srm.source.rfx.domain.entity.RfxMember;
-import org.srm.source.rfx.domain.repository.*;
-import org.srm.source.rfx.domain.service.*;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.rfx.domain.repository.RfxMemberRepository;
+import org.srm.source.rfx.domain.service.IRfxActionDomainService;
+import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.service.v2.RfxHeaderDomainService;
-import org.srm.source.rfx.domain.strategy.CheckSaveStrategyContext;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
 import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.api.dto.PrequalHeaderDTO;
-import org.srm.source.share.app.service.*;
+import org.srm.source.share.app.service.PrequalHeaderService;
+import org.srm.source.share.app.service.PrequalMemberService;
+import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.*;
 import org.srm.source.share.domain.repository.*;
 import org.srm.source.share.domain.service.IEvaluateDomainService;
 import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.source.share.infra.constant.ShareConstants;
-import org.srm.source.share.infra.feign.HfleRemoteService;
-import org.srm.source.share.infra.feign.HiamRemoteService;
-import org.srm.source.share.infra.feign.SpfmRemoteService;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
@@ -55,22 +53,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @description:
- * @author:yuanping.zhang
- * @createTime:2021/5/21 10:12
- * @version:1.0
- */
-@Service
+@Service("RcwlRfxHeaderServiceImpl.v2")
 @Tenant(SourceBaseConstant.TENANT_NUM)
-public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
+public class RcwlRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
 
-    @Autowired
-    private CodeRuleBuilder codeRuleBuilder;
     @Autowired
     private SourceTemplateService sourceTemplateService;
     @Autowired
-    private SourceMatterConfService sourceMatterConfService;
+    private IRfxHeaderDomainService rfxHeaderDomainService;
+    @Autowired
+    @Lazy
+    private IPrequelDomainService prequelDomainService;
+    @Autowired
+    private RfxHeaderService rfxHeaderServiceV1;
+
+
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
     @Autowired
@@ -80,11 +77,7 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
     @Autowired
     private RfxEventUtil rfxEventUtil;
     @Autowired
-    private IRfxHeaderDomainService rfxHeaderDomainService;
-    @Autowired
-    private IPrequelDomainService prequelDomainService;
-    @Autowired
-    private org.srm.source.share.domain.service.v2.IPrequelDomainService prequelDomainServiceV2;
+    private IPrequelDomainService prequelDomainServiceV2;
     @Autowired
     private IEvaluateDomainService evaluateDomainService;
     @Autowired
@@ -96,12 +89,6 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
     @Autowired
     private PrequalMemberService prequalNumberService;
     @Autowired
-    private RfxHeaderService rfxHeaderServiceV1;
-    @Autowired
-    private IFlowNodeDomainService iFlowNodeDomainService;
-    @Autowired
-    private SourceTemplateRepository sourceTemplateRepository;
-    @Autowired
     private PrequalHeaderService prequalHeaderService;
     @Autowired
     private PrequalHeaderRepository prequalHeaderRepository;
@@ -110,62 +97,45 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
     @Autowired
     private RfxLineItemService rfxLineItemService;
     @Autowired
-    private EvaluateExpertRepository evaluateExpertRepository;
-    @Autowired
-    private EvaluateIndicRepository evaluateIndicRepository;
-    @Autowired
     private RfxHeaderDomainService rfxHeaderDomainServiceV2;
-    @Autowired
-    private CheckSaveStrategyContext checkSaveStrategyContext;
-    @Autowired
-    private SpfmRemoteService spfmRemoteService;
-    @Autowired
-    private HfleRemoteService hfleRemoteService;
-    @Autowired
-    private RfxQuotationHeaderRepository rfxQuotationHeaderRepository;
-    @Autowired
-    private UserConfigService userConfigService;
-    @Autowired
-    private LovValueHandle lovValueHandle;
-    @Autowired
-    private SourceNoticeService sourceNoticeService;
-    @Autowired
-    private HiamRemoteService hiamRemoteService;
-    @Autowired
-    private UserUnitService userUnitService;
-    @Autowired
-    private CommonQueryRepository commonQueryRepository;
-    @Autowired
-    private RfxLineItemRepository rfxLineItemRepository;
-    @Autowired
-    private RfxLineSupplierRepository rfxLineSupplierRepository;
-    @Autowired
-    private ProjectLineSectionRepository projectLineSectionRepository;
-    @Autowired
-    private RfxLineSupplierService rfxLineSupplierService;
-    @Autowired
-    private IRfxLineSupplierDomainService rfxLineSupplierDomainService;
-    @Autowired
-    private IRfxLineItemDomainService rfxLineItemDomainService;
-    @Autowired
-    private ProjectLineItemRepository projectLineItemRepository;
-    @Autowired
-    private ProjectLineItemService projectLineItemService;
-    @Autowired
-    private SourceProjectRepository sourceProjectRepository;
-    @Autowired
-    private RoundHeaderDateRepository roundHeaderDateRepository;
-    @Autowired
-    private CustomizeClient customizeClient;
-    @Autowired
-    private SendMessageHandle sendMessageHandle;
-    private static final Logger LOGGER = LoggerFactory.getLogger(RfxHeaderServiceV2Impl.class);
 
-    public RCWLRfxHeaderServiceV2Impl() {
+    @Override
+    public void releaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
+        RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
+        Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
+        SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
+        Assert.notNull(sourceTemplate, "source.template.not.found");
+        rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
+        if (Constants.SELF.equals(sourceTemplate.getReleaseApproveType())) {
+            rfxHeader.setRfxStatus(Constants.IN_QUOTATION);
+        } else {
+            rfxHeader.setRfxStatus(Constants.RELEASE_APPROVING);
+        }
+        RfxFullHeader rtnFullHeader = ((RfxHeaderServiceV2) this.self()).saveOrUpdateFullHeader(rfxFullHeader);
+        this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
+        this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
+        if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
+            this.rfxHeaderServiceV1.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
+        }
+
+        this.rfxHeaderServiceV1.validateLadderInquiry(rtnFullHeader);
+        this.rfxHeaderDomainService.removeOrValidRfxItemSupAssign(rfxFullHeader);
+        PrequalHeader prequalHeader = rfxFullHeader.getPrequalHeader();
+        if (null != prequalHeader) {
+            prequalHeader.preData(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX");
+        }
+
+        if ("PRE".equals(sourceTemplate.getQualificationType()) || "PRE_POST".equals(sourceTemplate.getQualificationType())) {
+            Assert.notNull(rfxHeader.getQuotationStartDate(), "error.quotation_start_time_not_found");
+            prequalHeader.checkBeforeUpdate(Objects.isNull(rfxHeader.getQuotationStartDate()) ? rfxHeader.getEstimatedStartTime() : rfxHeader.getQuotationStartDate());
+        }
+
+        this.prequelDomainService.checkPrequalHeader(sourceTemplate, rfxFullHeader.getPrequalHeader());
+
+
     }
 
     /**
-     *
      * @param rfxFullHeader
      * @return
      */
@@ -180,7 +150,7 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
         }
 
         if (StringUtils.isBlank(rfxHeader.getCurrencyCode())) {
-            rfxHeader.setCurrencyCode("CNY");
+            rfxHeader.setCurrencyCode(RfxBaseConstant.CurrencyCode.CNY);
         }
         //发布即开始 时间校验
         Assert.notNull(rfxHeader.getStartQuotationRunningDuration(), "error.no.start_quotation_running_duration");
@@ -203,26 +173,26 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
         Integer newFlag = 0;
         if (rfxHeader.getRfxHeaderId() == null) {
             newFlag = 1;
-            rfxHeader = ((RfxHeaderServiceV2)this.self()).createHeader(rfxHeader);
+            rfxHeader = ((RfxHeaderServiceV2) this.self()).createHeader(rfxHeader);
             Long rfxHeaderId = rfxHeader.getRfxHeaderId();
             evaluateIndics.forEach((evaluateIndic) -> {
                 evaluateIndic.setSourceHeaderId(rfxHeaderId);
-                evaluateIndic.setSourceFrom("RFX");
+                evaluateIndic.setSourceFrom(RfxBaseConstant.SourceFrom.RFX);
             });
             initialReviewIndicList.forEach((initialReviewIndic) -> {
                 initialReviewIndic.setSourceHeaderId(rfxHeaderId);
-                initialReviewIndic.setSourceFrom("RFX");
+                initialReviewIndic.setSourceFrom(RfxBaseConstant.SourceFrom.RFX);
             });
         } else {
             this.rfxHeaderServiceV1.changeTemplate(rfxFullHeader);
             this.rfxMemberRepository.delete(new RfxMember(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId()));
             rfxFullHeader.getRfxMemberList().forEach((rfxMember) -> {
-                rfxMember.setRfxMemberId((Long)null);
+                rfxMember.setRfxMemberId((Long) null);
             });
         }
 
         rfxMemberList.stream().filter((e) -> {
-            return "OPENED_BY".equals(e.getRfxRole());
+            return RfxBaseConstant.RfxRole.OPENED_BY.equals(e.getRfxRole());
         }).forEach((rfxMember) -> {
             rfxMember.setPasswordFlag(rfxFullHeader.getRfxHeader().getPasswordFlag() == null ? BaseConstants.Flag.NO : rfxFullHeader.getRfxHeader().getPasswordFlag());
         });
@@ -245,20 +215,20 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
             }
         }
 
-        this.prequalNumberService.createOrUpdatePrequalMembers(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId(), prequalMemberList);
+        this.prequalNumberService.createOrUpdatePrequalMembers(rfxHeader.getTenantId(), RfxBaseConstant.SourceFrom.RFX, rfxHeader.getRfxHeaderId(), prequalMemberList);
         this.rfxHeaderDomainService.processRfxLineItem(rfxHeader, rfxLineItemList);
         this.rfxHeaderDomainService.processRfxLineSupplier(rfxHeader, rfxLineSupplierList);
         this.rfxLineItemService.checkRfxSuppliers(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId());
         BiddingWorkDTO evaluateExperts = this.getBiddingWorkDTO(rfxFullHeader, rfxHeader);
-        this.evaluateDomainService.createOrUpdateEvaluateExpert(rfxFullHeader.getRfxHeader().getTenantId(), evaluateExperts, "SUBMITTED");
-        this.evaluateDomainService.createOrUpdateEvaluateEvaluateIndic(rfxFullHeader.getRfxHeader().getTenantId(), evaluateIndics, "SUBMITTED");
-        this.evaluateDomainService.createOrUpdateInitialReviewIndic(rfxFullHeader.getRfxHeader().getTenantId(), rfxFullHeader.getInitialReviewIndicList(), "SUBMITTED");
+        this.evaluateDomainService.createOrUpdateEvaluateExpert(rfxFullHeader.getRfxHeader().getTenantId(), evaluateExperts, RfxBaseConstant.ScoreStatus.SUBMITTED);
+        this.evaluateDomainService.createOrUpdateEvaluateEvaluateIndic(rfxFullHeader.getRfxHeader().getTenantId(), evaluateIndics, RfxBaseConstant.ScoreStatus.SUBMITTED);
+        this.evaluateDomainService.createOrUpdateInitialReviewIndic(rfxFullHeader.getRfxHeader().getTenantId(), rfxFullHeader.getInitialReviewIndicList(), RfxBaseConstant.ScoreStatus.SUBMITTED);
         this.rfxHeaderServiceV1.initBudget(rfxHeader);
         this.rfxHeaderDomainServiceV2.processRoundQuotationDate(sourceTemplate, rfxHeader, rfxFullHeader.getRoundHeaderDates());
         this.rfxHeaderDomainServiceV2.processMultiSections(rfxFullHeader.getProjectLineSections());
         if (BaseConstants.Flag.YES.equals(newFlag)) {
-            this.rfxActionDomainService.insertAction(rfxHeader, "CREATE", (String)null);
-            this.rfxEventUtil.eventSend("SSRC_RFX_CREATE", "CREATE", rfxHeader);
+            this.rfxActionDomainService.insertAction(rfxHeader, RfxBaseConstant.ProcessAction.CREATE, (String) null);
+            this.rfxEventUtil.eventSend(RfxBaseConstant.EventCode.SSRC_RFX_CREATE, RfxBaseConstant.ProcessAction.CREATE, rfxHeader);
         } else {
             this.rfxHeaderRepository.updateRfxHeader(rfxHeader);
         }
@@ -274,21 +244,22 @@ public class RCWLRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
         boolean flag = Arrays.asList("AUTO", "AUTO_SCORE", "AUTO_CHECK").contains(sourceHeaderDTO.getRoundQuotationRule());
         if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(sourceHeaderDTO.getSourceCategory())
                 || RcwlShareConstants.CategoryType.RCBJ.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && BaseConstants.Flag.YES.equals(sourceHeaderDTO.getQuotationEndDateFlag()) && !flag && null != sourceHeaderDTO.getQuotationEndDate() && now.compareTo(sourceHeaderDTO.getQuotationEndDate()) < 0 && Arrays.asList("IN_PREQUAL", "PENDING_PREQUAL", "NOT_START", "IN_QUOTATION").contains(sourceHeaderDTO.getRfxStatus())) {
+                || RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && BaseConstants.Flag.YES.equals(sourceHeaderDTO.getQuotationEndDateFlag()) && !flag && null != sourceHeaderDTO.getQuotationEndDate() && now.compareTo(sourceHeaderDTO.getQuotationEndDate()) < 0 && Arrays.asList("IN_PREQUAL", "PENDING_PREQUAL", "NOT_START", "IN_QUOTATION").contains(sourceHeaderDTO.getRfxStatus())) {
             this.processFieldProperty(fieldPropertyDTOList, "quotationEndDate", headerAdjustDateDTO.getQuotationEndDate(), BaseConstants.Flag.YES);
         } else if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCBJ.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && !flag && null != sourceHeaderDTO.getQuotationEndDate() && now.compareTo(sourceHeaderDTO.getQuotationEndDate()) >= 0 && Arrays.asList("LACK_QUOTED").contains(sourceHeaderDTO.getRfxStatus())) {
+                || RcwlShareConstants.CategoryType.RCBJ.equals(sourceHeaderDTO.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && !flag && null != sourceHeaderDTO.getQuotationEndDate() && now.compareTo(sourceHeaderDTO.getQuotationEndDate()) >= 0 && Arrays.asList("LACK_QUOTED").contains(sourceHeaderDTO.getRfxStatus())) {
             this.processFieldProperty(fieldPropertyDTOList, "quotationEndDate", headerAdjustDateDTO.getQuotationEndDate(), BaseConstants.Flag.YES);
         } else if ((ShareConstants.SourceTemplate.CategoryType.RFQ.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCBJ.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
-                ||RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && BaseConstants.Flag.NO.equals(sourceHeaderDTO.getQuotationEndDateFlag()) && !flag && (null == sourceHeaderDTO.getQuotationEndDate() || now.compareTo(sourceHeaderDTO.getQuotationEndDate()) < 0) && Arrays.asList("IN_PREQUAL", "PENDING_PREQUAL", "NOT_START", "IN_QUOTATION").contains(sourceHeaderDTO.getRfxStatus())) {
+                || RcwlShareConstants.CategoryType.RCBJ.equals(sourceHeaderDTO.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZB.equals(sourceHeaderDTO.getSourceCategory())
+                || RcwlShareConstants.CategoryType.RCZW.equals(sourceHeaderDTO.getSourceCategory())) && BaseConstants.Flag.NO.equals(sourceHeaderDTO.getQuotationEndDateFlag()) && !flag && (null == sourceHeaderDTO.getQuotationEndDate() || now.compareTo(sourceHeaderDTO.getQuotationEndDate()) < 0) && Arrays.asList("IN_PREQUAL", "PENDING_PREQUAL", "NOT_START", "IN_QUOTATION").contains(sourceHeaderDTO.getRfxStatus())) {
             this.processFieldProperty(fieldPropertyDTOList, "quotationEndDate", headerAdjustDateDTO.getQuotationEndDate(), BaseConstants.Flag.YES);
         } else {
             this.processFieldProperty(fieldPropertyDTOList, "quotationEndDate", headerAdjustDateDTO.getQuotationEndDate(), BaseConstants.Flag.NO);
         }
     }
+
 }
