@@ -73,8 +73,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private EvaluateExpertRepository evaluateExpertRepository;
     @Autowired
     private EvaluateScoreService evaluateScoreService;
-    @Autowired
-    private AutoScoreStrategyService autoScoreStrategyService;
+//    @Autowired
+//    private AutoScoreStrategyService autoScoreStrategyService;
     /**
      * 新写的
      */
@@ -195,8 +195,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     }
                     // RCWL 计算基准价
                     BigDecimal benchmarkPrice = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                    LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice1 : {} ", benchmarkPrice,benchmarkPrice1);
+//                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                    LOGGER.info("24769  benchmarkPrice RCWL : {} ", benchmarkPrice);
                     //每一个供应商
                     List<EvaluateScoreDTO> evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
                     if (CollectionUtils.isEmpty(evaluateScoreDTOS)) {
@@ -206,8 +206,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                         evaluateIndicDetail.setMaxScore(evaluateScoreDTO.getMaxScore());
                         // RCWL 计算评分
                         BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
+//                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+//                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
+                        LOGGER.info("24769  scoreRcwl : {} ", score);
                         //取最大分数
                         List<BigDecimal> scores = new ArrayList<>();
                         scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score)>0?score:evaluateScoreLineDTO.getMaxScore());
