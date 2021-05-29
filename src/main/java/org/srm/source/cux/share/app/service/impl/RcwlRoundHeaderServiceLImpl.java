@@ -31,8 +31,8 @@ import java.util.List;
  */
 @Service
 @Tenant(Constant.TENANT_NUM)
-public class RcwlRoundHeaderServiceImpl extends RoundHeaderServiceImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlRoundHeaderServiceImpl.class);
+public class RcwlRoundHeaderServiceLImpl extends RoundHeaderServiceImpl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlRoundHeaderServiceLImpl.class);
 
     /**
      * 原始的
@@ -57,7 +57,7 @@ public class RcwlRoundHeaderServiceImpl extends RoundHeaderServiceImpl {
     @Autowired
     private IRcwlRfxQuotationLineRepository rcwlRfxQuotationLineRepository;
 
-    public RcwlRoundHeaderServiceImpl() {
+    public RcwlRoundHeaderServiceLImpl() {
     }
 
     /**
