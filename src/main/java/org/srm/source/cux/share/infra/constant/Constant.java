@@ -10,6 +10,10 @@ public interface Constant {
      * 核企租户
      */
     String TENANT_NUM = "SRM-RCWL";
+    /**
+     * 多轮
+     */
+    String MULTIPLE_ROUNDS = "MULTIPLE_ROUNDS";
 
     /**
      * RFX 状态

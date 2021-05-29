@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.bid.domain.entity.BidHeader;
 import org.srm.source.bid.domain.repository.BidHeaderRepository;
@@ -33,18 +35,18 @@ import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.entity.EvaluateSummary;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.repository.EvaluateExpertRepository;
+import org.srm.source.share.domain.repository.EvaluateSummaryRepository;
 import org.srm.source.share.domain.repository.SourceTemplateRepository;
-import org.srm.source.share.domain.strategy.AutoScoreStrategyService;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -153,6 +155,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         Long tenantId = autoScoreDTO.getTenantId();
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         String sourceFrom = autoScoreDTO.getSourceFrom();
+        // 专家评分汇总
+        List<EvaluateSummary> evaluateSummaryList = new ArrayList<>();
+
         // 先查专家
         List<EvaluateExpert> evaluateExperts = this.evaluateExpertRepository.queryEvaluateExpertAll(tenantId, sourceHeaderId, sourceFrom, null, null);
         if (LOGGER.isDebugEnabled()) {
@@ -211,15 +216,33 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                         LOGGER.info("24769  scoreRcwl : {} ", score);
                         //取最大分数
                         List<BigDecimal> scores = new ArrayList<>();
-                        scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score)>0?score:evaluateScoreLineDTO.getMaxScore());
+                        scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score) > 0 ? score : evaluateScoreLineDTO.getMaxScore());
                         scores.add(evaluateScoreLineDTO.getMinScore());
                         score = Collections.max(scores);
                         evaluateScoreDTO.setIndicScore(score);
+
+                        // 多轮报价
+                        if (Constant.MULTIPLE_ROUNDS.equals(priceTypeCode)) {
+                            EvaluateSummary evaluateSummary = new EvaluateSummary();
+                            evaluateSummary.setBusinessScore(score);
+                            evaluateSummary.setTenantId(tenantId);
+                            evaluateSummary.setSourceHeaderId(sourceHeaderId);
+                            evaluateSummary.setQuotationHeaderId(evaluateScoreDTO.getQuotationHeaderId());
+                            evaluateSummaryList.add(evaluateSummary);
+                        }
                     }
                 }
                 // 保存
-                evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
-                this.self().saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO,sourceFrom,sourceHeaderId,tenantId);
+                if (Constant.MULTIPLE_ROUNDS.equals(priceTypeCode)) {
+                    // 多轮报价 -> 确认终轮报价结束
+                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
+                    // 跟新专家评分汇总表信息
+                    ((IRcwlEvaluateScoreLineService)this.self()).updateEvaluateSummary(evaluateSummaryList,sourceFrom,sourceHeaderId,tenantId);
+                } else {
+                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
+                    this.self().saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO,sourceFrom,sourceHeaderId,tenantId);
+                }
+
             }
             if (BidConstants.BidHeader.SubjectMatterRule.PACK.equals(subjectMatterRule)) {
                 // 执行填分操作
@@ -262,7 +285,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         if (Objects.isNull(rfxHeader)) {
             throw new CommonException("rfx header not exists!");
         } else {
-            // RCWL 获取有效报价行数据
+            // RCWL 获取报价行数据
             List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId,tenantId);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rfx quotation lines : {}", rfxQuotationLines);
@@ -297,5 +320,102 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                 .filter(item -> BaseConstants.Flag.YES.equals(item.getInvalidFlag()))
                 .map(EvaluateSummary::getQuotationHeaderId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void multipleRoundAutoEvaluateScore(AutoScoreDTO autoScoreDTO) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("24769---RCWL multipleRoundAutoEvaluateScore auto evaluate score started");
+        }
+
+        AUTO_FLAG.set(true);
+        String sourceFrom = autoScoreDTO.getSourceFrom();
+        Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
+        Long tenantId = autoScoreDTO.getTenantId();
+        List<Long> invalidQuotationHeaderIdList = autoScoreDTO.getInvalidQuotationHeaderIdList();
+        String subjectMatterRule = "NONE";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("auto evaluate score started, params => [sourceFrom : {},sourceHeaderId:{},tenantId:{}]", sourceFrom, sourceHeaderId, tenantId);
+        }
+        LOGGER.info("invalidQuotationHeaderIdList : {}",invalidQuotationHeaderIdList);
+        Map<String, String> parameter = new HashMap(1);
+        // 多轮
+        String priceTypeCode = Constant.MULTIPLE_ROUNDS;
+        Map<Long, BigDecimal> quotationLineMaps;
+//        if ("RFX".equals(sourceFrom)) {
+
+        // 获取报价头id，与报价行价格；
+        quotationLineMaps = this.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+//        }
+
+        // 筛选出有效的报价行(评分确认及汇总的时候，要重新评分，被勾选无效的供应商要过滤掉)
+        Map<Long,BigDecimal> validQuotationLineMaps = quotationLineMaps
+                .entrySet()
+                .stream()
+                .filter(map -> CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(map.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+        if(CollectionUtils.isEmpty(validQuotationLineMaps.values())){
+            // 在评分确认及汇总的时候，如果所有供应商都被勾选无效了，那就不需要重新评分了
+            return ;
+        }
+        this.simulateExpertDoScore(autoScoreDTO,subjectMatterRule,quotationLineMaps,priceTypeCode);
+    }
+
+    @Autowired
+    private EvaluateSummaryRepository evaluateSummaryRepository;
+
+    @Override
+    @Transactional(
+            rollbackFor = {Exception.class}
+    )
+    public List<EvaluateSummary> updateEvaluateSummary(List<EvaluateSummary> evaluateSummaryList, String sourceFrom, Long sourceHeaderId, Long tenantId) {
+        LOGGER.info("24769  updateEvaluateSummary Start");
+        Long roundNumber = 0L;
+        if ("RFX".equals(sourceFrom)) {
+            RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
+            Assert.notNull(rfxHeader, "error.data_not_exists");
+            roundNumber = rfxHeader.getRoundNumber();
+        }
+
+        ArrayList<EvaluateSummary> allEvaluateSummary = new ArrayList();
+
+        // 获取专家评分汇总信息
+        List<EvaluateSummary> evaluateSummarys = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(tenantId,sourceHeaderId,"RFX",roundNumber));
+
+        // 新计算的商务分
+        Iterator var3 = evaluateSummaryList.iterator();
+
+        while(var3.hasNext()) {
+            EvaluateSummary obj = (EvaluateSummary)var3.next();
+            for (EvaluateSummary evaluateSummary : evaluateSummarys) {
+                // 无效投标，清空商务分，总分，排名
+                if (1 == evaluateSummary.getInvalidFlag()) {
+                    evaluateSummary.setBusinessScore(BigDecimal.ZERO);
+                    evaluateSummary.setScore(BigDecimal.ZERO);
+//                    evaluateSummary.setScoreRank(99L);
+                }else if (obj.getQuotationHeaderId().equals(evaluateSummary.getQuotationHeaderId())) {
+                    // 设置新的商务分
+                    evaluateSummary.setBusinessScore(obj.getBusinessScore());
+                }
+                allEvaluateSummary.add(evaluateSummary);
+            }
+        }
+
+        // 根据分数设置，总分排名
+        List<EvaluateSummary> updateEvaluateSummary = allEvaluateSummary
+                .stream()
+                .sorted(Comparator.comparing(EvaluateSummary::getScore))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < updateEvaluateSummary.size(); i++) {
+            updateEvaluateSummary.get(i).setScoreRank(i + 1L);
+
+        }
+        LOGGER.info("24769  updateEvaluateSummary : {}", updateEvaluateSummary);
+        if (!CollectionUtils.isEmpty(updateEvaluateSummary)) {
+            this.evaluateSummaryRepository.batchUpdateOptional(updateEvaluateSummary,"businessScore","score","scoreRank");
+        }
+
+        return evaluateSummaryList;
     }
 }
