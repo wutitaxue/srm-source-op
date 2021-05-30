@@ -28,6 +28,7 @@ import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 
 import javax.annotation.Resource;
@@ -54,6 +55,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxLineItemService rfxLineItemService;
     @Resource
     private RfxHeaderRepository rfxHeaderRepository;
+    @Autowired
+    private RfxHeaderMapper rfxHeaderMapper;
 
     @ApiOperation("更新定标字段")
     @Permission(
@@ -133,7 +136,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @PostMapping({"/check/submit/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceSubmit(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-//        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
+        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         responseData.setCode("200");
@@ -163,14 +166,17 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     }
 
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId,Long tenantId){
-        RfxHeaderDTO rfxHeaderDTO = rfxHeaderService.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId,tenantId));
+        RfxHeaderDTO rfxHeaderDTO = new RfxHeaderDTO();
+        Long roundNumber =  rcwlCalibrationApprovalService.getRoundNumber(rfxHeaderId,tenantId);
+        rfxHeaderDTO.setRfxHeaderId(rfxHeaderId);
+        rfxHeaderDTO.setRoundNumber(roundNumber);
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         //获取询价单头表信息
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
 //        checkPriceHeaderDTO.setAttributeVarchar1(rfxHeader.getAttributeVarchar1());//招采模式
 //        checkPriceHeaderDTO.setAttributeVarchar8(rfxHeader.getAttributeVarchar8());//招采模式
         //数值参数
-        checkPriceHeaderDTO.setTotalPrice(rfxHeaderDTO.getTotalPrice());
+        checkPriceHeaderDTO.setTotalPrice(rfxHeaderMapper.selectRfxTotalPrice(rfxHeaderDTO));
         checkPriceHeaderDTO.setTotalCost(rfxHeaderDTO.getTotalCost());
         checkPriceHeaderDTO.setRfxHeaderId(rfxHeader.getRfxHeaderId());
         checkPriceHeaderDTO.setCostRemark(rfxHeader.getCostRemark());
@@ -219,8 +225,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
 //            checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
             //放一个RfxQuotationLine    list
 //            List<RfxQuotationLine> quotationLineList = rcwlCalibrationApprovalService.getQuotationLineListByQuotationHeaderID(Long.valueOf(id));
-            List<RfxQuotationLine> quotationLineList = new ArrayList<>();
-            checkPriceDTO.setQuotationLineList(quotationLineList);
+//            List<RfxQuotationLine> quotationLineList = new ArrayList<>();
+//            checkPriceDTO.setQuotationLineList(quotationLineList);
             //加入上层对象
             checkPriceDTOLineList.add(checkPriceDTO);
         }

@@ -33,4 +33,6 @@ public interface RcwlCalibrationApprovalMapper {
     List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
 
     RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id);
+
+    Long getRoundNumber(Long rfxHeaderId, Long tenantId);
 }

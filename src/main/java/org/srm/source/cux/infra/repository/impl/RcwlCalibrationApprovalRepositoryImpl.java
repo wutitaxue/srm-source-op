@@ -94,4 +94,10 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
         RfxQuotationLine s =  rcwlCalibrationApprovalMapper.getRfxQuotationLineDataByQuotationHeaderIDs(id);
         return s == null ? new RfxQuotationLine() : s;
     }
+
+    @Override
+    public Long getRoundNumber(Long rfxHeaderId, Long tenantId) {
+        Long data = rcwlCalibrationApprovalMapper.getRoundNumber(rfxHeaderId,tenantId);
+        return data == null ? 0l:data ;
+    }
 }
