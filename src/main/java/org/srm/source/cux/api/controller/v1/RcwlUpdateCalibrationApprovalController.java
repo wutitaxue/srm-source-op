@@ -203,7 +203,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             checkPriceDTO.setSelectionStrategy(rfxLineItem.getSelectionStrategy());//选择策略    物料明细
             checkPriceDTO.setRfxLineItemId(rfxLineItem.getRfxLineItemId());//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
             checkPriceDTO.setRfxLineItemNum(rfxLineItem.getRfxLineItemNum());//rfxLineItemList.get(0).getRfxLineItemNum()
-            checkPriceDTO.setType(rfxLineItem.getFloatType());
+            checkPriceDTO.setType("ITEM");
             checkPriceDTO.setObjectVersionNumber(rfxLineItem.getObjectVersionNumber());//物料行版本号//rfxLineItemList.get(0).getObjectVersionNumber()
 //            checkPriceDTO.setWholeSuggestFlag(rfxQuotationLineData.getSuggestedFlag());//整包推荐//ssrc_rfx_quotation_line.suggested_flag  1
 //            checkPriceDTO.setSuggestedRemark(rfxQuotationLineData.getSuggestedRemark());//ssrc_rfx_quotation_line.Suggested_Remark
