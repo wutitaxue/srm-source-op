@@ -17,6 +17,8 @@ import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.entity.ResponseCalibrationApprovalData;
 import org.srm.source.rfx.api.dto.CheckPriceDTO;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
+import org.srm.source.rfx.api.dto.HeaderQueryDTO;
+import org.srm.source.rfx.api.dto.RfxHeaderDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineItemService;
 import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
@@ -160,27 +162,28 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     }
 
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId,Long tenantId){
+        RfxHeaderDTO rfxHeaderDTO = this.rfxHeaderService.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId,tenantId));
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         //获取询价单头表信息
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
-        checkPriceHeaderDTO.setAttributeVarchar1(rfxHeader.getAttributeVarchar1());//招采模式
-        checkPriceHeaderDTO.setAttributeVarchar8(rfxHeader.getAttributeVarchar8());//招采模式
-
+//        checkPriceHeaderDTO.setAttributeVarchar1(rfxHeader.getAttributeVarchar1());//招采模式
+//        checkPriceHeaderDTO.setAttributeVarchar8(rfxHeader.getAttributeVarchar8());//招采模式
+        //数值参数
+        checkPriceHeaderDTO.setTotalPrice(rfxHeaderDTO.getTotalPrice());
+        checkPriceHeaderDTO.setTotalCost(rfxHeaderDTO.getTotalCost());
         checkPriceHeaderDTO.setRfxHeaderId(rfxHeader.getRfxHeaderId());
-        checkPriceHeaderDTO.setTotalCost(rfxHeader.getTotalCost());
-        checkPriceHeaderDTO.setTotalPrice(rfxHeader.getTotalPrice());
         checkPriceHeaderDTO.setCostRemark(rfxHeader.getCostRemark());
         checkPriceHeaderDTO.setObjectVersionNumber(rfxHeader.getObjectVersionNumber());
         checkPriceHeaderDTO.setCheckAttachmentUuid(rfxHeader.getCheckAttachmentUuid());
-        checkPriceHeaderDTO.setSuppAttachmentUuid("");
-        checkPriceHeaderDTO.setReleaseItemIds("");
+        checkPriceHeaderDTO.setSuppAttachmentUuid(rfxHeader.getTechAttachmentUuid() == null ? rfxHeader.getBusinessAttachmentUuid():rfxHeader.getTechAttachmentUuid());
+        checkPriceHeaderDTO.setReleaseItemIds(null);
         checkPriceHeaderDTO.setPriceEffectiveDate(rfxHeader.getPriceEffectiveDate() == null ? "":rfxHeader.getPriceEffectiveDate().toString());
         checkPriceHeaderDTO.setPriceExpiryDate(rfxHeader.getPriceExpiryDate() == null ? "":rfxHeader.getPriceExpiryDate().toString());
         checkPriceHeaderDTO.setCheckRemark(rfxHeader.getCheckRemark());
         checkPriceHeaderDTO.setCreateItemFlag(rfxHeader.getItemGeneratePolicy() == null ? null:Integer.parseInt(rfxHeader.getItemGeneratePolicy()));
         checkPriceHeaderDTO.setProjectName(rfxHeader.getSourceProjectName());
         checkPriceHeaderDTO.setSelectionStrategy("RECOMMENDATION");
-        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
+//        checkPriceHeaderDTO.setSelectSectionReadFlag(rfxHeader.getSealedQuotationFlag());
         checkPriceHeaderDTO.setOnlyAllowAllWinBids(rfxHeader.getOnlyAllowAllWinBids());
         //获取checkPriceDTOLineList所需值
         List<CheckPriceDTO> checkPriceDTOLineList = new ArrayList<>();
