@@ -10,11 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.srm.source.cux.rfx.app.IRcwlEvaluateScoreLineService;
-import org.srm.source.cux.rfx.app.impl.RcwlEvaluateScoreLineServiceImpl;
+import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.share.api.dto.AutoScoreDTO;
+//import org.srm.source.share.app.service.EvaluateScoreLineService;
+import org.srm.source.share.app.service.EvaluateScoreLineService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
 import org.srm.source.share.infra.handle.EvaluateIndicHandler;
 
@@ -34,18 +35,15 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
      */
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
+    @Autowired
+    private EvaluateScoreLineService evaluateScoreLineService;
 
     /**
      * 新写的
      */
     @Autowired
-    private IRcwlEvaluateScoreLineService evaluateScoreLineService;
+    private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
 
-
-    public RcwlEvaluateIndicHandler(RfxHeaderRepository rfxHeaderRepository, IRcwlEvaluateScoreLineService evaluateScoreLineService) {
-        this.rfxHeaderRepository = rfxHeaderRepository;
-        this.evaluateScoreLineService = evaluateScoreLineService;
-    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateIndicHandler.class);
 
@@ -66,7 +64,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
             return ReturnT.SUCCESS;
         } else {
             LOGGER.debug("find {} records,process start", rfxHeaders.size());
-            RcwlEvaluateScoreLineServiceImpl.AUTO_FLAG.set(Boolean.TRUE);
+            EvaluateScoreLineServiceImpl.AUTO_FLAG.set(Boolean.TRUE);
             Iterator var4 = rfxHeaders.iterator();
 
             while(var4.hasNext()) {
@@ -74,7 +72,7 @@ public class RcwlEvaluateIndicHandler implements IJobHandler {
                 LOGGER.debug("rfx header :{}", rfxHeaders);
 
                 try {
-                    this.evaluateScoreLineService.autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
+                    this.rcwlEvaluateScoreLineService._autoEvaluateScore(new AutoScoreDTO(rfxHeader.getTenantId(), "RFX", rfxHeader.getRfxHeaderId()));
                     rfxHeader.setScoreProcessFlag(1);
                 } catch (Exception var10) {
                     LOGGER.error("rfx header auto score process error", var10);

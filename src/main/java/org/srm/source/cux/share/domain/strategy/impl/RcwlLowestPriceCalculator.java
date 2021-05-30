@@ -1,18 +1,18 @@
-package org.srm.source.cux.rfx.domain.strategy.impl;
+package org.srm.source.cux.share.domain.strategy.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.srm.source.cux.rfx.app.IRcwlEvaluateScoreLineService;
-import org.srm.source.cux.rfx.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
+import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
+import org.srm.source.cux.share.domain.strategy.IRcwlAutoScoreBenchmarkPriceCalculator;
 import org.srm.source.share.api.dto.AutoScoreDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.LowestPriceCalculator;
+import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,25 +20,35 @@ import java.util.stream.Collectors;
 
 /**
  * @author kaibo.li
- * @date 2021-05-19 14:52
+ * @date 2021-05-24 18:26
  */
 @Component
-public class RcwlLowestPriceCalculatorImpl implements IRcwlAutoScoreBenchmarkPriceCalculator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LowestPriceCalculator.class);
+@Tenant("SRM-RCWL")
+//public class RcwlLowestPriceCalculator extends LowestPriceCalculator {
+public class RcwlLowestPriceCalculator extends LowestPriceCalculator implements IRcwlAutoScoreBenchmarkPriceCalculator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlLowestPriceCalculator.class);
 
+    /**
+     * 新写的
+     */
     @Autowired
-    private IRcwlEvaluateScoreLineService evaluateScoreLineService;
+    private IRcwlEvaluateScoreLineService rcwlEvaluateScoreLineService;
 
-    public RcwlLowestPriceCalculatorImpl() {
+    public RcwlLowestPriceCalculator() {
+        super();
     }
 
     @Override
     public BigDecimal getBenchmarkPrice(String priceTypeCode, AutoScoreDTO autoScoreDTO, EvaluateIndicDetail evaluateIndicDetail) {
         List<Long> invalidQuotationHeaderIdList = autoScoreDTO.getInvalidQuotationHeaderIdList();
-//        Map quotationLineMaps;
-        Map<Long, BigDecimal> quotationLineMaps = new HashMap<>();
+        Map<Long, BigDecimal> quotationLineMaps;
         if ("RFX".equals(autoScoreDTO.getSourceFrom())) {
-            quotationLineMaps = this.evaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("24769  getBenchmarkPrice : {}", priceTypeCode);
+            }
+            quotationLineMaps = this.rcwlEvaluateScoreLineService.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+        } else {
+            quotationLineMaps = this.rcwlEvaluateScoreLineService.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
         Map<Long, BigDecimal> validQuotationLineMaps = (Map)quotationLineMaps.entrySet().stream().filter((map) -> {
@@ -48,7 +58,7 @@ public class RcwlLowestPriceCalculatorImpl implements IRcwlAutoScoreBenchmarkPri
             return BigDecimal.ZERO.compareTo(a) < 0;
         }).min(BigDecimal::compareTo).get();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("AvgDownCalculator---min={},benchmarkPrice={}", min, min);
+            LOGGER.debug("24769     AvgDownCalculator---min={},benchmarkPrice={}", min, min);
         }
 
         return min;

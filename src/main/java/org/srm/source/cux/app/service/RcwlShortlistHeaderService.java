@@ -24,4 +24,27 @@ public interface RcwlShortlistHeaderService {
      * @param rcwlShortlistHeaders 入围单
      */
     void deleteRcwlShortlistHeaderByIds(List<RcwlShortlistHeader> rcwlShortlistHeaders);
+
+    /**
+     * 提交成功
+     * @param tenantId
+     * @param ShorListNum
+     */
+    void rcwlSubmitBpmSuccessed(Long tenantId, String ShorListNum);
+
+    /**
+     * 审批拒绝
+     * @param tenantId
+     * @param ShorListNum
+     */
+    void rcwlSubmitBpmReject(Long tenantId, String ShorListNum);
+
+    /**
+     * 审批通过
+     * @param tenantId
+     * @param ShorListNum
+     */
+    void rcwlSubmitBpmApproved(Long tenantId, String ShorListNum);
+
+    void RcwlBpmUpateInstance(Long tenantId, String shorListNum, String attributeVarchar8, String attributeVarchar9);
 }

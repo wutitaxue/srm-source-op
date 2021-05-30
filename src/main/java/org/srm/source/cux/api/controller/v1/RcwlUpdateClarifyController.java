@@ -1,25 +1,22 @@
 package org.srm.source.cux.api.controller.v1;
 
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hzero.core.base.BaseController;
-import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlClarifyService;
-import org.srm.source.cux.domain.entity.RcwlCarifyReleaseDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlCarifyReleaseVO;
+import org.srm.source.cux.domain.entity.RcwlUpdateVO;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
-import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.share.app.service.ClarifyService;
 import org.srm.source.share.domain.entity.Clarify;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Api(
         tags = {"Rcwl Update Clarify"}
@@ -37,23 +34,35 @@ public class RcwlUpdateClarifyController extends BaseController {
             permissionPublic = true
     )
     @PostMapping({"/update-clarify"})
-    public ResponseData updateClarifyData(@RequestBody RcwlUpdateDTO rcwlUpdateDTO) {
+    public ResponseData updateClarifyData(@RequestBody RcwlUpdateVO rcwlUpdateVO) {
         ResponseData responseData = new ResponseData();
-        RcwlUpdateDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
-        if((rcwlUpdateDataDTO.getClarifyNum() == null || "".equals(rcwlUpdateDataDTO.getClarifyNum()))&&
-                (rcwlUpdateDataDTO.getTenantid() == null || "".equals(rcwlUpdateDataDTO.getTenantid()))){
+        RcwlUpdateDataVO rcwlUpdateDataVO = rcwlUpdateVO.getRcwlUpdateDataVO() ;
+        if(null == rcwlUpdateVO || null == rcwlUpdateDataVO){
+            responseData.setCode("201");
+            responseData.setMessage("数据接收为null,获取异常！");
+            return responseData;
+        }
+        if((rcwlUpdateDataVO.getClarifyNum() == null || "".equals(rcwlUpdateDataVO.getClarifyNum()))&&
+                (rcwlUpdateDataVO.getTenantid() == null || "".equals(rcwlUpdateDataVO.getTenantid()))){
             responseData.setCode("201");
             responseData.setMessage("单据编号或人员ID获取异常！");
             return responseData;
         }
-        if((rcwlUpdateDataDTO.getProcessInstanceId() == null || "".equals(rcwlUpdateDataDTO.getProcessInstanceId()))&&
-                (rcwlUpdateDataDTO.getClarifyStatus() == null || "".equals(rcwlUpdateDataDTO.getClarifyStatus()))&&
-                (rcwlUpdateDataDTO.getWebserviceUrl() == null || "".equals(rcwlUpdateDataDTO.getWebserviceUrl()))){
+        if((rcwlUpdateDataVO.getProcessInstanceId() == null || "".equals(rcwlUpdateDataVO.getProcessInstanceId()))&&
+                (rcwlUpdateDataVO.getClarifyStatus() == null || "".equals(rcwlUpdateDataVO.getClarifyStatus()))&&
+                (rcwlUpdateDataVO.getWebserviceUrl() == null || "".equals(rcwlUpdateDataVO.getWebserviceUrl()))){
             responseData.setCode("201");
             responseData.setMessage("所需更新数据至少有一个值！");
             return responseData;
         }
-        responseData = rcwlClarifyService.updateClarifyData(rcwlUpdateDataDTO);
+        //判断当前TenantId是否有圈先更改数据
+        List<String> l = rcwlClarifyService.getTenantIdByclarifyNum(rcwlUpdateDataVO.getClarifyNum());
+        if(l.contains(rcwlUpdateDataVO.getTenantid())){
+            responseData = rcwlClarifyService.updateClarifyData(rcwlUpdateDataVO);
+        }else {
+            responseData.setCode("201");
+            responseData.setMessage("当前角色没有修改权限！");
+        }
         return responseData;
     }
 
@@ -61,11 +70,25 @@ public class RcwlUpdateClarifyController extends BaseController {
     @Permission(
             permissionPublic = true
     )
-    @PostMapping({"/release"})
-    public ResponseEntity<Clarify> releaseClarify(@RequestBody RcwlCarifyReleaseDTO rcwlCarifyReleaseDTO) {
+    @PostMapping({"/release/cqdy"})
+    public ResponseData releaseClarify(@RequestBody RcwlCarifyReleaseVO rcwlCarifyReleaseDTO) {
+        ResponseData responseData = new ResponseData();
+        responseData.setCode("200");
+        responseData.setMessage("操作成功！");
+        if(0l == rcwlCarifyReleaseDTO.getTenantid() || null == rcwlCarifyReleaseDTO.getClarifyNum() || "".equals(rcwlCarifyReleaseDTO.getClarifyNum())){
+            responseData.setCode("201");
+            responseData.setMessage("参数获取失败!");
+        }
+        DetailsHelper.setCustomUserDetails(rcwlCarifyReleaseDTO.getTenantid(),"zh_CN");
         Long clarifyId = rcwlClarifyService.getClarifyIdByClarifyNum(rcwlCarifyReleaseDTO.getClarifyNum());
         Clarify clarify = clarifyService.queryClarifyDetail(rcwlCarifyReleaseDTO.getTenantid(),clarifyId);
         this.validObject(clarify, new Class[0]);
-        return Results.success(clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify));
+        try{
+            clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
+        }catch(Exception e){
+            responseData.setCode("201");
+            responseData.setMessage("澄清答疑发布失败！");
+        }
+        return responseData;
     }
 }

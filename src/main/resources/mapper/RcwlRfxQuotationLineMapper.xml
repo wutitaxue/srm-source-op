@@ -12,31 +12,23 @@
                  JOIN ssrc_rfx_line_item srli ON srql.rfx_line_item_id = srli.rfx_line_item_id
             AND srql.round_number = srli.current_round_number
                  JOIN ssrc_rfx_header srh ON srh.rfx_header_id = srqh.rfx_header_id
-                 JOIN ssrc_source_template sst ON sst.template_id = srh.template_id
         WHERE srqh.rfx_header_id = #{rfxHeaderId}
           AND srql.valid_quotation_price IS NOT NULL
           AND srql.round_number = (SELECT MAX(h.round_number)
                                    FROM ssrc_rfx_header h
                                    WHERE h.rfx_header_id =
                                          srli.rfx_header_id)
-          AND (
-                sst.initial_review = 'NONE'
-                OR sst.initial_review IS NULL
-                OR (
-                        sst.initial_review = 'NEED'
-                        AND EXISTS(
-                                SELECT 1
-                                FROM ssrc_evaluate_summary ses
-                                WHERE ses.invalid_flag = 0
-                                  AND ses.quotation_header_id = srqh.quotation_header_id
-                                  AND ses.tenant_id = srqh.tenant_id
-                                  AND ses.source_header_id = srqh.rfx_header_id
-                                  AND ses.source_from = 'RFX'
-                                  AND ses.round_number = srqh.round_number
-                                  AND ses.evaluate_summary_type = 'REVIEW_SCORE'
-                                  AND ses.summary_review_result = 'APPROVED'
-                            )
-                    )
+          AND EXISTS(
+                SELECT 1
+                FROM ssrc_evaluate_summary ses
+                WHERE ses.quotation_header_id = srqh.quotation_header_id
+                  AND ses.tenant_id = srqh.tenant_id
+                  AND ses.source_header_id = srqh.rfx_header_id
+                  AND ses.invalid_flag = 0
+                  AND ses.source_from = 'RFX'
+                  AND ses.round_number = srqh.round_number
+                  AND ses.evaluate_summary_type = 'REVIEW_SCORE'
+                  AND ses.summary_review_result = 'APPROVED'
             )
         GROUP BY srqh.quotation_header_id;
     </select>

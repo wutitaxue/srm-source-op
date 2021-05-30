@@ -33,14 +33,27 @@ import java.util.List;
 public class RcwlRoundHeaderController extends BaseController {
     @Autowired
     private RcwlRoundHeaderService rcwlRoundHeaderService;
-    @ApiOperation("发起新一轮报价-批量")
+//    @ApiOperation("发起新一轮报价-批量")
+//    @Permission(
+//            level = ResourceLevel.ORGANIZATION
+//    )
+//    @PostMapping({"/section/start-quotation"})
+//    @FilterSupplier
+//    public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason, @RequestParam List<RfxQuotationHeader> eliminateSupplier) {
+//        this.rcwlRoundHeaderService.startQuotation(organizationId, sourceHeaderId, roundQuotationEndDate, startingReason,eliminateSupplier);
+//        return Results.success();
+//    }
+
+    @ApiOperation("发起新一轮报价")
     @Permission(
             level = ResourceLevel.ORGANIZATION
     )
-    @PostMapping({"/section/start-quotation"})
+    @PostMapping({"/start-quotation/{sourceHeaderId}"})
     @FilterSupplier
-    public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason, @RequestParam List<RfxQuotationHeader> eliminateSupplier) {
+    public ResponseEntity<RoundHeader> rcwlStartQuotation(@PathVariable Long organizationId, @PathVariable @Encrypt Long sourceHeaderId, @RequestParam Date roundQuotationEndDate, @RequestParam String startingReason,@RequestBody List<RfxQuotationHeader> eliminateSupplier) {
         this.rcwlRoundHeaderService.startQuotation(organizationId, sourceHeaderId, roundQuotationEndDate, startingReason,eliminateSupplier);
         return Results.success();
     }
+
+
 }
