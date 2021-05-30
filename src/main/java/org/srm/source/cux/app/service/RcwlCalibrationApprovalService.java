@@ -21,4 +21,6 @@ public interface RcwlCalibrationApprovalService {
     List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id);
 
     RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id);
+
+    Long getRoundNumber(Long rfxHeaderId, Long tenantId);
 }

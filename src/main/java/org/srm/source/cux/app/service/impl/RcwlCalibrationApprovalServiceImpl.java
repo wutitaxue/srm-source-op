@@ -180,6 +180,11 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         return  rcwlCalibrationApprovalRepository.getRfxQuotationLineDataByQuotationHeaderIDs(id);
     }
 
+    @Override
+    public Long getRoundNumber(Long rfxHeaderId, Long tenantId) {
+        return rcwlCalibrationApprovalRepository.getRoundNumber(rfxHeaderId,tenantId);
+    }
+
     private String getRemark(String s) {
         return rcwlCalibrationApprovalRepository.getRemark(s);
     }
