@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlClarifyMapper">
-    <update id="updateClarifyData" parameterType="org.srm.source.cux.domain.entity.RcwlUpdateDataDTO">
+    <update id="updateClarifyData" parameterType="org.srm.source.cux.domain.entity.RcwlUpdateDataVO">
         UPDATE ssrc_clarify
         <trim prefix="set" suffixOverrides=",">
             <if test="processInstanceId!=null and processInstanceId != ''">process_instance_id=#{processInstanceId},</if>
@@ -35,6 +35,11 @@
     </select>
     <select id="getClarifyIdByClarifyNum" resultType="java.lang.Long">
         SELECT clarify_id
+        FROM    ssrc_clarify
+        WHERE   clarify_num = #{clarifyNum}
+    </select>
+    <select id="getTenantIdByclarifyNum" resultType="String">
+        SELECT tenant_id
         FROM    ssrc_clarify
         WHERE   clarify_num = #{clarifyNum}
     </select>

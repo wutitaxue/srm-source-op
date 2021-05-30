@@ -1,6 +1,8 @@
 package org.srm.source.cux.api.controller.v1;
 
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
@@ -13,6 +15,8 @@ import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
 import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
@@ -82,6 +86,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @PostMapping({"/check/approved/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceApproved(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
+        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
@@ -102,6 +107,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     public ResponseCalibrationApprovalData checkPriceReject(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
+//        DetailsHelper.getUserDetails().setUserId(rcwlDBSPTGDTO.getTenantId());
+        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
         try{
@@ -120,6 +127,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @PostMapping({"/check/submit/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceSubmit(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
+        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
         responseData.setCode("200");

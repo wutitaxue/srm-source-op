@@ -3,12 +3,12 @@ package org.srm.source.cux.infra.repository.impl;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.cux.infra.mapper.RcwlClarifyMapper;
-import org.srm.source.share.domain.entity.Clarify;
+
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -30,7 +30,7 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     }
 
     @Override
-    public void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
+    public void updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO) {
         rcwlClarifyMapper.updateClarifyData(rcwlUpdateDTO);
     }
 
@@ -49,5 +49,14 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     public Long getClarifyIdByClarifyNum(String clarifyNum) {
         Long l = rcwlClarifyMapper.getClarifyIdByClarifyNum(clarifyNum);
         return l == null ? 0l:l;
+    }
+
+    @Override
+    public List<String> getTenantIdByclarifyNum(String clarifyNum) {
+        List<String> l = rcwlClarifyMapper.getTenantIdByclarifyNum(clarifyNum);
+        if(l == null || l.size()==0){
+            l = new ArrayList<String>();
+        }
+        return l;
     }
 }

@@ -1,6 +1,7 @@
-package org.srm.source.cux.rfx.app;
+package org.srm.source.cux.share.app.service;
 
 import org.srm.source.share.api.dto.AutoScoreDTO;
+import org.srm.source.share.app.service.EvaluateScoreLineService;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -9,14 +10,15 @@ import java.util.Map;
  * @author kaibo.li
  * @date 2021-05-18 20:53
  */
-public interface IRcwlEvaluateScoreLineService {
+public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService {
 
     /**
      * 商务，自动评分
      * @param autoScoreDTO 自动评分信息记录DTO
      */
-    void autoEvaluateScore(AutoScoreDTO autoScoreDTO);
+//    void autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
+    @Override
     void _autoEvaluateScore(AutoScoreDTO autoScoreDTO);
 
     /**
@@ -25,5 +27,6 @@ public interface IRcwlEvaluateScoreLineService {
      * @param priceTypeCode 价格类型（未使用）
      * @return
      */
+    @Override
     Map<Long, BigDecimal> getRfxQuotationLineMaps(AutoScoreDTO autoScoreDTO, String priceTypeCode);
 }

@@ -1,35 +1,35 @@
 package org.srm.source.cux.rfx.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class RcwlDetailData {
 
     //行号
-    @JsonProperty(value = "RFXLINEITEMNUM")
+    @JSONField(name = "RFXLINEITEMNUM")
     private String RfxLineItemNum;
 
     //物料编码
-    @JsonProperty(value = "ITEMCODE")
+    @JSONField(name = "ITEMCODE")
     private String ItemCode;
 
     //物料名称
-    @JsonProperty(value = "ITEMNAME")
+    @JSONField(name = "ITEMNAME")
     private String ItemName;
 
     //规格
-    @JsonProperty(value = "UOMID")
+    @JSONField(name = "UOMID")
     private String UomId;
 
     //物料类别
-    @JsonProperty(value = "ITEMCATEGORYNAME")
+    @JSONField(name = "ITEMCATEGORYNAME")
     private String ItemCategoryName;
 
     //需求数量
-    @JsonProperty(value = "RFXQUANTITY")
+    @JSONField(name = "RFXQUANTITY")
     private String rfxQuanttity;
 
     //单位
-    @JsonProperty(value = "UOMID1")
+    @JSONField(name = "UOMID1")
     private String UomId1;
 
     public String getRfxLineItemNum() {

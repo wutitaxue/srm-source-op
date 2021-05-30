@@ -13,16 +13,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
+ * RCWL 比例法，计算逻辑
  * @author kaibo.li
  * @date 2021-05-12 16:28
  */
 
 @Component
 @Tenant("SRM-RCWL")
-public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProportionCalculator.class);
+//public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+public class RcwlProportionCalculator extends ProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlProportionCalculator.class);
 
     public RcwlProportionCalculator() {
+        super();
     }
 
     @Override

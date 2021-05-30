@@ -126,7 +126,7 @@
         SELECT
             t.*
         FROM
-            `ssrc_rfx_quotation_line`
+            `ssrc_rfx_quotation_line`t
         WHERE
             t.quotation_header_id = #{id}
     </select>

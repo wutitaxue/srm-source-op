@@ -4,8 +4,8 @@
     <update id="updateRfxHeaderData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
-            <if test="getAttributeVarchar6!=null and getAttributeVarchar6 != ''">attribute_varchar6=#{getAttributeVarchar6},</if>
-            <if test="getAttributeVarchar7!=null and getAttributeVarchar7 != ''">attribute_varchar7=#{getAttributeVarchar7},</if>
+            <if test="attributeVarchar6!=null and attributeVarchar6 != ''">attribute_varchar6=#{attributeVarchar6},</if>
+            <if test="attributeVarchar7!=null and attributeVarchar7 != ''">attribute_varchar7=#{attributeVarchar7},</if>
             <if test="status!=null and status != ''">attribute_varchar21=#{status},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}

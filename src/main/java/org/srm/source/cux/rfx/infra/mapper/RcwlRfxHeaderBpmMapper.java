@@ -10,17 +10,17 @@ import java.util.List;
 
 public interface RcwlRfxHeaderBpmMapper {
 
-    List<EvaluateIndic> rcwlQueryEvaluateIndicate(EvaluateIndicDTO evaluateIndicDTO);
+    List<EvaluateIndic> rcwlQueryEvaluateIndicate(@Param("evaluateIndicDTO") EvaluateIndicDTO evaluateIndicDTO);
 
-    RcwlSendBpmData prepareDate(@Param("quotationHeaderId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
+    RcwlSendBpmData prepareDate(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
 
-    List<RcwlScoringTeamData> prepareScoringTeamData(@Param("quotationHeaderId")Long organizationId,@Param("quotationHeaderId") RfxHeader rfxHeader);
+    List<RcwlScoringTeamData> prepareScoringTeamData(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
 
-    List<RcwlSupplierData> prepareSupplierData(@Param("quotationHeaderId")Long organizationId,@Param("quotationHeaderId") RfxHeader rfxHeader);
+    List<RcwlSupplierData> prepareSupplierData(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
 
-    List<RcwlDetailData> prepareDetailData(@Param("quotationHeaderId")Long organizationId,@Param("quotationHeaderId") RfxHeader rfxHeader);
+    List<RcwlDetailData> prepareDetailData(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
 
-    List<RcwlAttachmentData> prepareAttachmentData(@Param("quotationHeaderId")Long organizationId,@Param("quotationHeaderId") RfxHeader rfxHeader);
+    List<RcwlAttachmentData> prepareAttachmentData(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);
 
 
 
