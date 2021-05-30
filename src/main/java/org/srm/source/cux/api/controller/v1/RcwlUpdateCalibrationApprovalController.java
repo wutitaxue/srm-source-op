@@ -161,7 +161,6 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         //获取询价单头表信息
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
-//        RfxHeader rfxHeader = rfxHeaderService.selectSimpleRfxHeaderById(rfxHeaderId);
         checkPriceHeaderDTO.setAttributeVarchar1(rfxHeader.getAttributeVarchar1());//招采模式
         checkPriceHeaderDTO.setAttributeVarchar8(rfxHeader.getAttributeVarchar8());//招采模式
 
@@ -197,7 +196,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             RfxQuotationLine rfxQuotationLineData = rcwlCalibrationApprovalService.getRfxQuotationLineDataByQuotationHeaderIDs(id);
             CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
             checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
-            checkPriceDTO.setSelectionStrategy("RECOMMENDATION");//选择策略
+            checkPriceDTO.setSelectionStrategy("RECOMMENDATION");//选择策略    物料明细
             checkPriceDTO.setRfxLineItemId(rfxLineItemList.get(0).getRfxLineItemId());//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
             checkPriceDTO.setRfxLineItemNum(rfxLineItemList.get(0).getRfxLineItemNum());//rfxLineItemList.get(0).getRfxLineItemNum()
             checkPriceDTO.setType(rfxHeader.getSourceType());
@@ -207,17 +206,19 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             checkPriceDTO.setAllottedQuantity(rfxQuotationLineData.getAllottedQuantity());//ssrc_rfx_quotation_line
             checkPriceDTO.setAllottedRatio(rfxQuotationLineData.getAllottedRatio());//ssrc_rfx_quotation_line
             checkPriceDTO.setChangePercent(rfxQuotationLineData.getChangePercent());//ssrc_rfx_quotation_line
-            checkPriceDTO.setRfxLineSupplierId(null);//rfxQuotationLine
+            checkPriceDTO.setRfxLineSupplierId(null);//rfxQuotationLine    整包推荐的行的勾选ID/物料明细
             checkPriceDTO.setSupplierTenantId(quotationHeader.getSupplierTenantId());//rfxQuotationLine
             checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
             //放一个RfxQuotationLine    list
-            List<RfxQuotationLine> quotationLineList = rcwlCalibrationApprovalService.getQuotationLineListByQuotationHeaderID(Long.valueOf(id));
+//            List<RfxQuotationLine> quotationLineList = rcwlCalibrationApprovalService.getQuotationLineListByQuotationHeaderID(Long.valueOf(id));
+            List<RfxQuotationLine> quotationLineList = new ArrayList<>();
             checkPriceDTO.setQuotationLineList(quotationLineList);
             //加入上层对象
             checkPriceDTOLineList.add(checkPriceDTO);
         }
         checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
         checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
+        //项目集合
         List<ProjectLineSection> projectLineSectionList = new ArrayList<>();
 
         checkPriceHeaderDTO.setProjectLineSectionList(projectLineSectionList);
