@@ -30,6 +30,7 @@ import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,15 +44,15 @@ import java.util.List;
 public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @Autowired
     private RcwlCalibrationApprovalService rcwlCalibrationApprovalService;
-    @Autowired
+    @Resource
     private RfxHeaderService rfxHeaderService;
     @Autowired
     private RfxQuotationHeaderService rfxQuotationHeaderService;
-    @Autowired
+    @Resource
     private RfxQuotationLineService rfxQuotationLineService;
     @Autowired
     private RfxLineItemService rfxLineItemService;
-    @Autowired
+    @Resource
     private RfxHeaderRepository rfxHeaderRepository;
 
     @ApiOperation("更新定标字段")
@@ -162,7 +163,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     }
 
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId,Long tenantId){
-        RfxHeaderDTO rfxHeaderDTO = this.rfxHeaderService.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId,tenantId));
+        RfxHeaderDTO rfxHeaderDTO = rfxHeaderService.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId,tenantId));
         CheckPriceHeaderDTO checkPriceHeaderDTO = new CheckPriceHeaderDTO();
         //获取询价单头表信息
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
