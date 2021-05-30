@@ -84,7 +84,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     public ResponseCalibrationApprovalData checkPriceApproved(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
+        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
         try{
@@ -110,7 +110,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     @PostMapping({"/check/reject/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceReject(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
+        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
@@ -132,7 +132,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
 //        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum());
+        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
         //填充DTO数据

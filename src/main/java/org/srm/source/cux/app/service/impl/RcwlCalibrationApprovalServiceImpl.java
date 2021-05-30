@@ -153,8 +153,8 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        return rcwlCalibrationApprovalRepository.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        return rcwlCalibrationApprovalRepository.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
     }
 
     @Override
