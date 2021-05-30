@@ -219,7 +219,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             //加入上层对象
             checkPriceDTOLineList.add(checkPriceDTO);
         }
-//        checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
+        checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
 //        checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
         //项目集合
         List<ProjectLineSection> projectLineSectionList = new ArrayList<>();
