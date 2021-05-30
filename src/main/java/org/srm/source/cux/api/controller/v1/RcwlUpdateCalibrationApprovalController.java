@@ -5,6 +5,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Api(
         tags = {"Rcwl Update Calibration Approval"}
 )
@@ -191,24 +193,25 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         for(Long id : l){
             rfxLineItemList.add(rfxLineItemService.selectByPrimaryKey(id));
         }
-        for(String id : quotationHeaderIDs){
-            RfxQuotationHeader quotationHeader = (RfxQuotationHeader)rfxQuotationHeaderService.getQuotationHeader(Long.valueOf(id));
-            RfxQuotationLine rfxQuotationLineData = rcwlCalibrationApprovalService.getRfxQuotationLineDataByQuotationHeaderIDs(id);
+//        for(String id : quotationHeaderIDs){
+        for(RfxLineItem rfxLineItem : rfxLineItemList){
+//            RfxQuotationHeader quotationHeader = (RfxQuotationHeader)rfxQuotationHeaderService.getQuotationHeader(Long.valueOf(id));
+//            RfxQuotationLine rfxQuotationLineData = rcwlCalibrationApprovalService.getRfxQuotationLineDataByQuotationHeaderIDs(id);
             CheckPriceDTO checkPriceDTO = new CheckPriceDTO();
-            checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
-            checkPriceDTO.setSelectionStrategy("RECOMMENDATION");//选择策略    物料明细
+//            checkPriceDTO.setSupplierName(quotationHeader.getSupplierCompanyName());
+            checkPriceDTO.setSelectionStrategy(rfxLineItemList.get(0).getSelectionStrategy());//选择策略    物料明细
             checkPriceDTO.setRfxLineItemId(rfxLineItemList.get(0).getRfxLineItemId());//物料行IDrfxLineItemList.get(0).getRfxLineItemId()
             checkPriceDTO.setRfxLineItemNum(rfxLineItemList.get(0).getRfxLineItemNum());//rfxLineItemList.get(0).getRfxLineItemNum()
-            checkPriceDTO.setType(rfxHeader.getSourceType());
+            checkPriceDTO.setType(rfxLineItemList.get(0).getFloatType());
             checkPriceDTO.setObjectVersionNumber(rfxLineItemList.get(0).getObjectVersionNumber());//物料行版本号//rfxLineItemList.get(0).getObjectVersionNumber()
-            checkPriceDTO.setWholeSuggestFlag(rfxQuotationLineData.getSuggestedFlag());//整包推荐//ssrc_rfx_quotation_line.suggested_flag  1
-            checkPriceDTO.setSuggestedRemark(rfxQuotationLineData.getSuggestedRemark());//ssrc_rfx_quotation_line.Suggested_Remark
-            checkPriceDTO.setAllottedQuantity(rfxQuotationLineData.getAllottedQuantity());//ssrc_rfx_quotation_line
-            checkPriceDTO.setAllottedRatio(rfxQuotationLineData.getAllottedRatio());//ssrc_rfx_quotation_line
-            checkPriceDTO.setChangePercent(rfxQuotationLineData.getChangePercent());//ssrc_rfx_quotation_line
+//            checkPriceDTO.setWholeSuggestFlag(rfxQuotationLineData.getSuggestedFlag());//整包推荐//ssrc_rfx_quotation_line.suggested_flag  1
+//            checkPriceDTO.setSuggestedRemark(rfxQuotationLineData.getSuggestedRemark());//ssrc_rfx_quotation_line.Suggested_Remark
+//            checkPriceDTO.setAllottedQuantity(rfxQuotationLineData.getAllottedQuantity());//ssrc_rfx_quotation_line
+//            checkPriceDTO.setAllottedRatio(rfxQuotationLineData.getAllottedRatio());//ssrc_rfx_quotation_line
+//            checkPriceDTO.setChangePercent(rfxQuotationLineData.getChangePercent());//ssrc_rfx_quotation_line
             checkPriceDTO.setRfxLineSupplierId(null);//rfxQuotationLine    整包推荐的行的勾选ID/物料明细
-            checkPriceDTO.setSupplierTenantId(quotationHeader.getSupplierTenantId());//rfxQuotationLine
-            checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
+//            checkPriceDTO.setSupplierTenantId(quotationHeader.getSupplierTenantId());//rfxQuotationLine
+//            checkPriceDTO.setQuotationHeaderId(quotationHeader.getQuotationHeaderId());
             //放一个RfxQuotationLine    list
 //            List<RfxQuotationLine> quotationLineList = rcwlCalibrationApprovalService.getQuotationLineListByQuotationHeaderID(Long.valueOf(id));
             List<RfxQuotationLine> quotationLineList = new ArrayList<>();
@@ -216,16 +219,17 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             //加入上层对象
             checkPriceDTOLineList.add(checkPriceDTO);
         }
-        checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
-        checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
+//        checkPriceHeaderDTO.setCheckPriceDTOLineList(checkPriceDTOLineList);
+//        checkPriceHeaderDTO.setRfxLineItemList(rfxLineItemList);
         //项目集合
         List<ProjectLineSection> projectLineSectionList = new ArrayList<>();
 
-        checkPriceHeaderDTO.setProjectLineSectionList(projectLineSectionList);
+//        checkPriceHeaderDTO.setProjectLineSectionList(projectLineSectionList);
         List<ProjectLineSection> allProjectLineSectionList = new ArrayList<>();
 
-        checkPriceHeaderDTO.setAllProjectLineSectionList(allProjectLineSectionList);
+//        checkPriceHeaderDTO.setAllProjectLineSectionList(allProjectLineSectionList);
         String json = JSONObject.toJSONString(checkPriceHeaderDTO);
+        log.info("====================一========================="+json);
         return  checkPriceHeaderDTO;
     }
 }

@@ -88,6 +88,7 @@
             `ssrc_rfx_header` t
         WHERE
             t.rfx_num = #{rfxNum}
+            AND t.tenant_id = #{tenantId}
     </select>
     <select id="getQuotationAmount" resultType="String">
         SELECT
