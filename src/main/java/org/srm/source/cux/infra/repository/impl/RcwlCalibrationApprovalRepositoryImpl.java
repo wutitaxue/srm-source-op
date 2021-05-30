@@ -60,8 +60,8 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        Long data = rcwlCalibrationApprovalMapper.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        Long data = rcwlCalibrationApprovalMapper.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
         return data == null ? 0l:data ;
     }
 

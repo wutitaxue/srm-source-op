@@ -12,7 +12,7 @@ public interface RcwlCalibrationApprovalService {
 
     ResponseCalibrationApprovalData updateClarifyData(RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO);
 
-    Long getRfxHeaderIdByRfxNum(String rfxNum);
+    Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId);
 
     List<String> getQuotationHeaderIDByRfxHeaderId(Long rfxHeaderId,Long tenantId);
 
