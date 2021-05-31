@@ -55,7 +55,7 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
     public ResponseCalibrationApprovalData checkPriceSubmit(@PathVariable Long organizationId, @RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
         rcwlDBSPTGDTO.setTenantId(organizationId);
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
+//        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         responseData.setCode("200");
