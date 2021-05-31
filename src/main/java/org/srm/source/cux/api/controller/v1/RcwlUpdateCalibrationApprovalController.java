@@ -159,8 +159,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             this.validObject(checkPriceHeaderDTO, new Class[0]);
             try{
                 log.info("+++++++++++++++++++++++++++++++++++++++开始+++++++++++++++++++++++++++++++++++++++++++");
-                RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
-                this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_SUBMIT", "CHECK_SUBMIT", rfxHeader);
+//                RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+//                this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_SUBMIT", "CHECK_SUBMIT", rfxHeader);
                 log.info("++++++++++++++++++++++++++++++++++++++结束++++++++++++++++++++++++++++++++++++++++++++");
                 this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
 
