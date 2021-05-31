@@ -53,6 +53,7 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
     )
     @PostMapping({"/check/submit/for/bpm"})
     public ResponseCalibrationApprovalData checkPriceSubmit(@PathVariable Long organizationId, @RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
+        rcwlDBSPTGDTO.setTenantId(organizationId);
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
         DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
