@@ -29,6 +29,7 @@ import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
+import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 
 import javax.annotation.Resource;
@@ -56,6 +57,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxHeaderRepository rfxHeaderRepository;
     @Resource
     private RfxHeaderMapper rfxHeaderMapper;
+    @Autowired
+    private RfxEventUtil rfxEventUtil;
 
     @ApiOperation("更新定标字段")
     @Permission(
@@ -156,6 +159,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             this.validObject(checkPriceHeaderDTO, new Class[0]);
             try{
                 this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
+                RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+                this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_SUBMIT", "CHECK_SUBMIT", rfxHeader);
             }catch (Exception e){
                 responseData.setCode("201");
                 responseData.setMessage("定标提交失败！");
