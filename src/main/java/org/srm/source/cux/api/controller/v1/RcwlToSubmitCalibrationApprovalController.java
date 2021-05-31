@@ -34,7 +34,7 @@ import java.util.List;
         tags = {"Rcwl To Submit Calibration Approval"}
 )
 @RestController("rcwlToSubmitCalibrationApprovalController.v1")
-@RequestMapping({"/v1/{organizationId}/toSubmitCalibrationApproval"})
+@RequestMapping({"/v1/toSubmitCalibrationApproval"})
 public class RcwlToSubmitCalibrationApprovalController extends BaseController {
     @Autowired
     private RcwlCalibrationApprovalService rcwlCalibrationApprovalService;
@@ -52,8 +52,8 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
             level = ResourceLevel.ORGANIZATION
     )
     @PostMapping({"/check/submit/for/bpm"})
-    public ResponseCalibrationApprovalData checkPriceSubmit(@PathVariable Long organizationId, @RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
-        rcwlDBSPTGDTO.setTenantId(organizationId);
+    public ResponseCalibrationApprovalData checkPriceSubmit( @RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
+//        rcwlDBSPTGDTO.setTenantId(organizationId);
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
 //        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
