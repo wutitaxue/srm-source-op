@@ -232,7 +232,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
         //---------------------设置bpm字段并且提交审批---------------------
         String ip = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
-        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMYSDSP&BOID=" + rcwlShortlistHeader.getShortlistNum());
+        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMRWD2&BOID=" + rcwlShortlistHeader.getShortlistNum());
         RcwlShortlistHeader bpmHeaderData = rcwlShortlistHeaderMapper.selectShortlistHeaderById(DetailsHelper.getUserDetails().getTenantId(), rcwlShortlistHeader.getShortlistHeaderId());
 
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
