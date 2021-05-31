@@ -88,7 +88,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str3 = "";
             String str4 = "";
             logger.info("-------------rcwlSupplierHeader.getCapital():" + rcwlSupplierHeader.getCapital());
-//            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
+            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
                 logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
                     str1 = "注册资本不符合";
@@ -113,7 +113,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                     rcwlSupplierHeader.setQualificationInfo(str1 + str2 + str3 + str4);
                     rcwlSupplierHeader.setQualification(0);
                 }
-//            }
+            }
 
         }
 //        logger.info("-------------page:" + page.toString());
