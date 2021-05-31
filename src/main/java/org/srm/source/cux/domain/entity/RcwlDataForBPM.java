@@ -40,7 +40,7 @@ public class RcwlDataForBPM {
         sb.append("{\"FSubject\":\"").append(this.getFSUBJECT()).append("\",");
         sb.append("\"submittedby\":\"").append(this.getSUBMITTEDBY()).append("\",");
         sb.append("\"title\":\"").append(this.getTITLE()).append("\",");
-        sb.append("\"file\":\"").append(this.getTITLE()).append("\",");
+        sb.append("\"file\":\"").append("答疑").append("\",");
         sb.append("\"sourcenum\":\"").append(this.getSOURCENUM()).append("\",");
         sb.append("\"sourcename\":\"").append(this.getSOURCENAME()).append("\",");
         sb.append("\"clarifynum\":\"").append(this.getCLARIFYNUM()).append("\",");

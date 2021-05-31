@@ -14,6 +14,7 @@ import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
+import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
@@ -31,6 +32,8 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
+    @Autowired
+    private RcwlClarifyRepository rcwlClarifyRepository;
     //获取配置参数
     @Autowired
     private ProfileClient profileClient;
@@ -40,7 +43,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         ResponseData responseData = new ResponseData();
         responseData.setMessage("操作成功！");
         responseData.setCode("200");
-        String userName = DetailsHelper.getUserDetails().getUsername();
+        String userName =rcwlRfxHeaderRepository.getRealNameById(tenantId);
         List<RcwlAttachmentListData> listData = new ArrayList<RcwlAttachmentListData>();
         List<RcwlRfxHeaderAttachmentListDataForBPM> list = new ArrayList<RcwlRfxHeaderAttachmentListDataForBPM>();
         //方法区，获取调用BPM接口所需值DATA并填充
@@ -104,9 +107,9 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"COMPANYID\":\"").append(rfxHeader.getCompanyName()).append("\",");
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
-        sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rfxHeader.getAttributeVarchar8()).append("\",");
-        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay() == null ? "":rfxHeader.getScoreWay()).append("\",");
-        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rfxHeader.getSourceCategory()).append("\",");
+        sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8())).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getAttributeVarchar8())).append("\",");
+        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getAttributeVarchar8())).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark() == null ? "":rfxHeader.getTerminatedRemark()).append("\",");

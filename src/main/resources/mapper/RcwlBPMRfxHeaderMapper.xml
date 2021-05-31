@@ -29,4 +29,8 @@
         FROM    ssrc_rfx_header
         WHERE   rfx_num = #{rfxNumd}
     </select>
+    <select id="getRealNameById" resultType="String">
+        select t.real_name from  iam_user t
+        where t.id=#{id}
+    </select>
 </mapper>

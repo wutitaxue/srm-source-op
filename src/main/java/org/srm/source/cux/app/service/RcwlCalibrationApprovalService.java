@@ -28,4 +28,6 @@ public interface RcwlCalibrationApprovalService {
 
     void checkSubmitCommon(Long organizationId, Long rfxHeaderId, CheckPriceHeaderDTO checkPriceHeaderDTO);
 
+    void checkPriceApproved(Long organizationId, Long rfxHeaderId);
+
 }
