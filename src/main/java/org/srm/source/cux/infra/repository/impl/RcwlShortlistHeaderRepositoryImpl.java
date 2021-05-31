@@ -87,21 +87,22 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str2 = "";
             String str3 = "";
             String str4 = "";
-            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
+            logger.info("-------------rcwlSupplierHeader.getCapital():" + rcwlSupplierHeader.getCapital());
+//            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
+                logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
-                    logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                     str1 = "注册资本不符合";
                 }
+                logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
                 if (rcwlSupplierHeader.getYears() < rcwlShortlistHeader.getYears()) {
-                    logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
                     str2 = "成立年限不符合";
                 }
+                logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                 if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
-                    logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                     str2 = "一年营收不符合";
                 }
+                logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
-                    logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                     str2 = "两年营收不符合";
                 }
                 logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
@@ -112,10 +113,10 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                     rcwlSupplierHeader.setQualificationInfo(str1 + str2 + str3 + str4);
                     rcwlSupplierHeader.setQualification(0);
                 }
-            }
+//            }
 
         }
-        logger.info("-------------page:" + page.toString());
+//        logger.info("-------------page:" + page.toString());
         return page;
     }
 
