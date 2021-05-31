@@ -372,10 +372,14 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     public List<EvaluateSummary> updateEvaluateSummary(List<EvaluateSummary> evaluateSummaryList, String sourceFrom, Long sourceHeaderId, Long tenantId) {
         LOGGER.info("24769  updateEvaluateSummary Start");
         Long roundNumber = 0L;
+        BigDecimal businessWeight = BigDecimal.ONE;
+        BigDecimal technologyWeight  = BigDecimal.ONE;
         if ("RFX".equals(sourceFrom)) {
             RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
             Assert.notNull(rfxHeader, "error.data_not_exists");
             roundNumber = rfxHeader.getRoundNumber();
+            businessWeight = null == rfxHeader.getBusinessWeight() ? BigDecimal.ONE : rfxHeader.getBusinessWeight().divide(BigDecimal.valueOf(100));
+            technologyWeight = null ==  rfxHeader.getTechnologyWeight() ? BigDecimal.ONE : rfxHeader.getTechnologyWeight().divide(BigDecimal.valueOf(100));
         }
 
         ArrayList<EvaluateSummary> allEvaluateSummary = new ArrayList();
@@ -384,14 +388,14 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         List<EvaluateSummary> evaluateSummarys = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(tenantId,sourceHeaderId,"RFX",roundNumber));
 
         // 新计算的商务分
-        Iterator var3 = evaluateSummaryList.iterator();
+        Iterator var3 = evaluateSummarys.iterator();
 
         while(var3.hasNext()) {
             EvaluateSummary obj = (EvaluateSummary)var3.next();
             // 拷贝一个新对象
             EvaluateSummary newEvaluateSummary = new EvaluateSummary();
             BeanUtils.copyProperties(obj ,newEvaluateSummary);
-            if (1 == obj.getInvalidFlag()) {
+            if (Integer.valueOf(1).equals(obj.getInvalidFlag())) {
                 newEvaluateSummary.setBusinessScore(BigDecimal.ZERO);
                 newEvaluateSummary.setScore(BigDecimal.ZERO);
 //                    evaluateSummary.setScoreRank(99L);
@@ -404,6 +408,9 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                     }
                 }
             }
+            BigDecimal businessScore = null == newEvaluateSummary.getBusinessScore() ? BigDecimal.ZERO : newEvaluateSummary.getBusinessScore();
+            BigDecimal technologyScore = null == newEvaluateSummary.getTechnologyScore() ? BigDecimal.ZERO : newEvaluateSummary.getTechnologyScore();
+            newEvaluateSummary.setScore(businessScore.multiply(businessWeight).add(technologyScore.multiply(technologyWeight)));
             allEvaluateSummary.add(newEvaluateSummary);
         }
 
@@ -415,7 +422,6 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
 
         for (int i = 0; i < updateEvaluateSummary.size(); i++) {
             updateEvaluateSummary.get(i).setScoreRank(i + 1L);
-
         }
         LOGGER.info("24769  updateEvaluateSummary : {}", updateEvaluateSummary);
         if (!CollectionUtils.isEmpty(updateEvaluateSummary)) {
