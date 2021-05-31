@@ -108,6 +108,9 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
                 responseData.setMessage("rfx status error!status:{"+rfxHeaderDb.getRfxStatus()+"}！");
             }
         }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("e.getMessage====================================================================="+e.getMessage());
+            System.out.println("e================================================================================"+e);
             responseData.setCode("201");
             responseData.setMessage("操作失败！");
         }
