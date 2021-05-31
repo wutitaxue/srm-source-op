@@ -82,7 +82,7 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
 
 
 
-                this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
+                this.rfxHeaderService.checkSubmitCommon(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
 
             }catch (Exception e){
                 responseData.setCode("201");
