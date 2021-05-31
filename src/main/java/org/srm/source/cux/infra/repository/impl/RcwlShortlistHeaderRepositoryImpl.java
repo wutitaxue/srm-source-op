@@ -208,6 +208,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         Long supplierCount = rcwlShortlistHeaderMapper.supplierCount(rcwlShortlistHeader.getShortlistHeaderId());
         if (SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             Date finishDate = rcwlShortlistHeader.getFinishDate();
+            logger.info("-------------finishDate:"+finishDate);
+            logger.info("-------------finishDate.compareTo:"+finishDate.compareTo(new Date()));
             if (finishDate.compareTo(new Date()) <= 0) {
                 throw new CommonException("未到报名截止时间，无法发布！");
             }
