@@ -78,11 +78,8 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
                 log.info("+++++++++++++++++++++++++++++++++++++++开始+++++++++++++++++++++++++++++++++++++++++++");
 //                RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
 //                this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_SUBMIT", "CHECK_SUBMIT", rfxHeader);
+                rcwlCalibrationApprovalService.checkSubmitCommon(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
                 log.info("++++++++++++++++++++++++++++++++++++++结束++++++++++++++++++++++++++++++++++++++++++++");
-
-
-
-                this.rfxHeaderService.checkSubmitCommon(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
 
             }catch (Exception e){
                 responseData.setCode("201");
