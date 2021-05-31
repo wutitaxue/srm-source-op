@@ -32,7 +32,6 @@ import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxLineItemService rfxLineItemService;
     @Resource
     private RfxHeaderRepository rfxHeaderRepository;
-    @Autowired
+    @Resource
     private RfxHeaderMapper rfxHeaderMapper;
 
     @ApiOperation("更新定标字段")
