@@ -1,6 +1,7 @@
 package org.srm.source.cux.app.service.impl;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import groovy.lang.Lazy;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
@@ -13,8 +14,16 @@ import org.hzero.boot.customize.util.CustomizeHelper;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.helper.LanguageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.beans.BeanCopier;
+import org.springframework.cglib.core.Converter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.srm.boot.pr.app.service.PrManageDomainService;
+import org.srm.boot.pr.domain.vo.PrChangeResultVO;
+import org.srm.boot.pr.domain.vo.PrChangeVO;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
@@ -26,29 +35,34 @@ import org.srm.source.rfx.api.dto.common.ItfBaseBO;
 import org.srm.source.rfx.api.dto.common.ResponseDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineItemService;
+import org.srm.source.rfx.app.service.SourceResultService;
 import org.srm.source.rfx.app.service.UserConfigService;
 import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
-import org.srm.source.rfx.domain.entity.RfxHeader;
-import org.srm.source.rfx.domain.entity.RfxLineItem;
-import org.srm.source.rfx.domain.entity.RfxQuotationLine;
-import org.srm.source.rfx.domain.entity.UserConfig;
+import org.srm.source.rfx.domain.entity.*;
 import org.srm.source.rfx.domain.repository.*;
 import org.srm.source.rfx.domain.service.IRfxActionDomainService;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
+import org.srm.source.rfx.domain.service.IRfxLineItemDomainService;
+import org.srm.source.rfx.infra.constant.Constants;
 import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
+import org.srm.source.rfx.infra.mapper.RfxLineItemMapper;
 import org.srm.source.rfx.infra.util.RfxEventUtil;
-import org.srm.source.share.domain.entity.PrequalHeader;
-import org.srm.source.share.domain.entity.PrequalLine;
-import org.srm.source.share.domain.entity.RoundHeader;
-import org.srm.source.share.domain.entity.SourceTemplate;
-import org.srm.source.share.domain.repository.PrequalHeaderRepository;
-import org.srm.source.share.domain.repository.PrequalLineRepository;
-import org.srm.source.share.domain.repository.RoundHeaderRepository;
-import org.srm.source.share.domain.repository.SourceTemplateRepository;
+import org.srm.source.share.api.dto.ExternalSupplierDTO;
+import org.srm.source.share.api.dto.PrRelationDTO;
+import org.srm.source.share.app.service.ProjectLineItemService;
+import org.srm.source.share.app.service.SourceProjectService;
+import org.srm.source.share.domain.entity.*;
+import org.srm.source.share.domain.repository.*;
+import org.srm.source.share.domain.service.IPriceLibraryDomainService;
+import org.srm.source.share.domain.service.ISupplyAbilityDomainService;
+import org.srm.source.share.infra.feign.SmdmRemoteService;
 import org.srm.source.share.infra.utils.BusinessKeyUtil;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 
 @Service
 public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprovalService {
@@ -99,6 +113,34 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     private RoundHeaderRepository roundHeaderRepository;
     @Autowired
     private RfxHeaderMapper rfxHeaderMapper;
+    @Autowired
+    private IRfxLineItemDomainService rfxLineItemDomainService;
+    @Autowired
+    private SourceProjectService sourceProjectService;
+    @Autowired
+    private CommonQueryRepository commonQueryRepository;
+    @Autowired
+    private RfxLineSupplierRepository rfxLineSupplierRepository;
+    @Autowired
+    private ISupplyAbilityDomainService supplyAbilityDomainService;
+    @Autowired
+    private SmdmRemoteService smdmRemoteService;
+    @Autowired
+    private RfxLineItemMapper rfxLineItemMapper;
+    @Autowired
+    private IPriceLibraryDomainService priceLibraryDomainService;
+    @Autowired
+    private ProjectLineItemRepository projectLineItemRepository;
+    @Autowired
+    private SourceProjectRepository sourceProjectRepository;
+    @Autowired
+    private ProjectLineItemService projectLineItemService;
+    @Autowired
+    private PrManageDomainService prManageDomainService;
+    @Autowired
+    private SourceResultRepository sourceResultRepository;
+    @Autowired
+    private SourceResultService sourceResultService;
 
 
     @Override
@@ -499,5 +541,268 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         rfxHeaderDTO.initSealedQuotationInfo(this.rfxMemberRepository);
         rfxHeaderDTO.setHeaderProperties();
         return rfxHeaderDTO.getRfxStatus();
+    }
+
+
+
+    //============================以上为提交方法
+    //============================以上为通过方法
+
+
+    @Override
+    public void checkPriceApproved(Long organizationId, Long rfxHeaderId) {
+        try {
+            RfxHeader rfxHeaderDb = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+            DetailsHelper.getUserDetails().setUserId(rfxHeaderDb.getCreatedBy());
+
+            List<RfxLineItem> rfxLineItemCreateList = this.rfxLineItemRepository.queryLineItemCreated(organizationId, rfxHeaderId);
+            String releaseItemIds = null;
+            List<RfxCheckItemDTO> rfxCheckItemDTOS = this.rfxQuotationLineRepository.selectQuotationDetail(new HeaderQueryDTO(rfxHeaderId, organizationId));
+            releaseItemIds = (String)rfxCheckItemDTOS.stream().filter((item) -> {
+                return "RELEASE".equals(item.getSelectionStrategy());
+            }).map((item) -> {
+                return item.getRfxLineItemId().toString();
+            }).collect(Collectors.joining(","));
+            this.checkApproved(rfxHeaderDb, releaseItemIds, rfxLineItemCreateList);
+            this.rfxActionDomainService.insertAction(rfxHeaderDb, "FINISH", "zh_CN".equals(LanguageHelper.language()) ? "核价审批通过" : "");
+            if (org.apache.commons.collections.CollectionUtils.isEmpty(rfxLineItemCreateList)) {
+                return;
+            }
+
+            List<Item> itemList = (List)rfxLineItemCreateList.stream().map((rfxLineItemx) -> {
+                return rfxLineItemx.itemFrozenConvertor(BaseConstants.Flag.NO);
+            }).collect(Collectors.toList());
+            Integer createSsrcItemFlag = null == rfxHeaderDb.getItemGeneratePolicy() ? BaseConstants.Flag.NO : Integer.valueOf(rfxHeaderDb.getItemGeneratePolicy());
+            itemList.forEach((item) -> {
+                item.setCreateSsrcItemFlag(createSsrcItemFlag);
+            });
+            this.smdmRemoteService.createItemFromSrmSource(organizationId, itemList);
+            ItemDTO itemDTO = new ItemDTO();
+            if (createSsrcItemFlag.equals(2)) {
+                List<RfxLineItem> rfxLineItems = this.rfxLineItemRepository.selectByIds((String)rfxLineItemCreateList.stream().map((item) -> {
+                    return item.getRfxLineItemId().toString();
+                }).collect(Collectors.joining(",")));
+                List<Long> itemIds = (List)rfxLineItemCreateList.stream().map(RfxLineItem::getCreatedItemId).collect(Collectors.toList());
+                itemDTO.setItemIds(itemIds);
+                List<ItemDTO> retItemDTOS = this.rfxLineItemMapper.listPartnerItemDim(itemDTO);
+                Map<Long, ItemDTO> itemDTOMap = (Map)retItemDTOS.stream().collect(Collectors.toMap(ItemDTO::getItemId, (item) -> {
+                    return item;
+                }));
+                Iterator var14 = rfxLineItems.iterator();
+
+                while(var14.hasNext()) {
+                    RfxLineItem rfxLineItem = (RfxLineItem)var14.next();
+                    ItemDTO itemDto = (ItemDTO)itemDTOMap.get(rfxLineItem.getCreatedItemId());
+                    if (null != itemDto) {
+                        if (null == rfxLineItem.getItemCategoryId()) {
+                            rfxLineItem.setItemCategoryId(itemDto.getCategoryId());
+                        }
+
+                        if (null == rfxLineItem.getInvOrganizationId()) {
+                            rfxLineItem.setInvOrganizationId(itemDto.getInvOrganizationId());
+                        }
+
+                        if (null == rfxLineItem.getOuId()) {
+                            rfxLineItem.setOuId(itemDto.getOuId());
+                        }
+                    }
+                }
+
+                this.rfxLineItemRepository.batchUpdateOptional(rfxLineItems, new String[]{"createdItemId", "itemCode", "itemId", "itemCategoryId", "ouId", "itemName", "invOrganizationId"});
+            }
+        } catch (Exception var20) {
+            throw var20;
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+
+    }
+
+
+    public List<RfxQuotationHeader> checkApproved(RfxHeader rfxHeader, String releaseItemIds, List<RfxLineItem> rfxLineItemCreateList) {
+        RfxHeader tempHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeader);
+        tempHeader.setRfxStatus("FINISHED");
+        tempHeader.setCheckFinishedDate(new Date());
+        tempHeader.closeBargain(tempHeader);
+        tempHeader.setRedactFlag(BaseConstants.Flag.NO);
+        this.rfxHeaderRepository.updateByPrimaryKeySelective(tempHeader);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineItemCreateList)) {
+            this.rfxLineItemDomainService.insertItemCodeBack(rfxLineItemCreateList);
+        }
+
+        RfxLineItem itemTemp = new RfxLineItem();
+        itemTemp.setRfxHeaderId(tempHeader.getRfxHeaderId());
+        List<RfxLineItem> rfxLineItemList = this.rfxLineItemRepository.select(itemTemp);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineItemList)) {
+            rfxLineItemList.forEach((rfxLineItem) -> {
+                rfxLineItem.setFinishedFlag(Constants.DefaultFlagValue.FINISHED_FLAG);
+            });
+        }
+
+        this.rfxLineItemRepository.batchUpdateByPrimaryKeySelective(rfxLineItemList);
+        RfxQuotationHeader temp = new RfxQuotationHeader();
+        temp.setRfxHeaderId(tempHeader.getRfxHeaderId());
+        temp.setRoundNumber(tempHeader.getRoundNumber());
+        List<RfxQuotationHeader> rfxQuotationHeaderList = this.rfxQuotationHeaderRepository.select(temp);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxQuotationHeaderList)) {
+            rfxQuotationHeaderList.forEach((rfxQuotationHeader) -> {
+                rfxQuotationHeader.setQuotationStatus("FINISHED");
+            });
+        }
+
+        this.rfxQuotationHeaderRepository.batchUpdateByPrimaryKeySelective(rfxQuotationHeaderList);
+        List<SourceResult> sourceResults = this.resultsGenerator(rfxQuotationHeaderList);
+        this.priceLibraryDomainService.generatePriceLibrary(rfxHeader.getTenantId(), "RFX", sourceResults, rfxHeader.buildConfigCenterParameters());
+        String autoPriceFlag = this.commonQueryRepository.queryCustomizeSettingValueByCode(tempHeader.getTenantId(), "011114", 0);
+        List rfxLineSupplierList;
+        if (autoPriceFlag == null || BaseConstants.Flag.YES.equals(Integer.valueOf(autoPriceFlag))) {
+            rfxLineSupplierList = (List)sourceResults.stream().filter((e) -> {
+                return "SAP".equals(e.getSystemType());
+            }).collect(Collectors.toList());
+            List<SourceResult> ebsSourceResult = (List)sourceResults.stream().filter((e) -> {
+                return "EBS".equals(e.getSystemType());
+            }).collect(Collectors.toList());
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineSupplierList)) {
+            }
+
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ebsSourceResult)) {
+            }
+        }
+
+        if (StringUtils.isNotEmpty(releaseItemIds)) {
+            this.rfxLineItemDomainService.batchReleasePrLines(rfxHeader, this.rfxLineItemRepository.selectByIds(releaseItemIds));
+        }
+
+        this.releaseDeleteLineItemProjectOccupyPr(rfxHeader, tempHeader, rfxLineItemList);
+        this.sourceProjectService.writeBackSourceProject(rfxHeader.getTenantId(), Collections.singletonList(rfxHeader.getRfxHeaderId()), "RFX");
+        rfxHeader.setServerName(this.commonQueryRepository.selectServerName(tempHeader.getTenantId()));
+        this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_APPROVE", "CHECK_APPROVE", tempHeader);
+        rfxLineSupplierList = this.rfxLineSupplierRepository.selectSuggestedSuppliers(new RfxLineSupplier(rfxHeader.getRfxHeaderId(), rfxHeader.getTenantId(), 0));
+        this.supplyAbilityDomainService.generateSupplyAbility(rfxHeader, rfxLineSupplierList, DetailsHelper.getUserDetails());
+        return rfxQuotationHeaderList;
+    }
+
+    public void releaseDeleteLineItemProjectOccupyPr(RfxHeader rfxHeader, RfxHeader tempHeader, List<RfxLineItem> rfxLineItemList) {
+        if (null != tempHeader.getSourceProjectId() && org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineItemList)) {
+            String projectLineItemIds = (String)rfxLineItemList.stream().filter((e) -> {
+                return null != e.getProjectLineItemId();
+            }).map((e) -> {
+                return e.getProjectLineItemId().toString();
+            }).collect(Collectors.joining(","));
+            List<ProjectLineItem> projectLineItemList = (List)this.projectLineItemRepository.select(new ProjectLineItem(rfxHeader.getTenantId(), rfxHeader.getSourceProjectId())).stream().filter((e) -> {
+                return null != e.getProjectLineItemId() && !projectLineItemIds.contains(e.getProjectLineItemId().toString());
+            }).collect(Collectors.toList());
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(projectLineItemList)) {
+                SourceProject sourceProject = (SourceProject)this.sourceProjectRepository.selectByPrimaryKey(rfxHeader.getSourceProjectId());
+                List<PrChangeVO> prChangeVOS = this.projectLineItemService.getPrChangeVOS(projectLineItemList, sourceProject);
+                List<PrRelationDTO> prRelationDTOS = this.projectLineItemService.getPrRelationDTOList(projectLineItemList, sourceProject);
+                if (org.apache.commons.collections.CollectionUtils.isNotEmpty(prChangeVOS) && org.apache.commons.collections.CollectionUtils.isNotEmpty(prRelationDTOS)) {
+                    PrChangeResultVO prChangeResultVO = this.prManageDomainService.releasePr(prChangeVOS);
+                    Assert.isTrue(prChangeResultVO.isSuccess(), prChangeResultVO.getResultMsg());
+                }
+            }
+        }
+
+    }
+
+    public List<SourceResult> resultsGenerator(List<RfxQuotationHeader> rfxQuotationHeaderList) {
+        List<SourceResult> sourceResultList = new ArrayList();
+        List<Long> supplierIds = new ArrayList();
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(rfxQuotationHeaderList)) {
+            return sourceResultList;
+        } else {
+            rfxQuotationHeaderList.forEach((rfxQuotationHeader) -> {
+                supplierIds.add(rfxQuotationHeader.getSupplierCompanyId());
+            });
+            List<ExternalSupplierDTO> externalSupplierDTOList = this.commonQueryRepository.selectSupplier(supplierIds);
+            Map<Long, List<ExternalSupplierDTO>> map = (Map)externalSupplierDTOList.stream().collect(Collectors.groupingBy(ExternalSupplierDTO::getLinkId));
+            rfxQuotationHeaderList.forEach((rfxQuotationHeader) -> {
+                List<RfxResultsDTO> rfxResultsDTOList = this.sourceResultRepository.getResults(rfxQuotationHeader.getQuotationHeaderId(), rfxQuotationHeader.getRoundNumber(), rfxQuotationHeader.getTenantId());
+                LOGGER.info("rfxResultsDTOList: " + JSON.toJSONString(rfxResultsDTOList));
+                BeanCopier beanCopier = BeanCopier.create(RfxResultsDTO.class, SourceResult.class, false);
+                if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxResultsDTOList)) {
+                    rfxResultsDTOList.forEach((rfxResultsDTO) -> {
+                        SourceResult sourceResult = new SourceResult();
+                        beanCopier.copy(rfxResultsDTO, sourceResult, (Converter)null);
+                        sourceResult.setTaxPrice(rfxResultsDTO.getTaxPrice() == null ? rfxResultsDTO.getValidQuotationPrice() : rfxResultsDTO.getTaxPrice());
+                        sourceResult.setSourceNum(rfxResultsDTO.getRfxNum());
+                        sourceResult.setSourceHeaderId(rfxResultsDTO.getRfxHeaderId());
+                        sourceResult.setSourceFrom("RFX");
+                        sourceResult.setItemNum(rfxResultsDTO.getRfxLineItemNum());
+                        sourceResult.setSpecifications(rfxResultsDTO.getSpecs());
+                        sourceResult.setStageId(rfxResultsDTO.getStageId());
+                        sourceResult.setInfoType("0");
+                        sourceResult.setPriceCategory(rfxResultsDTO.getPriceCategory() == null ? "STANDARD" : rfxResultsDTO.getPriceCategory());
+                        sourceResult.setSourceLineItemId(rfxResultsDTO.getRfxLineItemId());
+                        sourceResult.setQuantity(rfxResultsDTO.getAllottedQuantity());
+                        sourceResult.setUnitPrice(rfxResultsDTO.getNetPrice());
+                        sourceResult.setQuotationExpiryDateFrom(rfxResultsDTO.getValidExpiryDateFrom());
+                        sourceResult.setQuotationExpiryDateTo(rfxResultsDTO.getValidExpiryDateTo());
+                        sourceResult.setExchangeRate(rfxResultsDTO.getExchangeRate());
+                        sourceResult.setQuotationLineId(rfxResultsDTO.getQuotationLineId());
+                        sourceResult.setRfxCreatedBy(rfxResultsDTO.getRfxCreatedBy());
+                        sourceResult.setPriceLibFlag(BaseConstants.Flag.NO);
+                        sourceResult.setCentralPurchaseFlag(rfxResultsDTO.getCentralPurchaseFlag() == null ? BaseConstants.Flag.NO : rfxResultsDTO.getCentralPurchaseFlag());
+                        sourceResult.setBenchmarkPriceType(rfxResultsDTO.getBenchmarkPriceType());
+                        sourceResult.setSourceType(rfxResultsDTO.getSourceType());
+                        sourceResult.setPurOrganizationCode(rfxResultsDTO.getPurOrganizationCode());
+                        sourceResult.setInvOrganizationCode(rfxResultsDTO.getInvOrganizationCode());
+                        sourceResult.setSupplierCompanyNum(rfxResultsDTO.getSupplierCompanyNum());
+                        sourceResult.setUnitName(rfxResultsDTO.getUnitName());
+                        if ("NORMAL".equals(rfxResultsDTO.getSourceType())) {
+                            sourceResult.setInfoType("0");
+                        } else if ("CONSIGN".equals(rfxResultsDTO.getSourceType())) {
+                            sourceResult.setInfoType("2");
+                        } else if ("OUTSOURCE".equals(rfxResultsDTO.getSourceType())) {
+                            sourceResult.setInfoType("3");
+                        } else {
+                            sourceResult.setInfoType((String)null);
+                        }
+
+                        sourceResult.setFinishDate(new Date());
+                        if (org.apache.commons.collections.CollectionUtils.isNotEmpty((Collection)map.get(sourceResult.getSupplierCompanyId())) && Constants.DefaultFlagValue.FLAG.equals(((List)map.get(sourceResult.getSupplierCompanyId())).size())) {
+                            sourceResult.setSupplierId(((ExternalSupplierDTO)((List)map.get(sourceResult.getSupplierCompanyId())).get(0)).getSupplierId());
+                            sourceResult.setExternalSystemCode(((ExternalSupplierDTO)((List)map.get(sourceResult.getSupplierCompanyId())).get(0)).getExternalSystemCode());
+                        }
+
+                        if (null != sourceResult.getSupplierId() && null != sourceResult.getItemCode()) {
+                            sourceResult.setSyncStatus("UNSYNCHRONIZED");
+                        } else {
+                            sourceResult.setSyncStatus("INCOMPLETED");
+                        }
+
+                        if (Objects.isNull(sourceResult.getTaxIncludedFlag())) {
+                            sourceResult.setTaxIncludedFlag(0);
+                        }
+
+                        if (Objects.isNull(sourceResult.getDirectoryCreateFlag())) {
+                            sourceResult.setDirectoryCreateFlag(0);
+                        }
+
+                        if (Objects.isNull(sourceResult.getLadderInquiryFlag())) {
+                            sourceResult.setLadderInquiryFlag(0);
+                        }
+
+                        if (Objects.isNull(sourceResult.getOccupationQuantity())) {
+                            sourceResult.setOccupationQuantity(new BigDecimal("0.000000"));
+                        }
+
+                        if (Objects.isNull(sourceResult.getPriceLibFlag())) {
+                            sourceResult.setPriceLibFlag(0);
+                        }
+
+                        if (Objects.isNull(sourceResult.getCopyFlag())) {
+                            sourceResult.setCopyFlag(0);
+                        }
+
+                        sourceResultList.add(sourceResult);
+                    });
+                }
+
+            });
+            this.sourceResultService.generateExportSystemType(sourceResultList);
+            this.sourceResultService.generateErpSupplierInfo(sourceResultList);
+            return this.sourceResultService.save(sourceResultList);
+        }
     }
 }
