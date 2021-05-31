@@ -83,10 +83,10 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
         Long supplierHeaderId;
         if (null != CheckSupplierHeaderId && !"".equals(CheckSupplierHeaderId)) {
             supplierHeaderId = CheckSupplierHeaderId;
-        } else {
-            supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
             RcwlSupplierHeader rcwlSupplierHeader1 = rcwlSupplierHeaderMapper.selectRcwlSupplierHeaderById(supplierHeaderId);
             rcwlSupplierHeader.setObjectVersionNumber(rcwlSupplierHeader1.getObjectVersionNumber());
+        } else {
+            supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
         }
 
         if (supplierHeaderId == null) {
