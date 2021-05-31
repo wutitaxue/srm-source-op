@@ -38,19 +38,21 @@ public class RcwlDataForBPM {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"FSubject\":\"").append(this.getFSUBJECT()).append("\",");
-        sb.append("\"SUBMITTEDBY\":\"").append(this.getSUBMITTEDBY()).append("\",");
-        sb.append("\"TITLE\":\"").append(this.getTITLE()).append("\",");
-        sb.append("\"FILE\":\"").append(this.getTITLE()).append("\",");
-        sb.append("\"SOURCENUM\":\"").append(this.getSOURCENUM()).append("\",");
-        sb.append("\"SOURCENAME\":\"").append(this.getSOURCENAME()).append("\",");
-        sb.append("\"CLARIFYNUM\":\"").append(this.getCLARIFYNUM()).append("\",");
+        sb.append("\"submittedby\":\"").append(this.getSUBMITTEDBY()).append("\",");
+        sb.append("\"title\":\"").append(this.getTITLE()).append("\",");
+        sb.append("\"file\":\"").append(this.getTITLE()).append("\",");
+        sb.append("\"sourcenum\":\"").append(this.getSOURCENUM()).append("\",");
+        sb.append("\"sourcename\":\"").append(this.getSOURCENAME()).append("\",");
+        sb.append("\"clarifynum\":\"").append(this.getCLARIFYNUM()).append("\",");
         sb.append("\"ROUNDNUMBER\":\"").append(this.getROUNDNUMBER()).append("\",");
-        sb.append("\"CLARIFYNUMBER\":\"").append(this.getCLARIFYNUMBER()).append("\",");
+        sb.append("\"clarifynumber\":\"").append(this.getCLARIFYNUMBER()).append("\",");
         String newCONTEXT = this.getCONTEXT();
-        if(newCONTEXT.contains("\n")){
-            newCONTEXT = newCONTEXT.replace("\n","\\n");
+        if(null != newCONTEXT && !"".equals(newCONTEXT)){
+            newCONTEXT = newCONTEXT.replace("\n","");
+            newCONTEXT = newCONTEXT.replace("<p>","");
+            newCONTEXT = newCONTEXT.replace("</p>","");
         }
-        sb.append("\"CONTEXT\":\"").append(newCONTEXT).append("\",");
+        sb.append("\"context\":\"").append(newCONTEXT).append("\",");
         sb.append("\"URL_MX\":\"").append(this.getURL_MX()).append("\",");
         sb.append("\"ATTACHMENTS1\":[");
         if(!CollectionUtils.isEmpty(this.getATTACHMENTS()) && this.getATTACHMENTS().size()>0){
