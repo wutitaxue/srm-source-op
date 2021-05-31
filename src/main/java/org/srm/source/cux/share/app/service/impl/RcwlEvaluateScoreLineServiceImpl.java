@@ -3,10 +3,10 @@ package org.srm.source.cux.share.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.convert.CommonConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -389,7 +389,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         while(var3.hasNext()) {
             EvaluateSummary obj = (EvaluateSummary)var3.next();
             // 拷贝一个新对象
-            EvaluateSummary newEvaluateSummary = CommonConverter.beanConvert(EvaluateSummary.class, obj);
+            EvaluateSummary newEvaluateSummary = new EvaluateSummary();
+            BeanUtils.copyProperties(obj ,newEvaluateSummary);
             if (1 == obj.getInvalidFlag()) {
                 newEvaluateSummary.setBusinessScore(BigDecimal.ZERO);
                 newEvaluateSummary.setScore(BigDecimal.ZERO);
