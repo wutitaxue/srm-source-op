@@ -1,9 +1,13 @@
 package org.srm.source.cux.share.app.service;
 
+import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.share.api.dto.AutoScoreDTO;
+import org.srm.source.share.api.dto.EvaluateExpertFullDTO;
 import org.srm.source.share.app.service.EvaluateScoreLineService;
+import org.srm.source.share.domain.entity.EvaluateSummary;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,4 +33,19 @@ public interface IRcwlEvaluateScoreLineService extends EvaluateScoreLineService 
      */
     @Override
     Map<Long, BigDecimal> getRfxQuotationLineMaps(AutoScoreDTO autoScoreDTO, String priceTypeCode);
+
+    /**
+     * 获取无效报价头 id 列表
+     * @param rfxHeader 询价单头 Entity
+     * @return QuotationHeaderId list
+     */
+    List<Long> getInvalidQuotationHeaderIdList(RfxHeader rfxHeader);
+
+    /**
+     * 确认终轮报价结束,重算专家汇总评分
+     * @param autoScoreDTO AutoScoreDTO
+     */
+    void multipleRoundAutoEvaluateScore(AutoScoreDTO autoScoreDTO);
+
+    public List<EvaluateSummary> updateEvaluateSummary(List<EvaluateSummary> evaluateSummaryList, String sourceFrom, Long sourceHeaderId, Long tenantId);
 }

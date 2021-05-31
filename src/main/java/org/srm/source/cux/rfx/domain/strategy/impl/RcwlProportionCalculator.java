@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.rfx.domain.strategy.IRcwlEvaluateIndicAutoScoreCalculator;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.share.api.dto.EvaluateScoreLineDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.ProportionCalculator;
@@ -19,7 +20,7 @@ import java.math.RoundingMode;
  */
 
 @Component
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 //public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
 public class RcwlProportionCalculator extends ProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlProportionCalculator.class);
