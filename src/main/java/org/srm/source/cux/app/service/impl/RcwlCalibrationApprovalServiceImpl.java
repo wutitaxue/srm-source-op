@@ -266,14 +266,6 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
 
 
     public void checkSubmitCommon(Long organizationId, Long rfxHeaderId, CheckPriceHeaderDTO checkPriceHeaderDTO) {
-        if (BaseConstants.Flag.YES.equals(checkPriceHeaderDTO.getSelectSectionReadFlag())) {
-            UserConfig userConfig = new UserConfig();
-            userConfig.setConfigKey("sectionRead");
-            userConfig.setConfigDesc("SelectSectionReadFlag");
-            userConfig.setConfigValue(BaseConstants.Flag.YES.toString());
-            this.userConfigService.createOrUpdate(new UserConfig());
-        }
-
 //        if (checkPriceHeaderDTO.getCreateItemFlag() != null && Objects.equals(checkPriceHeaderDTO.getCreateItemFlag(), 1)) {
 //            ((RfxHeaderService)this.self()).validItemCodeRepetition(organizationId, checkPriceHeaderDTO.getRfxLineItemList());
 //        }
