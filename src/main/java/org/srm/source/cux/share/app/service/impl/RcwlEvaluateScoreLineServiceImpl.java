@@ -3,6 +3,7 @@ package org.srm.source.cux.share.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.convert.CommonConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
@@ -387,18 +388,22 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
 
         while(var3.hasNext()) {
             EvaluateSummary obj = (EvaluateSummary)var3.next();
-            for (EvaluateSummary evaluateSummary : evaluateSummarys) {
-                // 无效投标，清空商务分，总分，排名
-                if (1 == evaluateSummary.getInvalidFlag()) {
-                    evaluateSummary.setBusinessScore(BigDecimal.ZERO);
-                    evaluateSummary.setScore(BigDecimal.ZERO);
+            // 拷贝一个新对象
+            EvaluateSummary newEvaluateSummary = CommonConverter.beanConvert(EvaluateSummary.class, obj);
+            if (1 == obj.getInvalidFlag()) {
+                newEvaluateSummary.setBusinessScore(BigDecimal.ZERO);
+                newEvaluateSummary.setScore(BigDecimal.ZERO);
 //                    evaluateSummary.setScoreRank(99L);
-                }else if (obj.getQuotationHeaderId().equals(evaluateSummary.getQuotationHeaderId())) {
-                    // 设置新的商务分
-                    evaluateSummary.setBusinessScore(obj.getBusinessScore());
+            } else {
+                for (EvaluateSummary evaluateSummary : evaluateSummarys) {
+                    // 无效投标，清空商务分，总分，排名
+                    if (obj.getQuotationHeaderId().equals(evaluateSummary.getQuotationHeaderId())) {
+                        // 设置新的商务分
+                        newEvaluateSummary.setBusinessScore(obj.getBusinessScore());
+                    }
                 }
-                allEvaluateSummary.add(evaluateSummary);
             }
+            allEvaluateSummary.add(newEvaluateSummary);
         }
 
         // 根据分数设置，总分排名
