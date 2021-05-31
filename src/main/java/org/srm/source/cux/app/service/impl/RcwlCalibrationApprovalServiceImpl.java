@@ -648,7 +648,8 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
 
         this.rfxQuotationHeaderRepository.batchUpdateByPrimaryKeySelective(rfxQuotationHeaderList);
         List<SourceResult> sourceResults = this.resultsGenerator(rfxQuotationHeaderList);
-        this.priceLibraryDomainService.generatePriceLibrary(rfxHeader.getTenantId(), "RFX", sourceResults, rfxHeader.buildConfigCenterParameters());
+        //todo
+       // this.priceLibraryDomainService.generatePriceLibrary(rfxHeader.getTenantId(), "RFX", sourceResults, rfxHeader.buildConfigCenterParameters());
         String autoPriceFlag = this.commonQueryRepository.queryCustomizeSettingValueByCode(tempHeader.getTenantId(), "011114", 0);
         List rfxLineSupplierList;
         if (autoPriceFlag == null || BaseConstants.Flag.YES.equals(Integer.valueOf(autoPriceFlag))) {
