@@ -79,9 +79,14 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Override
     @Transactional(rollbackOn = Exception.class)
     public RcwlSupplierHeader createAndUpdateSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
-        this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+        Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+        Long supplierHeaderId;
+        if (null != CheckSupplierHeaderId && !"".equals(CheckSupplierHeaderId)) {
+            supplierHeaderId = CheckSupplierHeaderId;
+        } else {
+            supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
+        }
 
-        Long supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
         if (supplierHeaderId == null) {
             rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_NOTSUBMITTED);
             //入围方式"邀请" 默认已报名
@@ -97,7 +102,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     }
 
     @Override
-    public void checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
+    public Long checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
         //校验重复 同一入围单下不可重复 新增时校验
         if (rcwlSupplierHeader.getSupplierHeaderId() == null) {
             RcwlSupplierHeader rcwlSupplierHeaderSelect = new RcwlSupplierHeader();
@@ -108,9 +113,14 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
             if (!ObjectUtils.allNotNull(rcwlSupplierHeader.getSupplierHeaderId())) {
                 if (i > 1) {
                     throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
+                } else if (i == 1) {
+                    return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
+                } else {
+                    return null;
                 }
             }
         }
+        return null;
     }
 
     @Override
