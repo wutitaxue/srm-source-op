@@ -1,6 +1,5 @@
 package org.srm.source.cux.infra.repository.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
@@ -101,7 +100,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
                     str2 = "两年营收不符合";
                 }
-                if (str1 != null && str2 != null && str3 != null && str4 != null) {
+                if (org.springframework.util.ObjectUtils.isEmpty(str1) && org.springframework.util.ObjectUtils.isEmpty(str2) && org.springframework.util.ObjectUtils.isEmpty(str3) && org.springframework.util.ObjectUtils.isEmpty(str4)) {
                     rcwlSupplierHeader.setQualificationInfo("全部符合");
                     rcwlSupplierHeader.setQualification(1);
                 } else {
