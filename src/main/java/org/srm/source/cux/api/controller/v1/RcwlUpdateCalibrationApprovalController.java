@@ -99,7 +99,9 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
             RfxHeader rfxHeaderDb = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
             DetailsHelper.getUserDetails().setUserId(rfxHeaderDb.getCreatedBy());
             if (!"CHECK_REJECTED".equals(rfxHeaderDb.getRfxStatus()) && !"FINISHED".equals(rfxHeaderDb.getRfxStatus())) {
+                log.info("=======================我特么进来了=============================");
                 rfxHeaderService.checkPriceApproved(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId);
+                log.info("=======================我特么出来了=============================");
             }else{
                 responseData.setCode("201");
                 responseData.setMessage("rfx status error!status:{"+rfxHeaderDb.getRfxStatus()+"}！");
