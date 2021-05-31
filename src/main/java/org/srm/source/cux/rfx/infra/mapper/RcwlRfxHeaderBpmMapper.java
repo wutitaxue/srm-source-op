@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface RcwlRfxHeaderBpmMapper {
 
+    Long selectUserId();
+
     List<EvaluateIndic> rcwlQueryEvaluateIndicate(@Param("evaluateIndicDTO") EvaluateIndicDTO evaluateIndicDTO);
 
     RcwlSendBpmData prepareDate(@Param("organizationId")Long organizationId,@Param("rfxHeader") RfxHeader rfxHeader);

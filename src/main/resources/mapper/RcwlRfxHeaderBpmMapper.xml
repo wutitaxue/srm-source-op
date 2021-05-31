@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper">
+    <select id="selectUserId" resultType="java.lang.Long">
+        SELECT ht.id from iam_user ht where ht.login_name = 'admin'
+    </select>
     <select id="rcwlQueryEvaluateIndicate" resultType="org.srm.source.share.domain.entity.EvaluateIndic">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select ei.evaluate_indic_id,
