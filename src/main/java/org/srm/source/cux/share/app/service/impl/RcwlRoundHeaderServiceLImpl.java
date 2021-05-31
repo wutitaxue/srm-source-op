@@ -83,7 +83,8 @@ public class RcwlRoundHeaderServiceLImpl extends RoundHeaderServiceImpl {
          * 新增逻辑
          * 多论报价重算评分
          */
-        if (!Long.valueOf(1).equals(rfxHeader.getRoundNumber())) {
+        LOGGER.info("24769 RCWL 确认终轮报价结束 quotation_round_number : {}", roundHeaderDb.getQuotationRoundNumber());
+        if (!Long.valueOf(1).equals(roundHeaderDb.getQuotationRoundNumber())) {
             // 获取专家评分汇总信息
             List<EvaluateSummary> evaluateSummarys =  this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(rfxHeader.getTenantId(),rfxHeader.getRfxHeaderId(),"RFX",rfxHeader.getRoundNumber()));
             for (EvaluateSummary evaluateSummary: evaluateSummarys) {
