@@ -370,7 +370,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             rollbackFor = {Exception.class}
     )
     public List<EvaluateSummary> updateEvaluateSummary(List<EvaluateSummary> evaluateSummaryList, String sourceFrom, Long sourceHeaderId, Long tenantId) {
-        LOGGER.info("24769  updateEvaluateSummary Start");
+        LOGGER.info("24769  updateEvaluateSummary Start evaluateSummaryList : {}", evaluateSummaryList);
         Long roundNumber = 0L;
         BigDecimal businessWeight = BigDecimal.ONE;
         BigDecimal technologyWeight  = BigDecimal.ONE;
@@ -400,11 +400,11 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
                 newEvaluateSummary.setScore(BigDecimal.ZERO);
 //                    evaluateSummary.setScoreRank(99L);
             } else {
-                for (EvaluateSummary evaluateSummary : evaluateSummarys) {
+                for (EvaluateSummary evaluateSummary : evaluateSummaryList) {
                     // 无效投标，清空商务分，总分，排名
                     if (obj.getQuotationHeaderId().equals(evaluateSummary.getQuotationHeaderId())) {
                         // 设置新的商务分
-                        newEvaluateSummary.setBusinessScore(obj.getBusinessScore());
+                        newEvaluateSummary.setBusinessScore(evaluateSummary.getBusinessScore());
                     }
                 }
             }
