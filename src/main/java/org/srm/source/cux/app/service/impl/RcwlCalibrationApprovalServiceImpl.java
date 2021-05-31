@@ -2,11 +2,9 @@ package org.srm.source.cux.app.service.impl;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import groovy.lang.Lazy;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
-import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.boot.customize.service.CustomizeClient;
@@ -15,6 +13,8 @@ import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.helper.LanguageHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cglib.core.Converter;
@@ -31,9 +31,6 @@ import org.srm.source.priceLib.app.service.PriceLibServiceService;
 import org.srm.source.priceLib.domain.vo.PriceServiceParamsVO;
 import org.srm.source.priceLib.domain.vo.PriceServiceVO;
 import org.srm.source.rfx.api.dto.*;
-import org.srm.source.rfx.api.dto.common.ItfBaseBO;
-import org.srm.source.rfx.api.dto.common.ResponseDTO;
-import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineItemService;
 import org.srm.source.rfx.app.service.SourceResultService;
 import org.srm.source.rfx.app.service.UserConfigService;
@@ -62,11 +59,10 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 
 @Service
 public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprovalService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlCalibrationApprovalServiceImpl.class);
     @Autowired
     private RCWLGxBpmInterfaceService rcwlGxBpmInterfaceService;
     //获取配置参数
