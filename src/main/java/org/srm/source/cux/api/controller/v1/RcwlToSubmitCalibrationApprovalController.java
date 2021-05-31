@@ -86,7 +86,8 @@ public class RcwlToSubmitCalibrationApprovalController extends BaseController {
 
             }catch (Exception e){
                 responseData.setCode("201");
-                responseData.setMessage("定标提交失败！");
+                responseData.setMessage("定标提交失败！失败原因::::"+e.getMessage());
+                log.info("++++++++++++++++++++++++++++++++++++++e.getMessage():"+e.getMessage()+"++++++++++++++++++++++++++++++++++++++++++++");
             }
         }
         return responseData;
