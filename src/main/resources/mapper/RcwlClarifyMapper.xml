@@ -43,4 +43,9 @@
         FROM    ssrc_clarify
         WHERE   clarify_num = #{clarifyNum}
     </select>
+    <select id="getMeaningByLovCodeAndValue" resultType="java.lang.String">
+        SELECT t.meaning FROM `hpfm_lov_value` t
+        where t.lov_code=#{lovCode}
+          and t.`value`=#{value}
+    </select>
 </mapper>

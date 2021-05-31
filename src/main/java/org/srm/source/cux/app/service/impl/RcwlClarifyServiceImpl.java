@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.*;
+import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
+import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 
 import java.util.ArrayList;
@@ -21,6 +23,10 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     private RCWLGxBpmInterfaceService rcwlGxBpmInterfaceService;
     @Autowired
     private RcwlClarifyRepository rcwlClarifyRepository;
+    @Autowired
+    private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
+    @Autowired
+    private RcwlCalibrationApprovalRepository rcwlCalibrationApprovalRepository;
     //获取配置参数
     @Autowired
     private ProfileClient profileClient;
@@ -28,7 +34,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     @Override
     public ResponseData releaseClarifyByBPM(RcwlClarifyForBPM clarify) {
 
-        String username = DetailsHelper.getUserDetails().getUsername();
+        String username = rcwlRfxHeaderRepository.getRealNameById(clarify.getTenantId());
         ResponseData responseData = new ResponseData();
         RcwlDataForBPM rcwlDataForBPM = new RcwlDataForBPM();
         responseData.setMessage("操作成功！");
@@ -49,7 +55,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         rcwlDataForBPM.setFILE(clarify.getReferFlag() == 0l ? "澄清":"答疑");//值为1传描述“答疑” 值为0传描述“ 澄清”
         //立项编号不确定----------
         rcwlDataForBPM.setFSUBJECT(rcwlDataForBPM.getTITLE() + clarify.getTitle() + dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//答疑+标题+立项编号
-        rcwlDataForBPM.setSUBMITTEDBY(clarify.getCreatedBy() == null ? "":clarify.getCreatedBy().toString());//CREATED_BY
+        rcwlDataForBPM.setSUBMITTEDBY(clarify.getCreatedBy() == null ? "":rcwlRfxHeaderRepository.getRealNameById(clarify.getCreatedBy()));//CREATED_BY
         rcwlDataForBPM.setTITLE(clarify.getTitle());
         rcwlDataForBPM.setSOURCENUM(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_num
         rcwlDataForBPM.setSOURCENAME(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[1]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_title
@@ -86,7 +92,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
         rcwlGxBpmStartDataDTO.setUserId(username);
         rcwlGxBpmStartDataDTO.setBtid("RCWLSRMCQDY");
-        rcwlGxBpmStartDataDTO.setBoid(clarify.getTitle());
+        rcwlGxBpmStartDataDTO.setBoid(clarify.getClarifyNum());
         rcwlGxBpmStartDataDTO.setProcinstId(clarify.getProcessInstanceId());
         rcwlGxBpmStartDataDTO.setData(rcwlDataForBPM.toString());
         //返回前台的跳转URL

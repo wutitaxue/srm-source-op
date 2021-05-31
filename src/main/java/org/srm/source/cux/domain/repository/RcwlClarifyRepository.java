@@ -22,4 +22,6 @@ public interface RcwlClarifyRepository extends BaseRepository<RcwlClarifyForBPM>
     Long getClarifyIdByClarifyNum(String clarifyNum);
 
     List<String> getTenantIdByclarifyNum(String clarifyNum);
+
+    String getMeaningByLovCodeAndValue(String LovCode,String value);
 }

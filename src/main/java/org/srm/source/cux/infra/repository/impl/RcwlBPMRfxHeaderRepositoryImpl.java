@@ -39,4 +39,9 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     public Long getRfxHeaderIdByRfxNum(String rfxNum) {
         return rcwlRfxHeaderMapper.getRfxHeaderIdByRfxNum(rfxNum);
     }
+
+    @Override
+    public String getRealNameById(Long tenantId) {
+        return  rcwlRfxHeaderMapper.getRealNameById(tenantId);
+    }
 }
