@@ -89,17 +89,22 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str4 = "";
             if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
+                    logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                     str1 = "注册资本不符合";
                 }
                 if (rcwlSupplierHeader.getYears() < rcwlShortlistHeader.getYears()) {
+                    logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
                     str2 = "成立年限不符合";
                 }
                 if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
+                    logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                     str2 = "一年营收不符合";
                 }
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
+                    logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                     str2 = "两年营收不符合";
                 }
+                logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
                 if (org.springframework.util.ObjectUtils.isEmpty(str1) && org.springframework.util.ObjectUtils.isEmpty(str2) && org.springframework.util.ObjectUtils.isEmpty(str3) && org.springframework.util.ObjectUtils.isEmpty(str4)) {
                     rcwlSupplierHeader.setQualificationInfo("全部符合");
                     rcwlSupplierHeader.setQualification(1);
@@ -110,6 +115,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             }
 
         }
+        logger.info("-------------page:" + page.toString());
         return page;
     }
 
@@ -207,8 +213,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         Long supplierCount = rcwlShortlistHeaderMapper.supplierCount(rcwlShortlistHeader.getShortlistHeaderId());
         if (SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             Date finishDate = rcwlShortlistHeader.getFinishDate();
-            logger.info("-------------finishDate:"+finishDate);
-            logger.info("-------------finishDate.compareTo:"+finishDate.compareTo(new Date()));
+            logger.info("-------------finishDate:" + finishDate);
+            logger.info("-------------finishDate.compareTo:" + finishDate.compareTo(new Date()));
             if (finishDate.compareTo(new Date()) <= 0) {
                 throw new CommonException("未到报名截止时间，无法发布！");
             }
