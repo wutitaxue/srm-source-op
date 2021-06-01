@@ -79,14 +79,21 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Override
     @Transactional(rollbackOn = Exception.class)
     public RcwlSupplierHeader createAndUpdateSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
-        this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+        Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+        Long supplierHeaderId;
+        if (null != CheckSupplierHeaderId && !"".equals(CheckSupplierHeaderId)) {
+            supplierHeaderId = CheckSupplierHeaderId;
+            RcwlSupplierHeader rcwlSupplierHeader1 = rcwlSupplierHeaderMapper.selectRcwlSupplierHeaderById(supplierHeaderId);
+            rcwlSupplierHeader.setObjectVersionNumber(rcwlSupplierHeader1.getObjectVersionNumber());
+        } else {
+            supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
+        }
 
-        Long supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
         if (supplierHeaderId == null) {
             rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_NOTSUBMITTED);
             //入围方式"邀请" 默认已报名
             RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectByPrimaryKey(rcwlSupplierHeader.getShortlistHeaderId());
-            if(SHORTLIST_CATEGEORY_INVITATION.equals(rcwlShortlistHeader.getShortlistCategory())){
+            if (SHORTLIST_CATEGEORY_INVITATION.equals(rcwlShortlistHeader.getShortlistCategory())) {
                 rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_PARTICIPATED);
             }
             this.self().insertSelective(rcwlSupplierHeader);
@@ -97,32 +104,40 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     }
 
     @Override
-    public void checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
+    public Long checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
         //校验重复 同一入围单下不可重复 新增时校验
-        if(rcwlSupplierHeader.getSupplierHeaderId() == null){
+        if (rcwlSupplierHeader.getSupplierHeaderId() == null) {
             RcwlSupplierHeader rcwlSupplierHeaderSelect = new RcwlSupplierHeader();
             rcwlSupplierHeaderSelect.setSupplierId(rcwlSupplierHeader.getSupplierId());
             rcwlSupplierHeaderSelect.setShortlistHeaderId(rcwlSupplierHeader.getShortlistHeaderId());
             int i = rcwlSupplierHeaderMapper.selectCount(rcwlSupplierHeaderSelect);
-            if(i > 0){
-                throw new CommonException("供应商："+ rcwlSupplierHeader.getSupplierNum() +"已存在：");
+            //...无语代码，不知如何处理，傻狗代码
+            if (!ObjectUtils.allNotNull(rcwlSupplierHeader.getSupplierHeaderId())) {
+                if (i > 1) {
+                    throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
+                } else if (i == 1) {
+                    return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
+                } else {
+                    return null;
+                }
             }
         }
+        return null;
     }
 
     @Override
     public void updateStatus(RcwlShortlistHeader rcwlShortlistHeader) {
         Date startDate = rcwlShortlistHeader.getStartDate();
         Date finishDate = rcwlShortlistHeader.getFinishDate();
-        if(rcwlShortlistHeader.getShortlistHeaderId() == null){
+        if (rcwlShortlistHeader.getShortlistHeaderId() == null) {
             //已取消
             rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
         } else {
-            if(StringUtils.isEmpty(rcwlShortlistHeader.getSupplierStatus())){
-                if(startDate.compareTo(new Date()) > 0){
+            if (StringUtils.isEmpty(rcwlShortlistHeader.getSupplierStatus())) {
+                if (startDate.compareTo(new Date()) > 0) {
                     //未开始
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_UNSTART);
-                } else if((startDate.compareTo(new Date()) <= 0) && (finishDate.compareTo(new Date()) > 0)) {
+                } else if ((startDate.compareTo(new Date()) <= 0) && (finishDate.compareTo(new Date()) > 0)) {
                     //未报名
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_UNPARTICIPATED);
                 } else {
@@ -130,18 +145,18 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_ABANDONED);
                 }
             } else {
-                if(RCWL_RWENROLL_STUTAS_NOTSUBMITTED.equals(rcwlShortlistHeader.getSupplierStatus()) && (finishDate.compareTo(new Date()) < 0)){
+                if (RCWL_RWENROLL_STUTAS_NOTSUBMITTED.equals(rcwlShortlistHeader.getSupplierStatus()) && (finishDate.compareTo(new Date()) < 0)) {
                     //已放弃
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_ABANDONED);
-                } else if(RW_STUTAS_APPROVED.equals(rcwlShortlistHeader.getState())){
-                    if(rcwlShortlistHeader.getSelected() == 1){
+                } else if (RW_STUTAS_APPROVED.equals(rcwlShortlistHeader.getState())) {
+                    if (rcwlShortlistHeader.getSelected() == 1) {
                         //已入围
                         rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_SHORTLISTED);
                     } else {
                         //未入围
                         rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
                     }
-                } else if(RW_STUTAS_REJECTED.equals(rcwlShortlistHeader.getState())){
+                } else if (RW_STUTAS_REJECTED.equals(rcwlShortlistHeader.getState())) {
                     //已取消
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
                 }

@@ -287,6 +287,10 @@
         srsh2.enroll_date,
         srsh2.status,
         srsh2.created_by,
+        srsh2.capital,
+        srsh2.years,
+        srsh2.one_profit,
+        srsh2.two_profit,
         srsh2.creation_date
         from scux_rcwl_supplier_header srsh2
         left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id

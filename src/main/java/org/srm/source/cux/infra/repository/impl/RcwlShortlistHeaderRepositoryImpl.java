@@ -1,6 +1,5 @@
 package org.srm.source.cux.infra.repository.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
@@ -88,20 +87,26 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str2 = "";
             String str3 = "";
             String str4 = "";
+            logger.info("-------------rcwlSupplierHeader.getCapital():" + rcwlSupplierHeader.getCapital());
             if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
+                logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
                     str1 = "注册资本不符合";
                 }
+                logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
                 if (rcwlSupplierHeader.getYears() < rcwlShortlistHeader.getYears()) {
                     str2 = "成立年限不符合";
                 }
+                logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                 if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
                     str2 = "一年营收不符合";
                 }
+                logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
                     str2 = "两年营收不符合";
                 }
-                if (str1 != null && str2 != null && str3 != null && str4 != null) {
+                logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
+                if (org.springframework.util.ObjectUtils.isEmpty(str1) && org.springframework.util.ObjectUtils.isEmpty(str2) && org.springframework.util.ObjectUtils.isEmpty(str3) && org.springframework.util.ObjectUtils.isEmpty(str4)) {
                     rcwlSupplierHeader.setQualificationInfo("全部符合");
                     rcwlSupplierHeader.setQualification(1);
                 } else {
@@ -111,6 +116,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             }
 
         }
+//        logger.info("-------------page:" + page.toString());
         return page;
     }
 
@@ -208,6 +214,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         Long supplierCount = rcwlShortlistHeaderMapper.supplierCount(rcwlShortlistHeader.getShortlistHeaderId());
         if (SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             Date finishDate = rcwlShortlistHeader.getFinishDate();
+            logger.info("-------------finishDate:" + finishDate);
+            logger.info("-------------finishDate.compareTo:" + finishDate.compareTo(new Date()));
             if (finishDate.compareTo(new Date()) <= 0) {
                 throw new CommonException("未到报名截止时间，无法发布！");
             }
@@ -231,7 +239,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
         //---------------------设置bpm字段并且提交审批---------------------
         String ip = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
-        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMYSDSP&BOID=" + rcwlShortlistHeader.getShortlistNum());
+        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMRWD2&BOID=" + rcwlShortlistHeader.getShortlistNum());
         RcwlShortlistHeader bpmHeaderData = rcwlShortlistHeaderMapper.selectShortlistHeaderById(DetailsHelper.getUserDetails().getTenantId(), rcwlShortlistHeader.getShortlistHeaderId());
 
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
