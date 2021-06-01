@@ -2,13 +2,18 @@ package org.srm.source.cux.infra.repository.impl;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import javassist.Loader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.core.base.AopProxy;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
@@ -44,9 +49,13 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Autowired
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(Loader.class);
+
 
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlSupplierHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
+        logger.info("-------------getClientDetails:"+DetailsHelper.getClientDetails().toJSONString());
+        logger.info("-------------getUserDetails:"+DetailsHelper.getUserDetails().toJSONString());
         Page<RcwlShortlistHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlSupplierHeaderMapper.selectRcwlSupplierHeader(rcwlShortlistQueryDTO));
         for (RcwlShortlistHeader rcwlShortlistHeader : page) {
             this.updateStatus(rcwlShortlistHeader);
@@ -79,16 +88,10 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Override
     @Transactional(rollbackOn = Exception.class)
     public RcwlSupplierHeader createAndUpdateSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
-        Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
-        Long supplierHeaderId;
-        if (null != CheckSupplierHeaderId && !"".equals(CheckSupplierHeaderId)) {
-            supplierHeaderId = CheckSupplierHeaderId;
-            RcwlSupplierHeader rcwlSupplierHeader1 = rcwlSupplierHeaderMapper.selectRcwlSupplierHeaderById(supplierHeaderId);
-            rcwlSupplierHeader.setObjectVersionNumber(rcwlSupplierHeader1.getObjectVersionNumber());
-        } else {
-            supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
-        }
 
+        Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+
+        Long supplierHeaderId = CheckSupplierHeaderId;
         if (supplierHeaderId == null) {
             rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_NOTSUBMITTED);
             //入围方式"邀请" 默认已报名
@@ -98,6 +101,9 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
             }
             this.self().insertSelective(rcwlSupplierHeader);
         } else {
+            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getObjectVersionNumber())) {
+
+            }
             this.self().updateByPrimaryKeySelective(rcwlSupplierHeader);
         }
         return rcwlSupplierHeaderMapper.selectRcwlSupplierHeaderById(rcwlSupplierHeader.getShortlistHeaderId());
@@ -112,14 +118,10 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
             rcwlSupplierHeaderSelect.setShortlistHeaderId(rcwlSupplierHeader.getShortlistHeaderId());
             int i = rcwlSupplierHeaderMapper.selectCount(rcwlSupplierHeaderSelect);
             //...无语代码，不知如何处理，傻狗代码
-            if (!ObjectUtils.allNotNull(rcwlSupplierHeader.getSupplierHeaderId())) {
-                if (i > 1) {
-                    throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
-                } else if (i == 1) {
-                    return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
-                } else {
-                    return null;
-                }
+            if (i > 0) {
+                throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
+            } else {
+                return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
             }
         }
         return null;
