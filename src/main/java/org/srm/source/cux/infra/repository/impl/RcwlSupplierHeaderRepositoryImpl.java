@@ -54,8 +54,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlSupplierHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
-        logger.info("-------------getClientDetails:"+DetailsHelper.getClientDetails().toJSONString());
-        logger.info("-------------getUserDetails:"+DetailsHelper.getUserDetails().toJSONString());
+        rcwlShortlistQueryDTO.setSuppilerId(DetailsHelper.getUserDetails().getOrganizationId());
         Page<RcwlShortlistHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlSupplierHeaderMapper.selectRcwlSupplierHeader(rcwlShortlistQueryDTO));
         for (RcwlShortlistHeader rcwlShortlistHeader : page) {
             this.updateStatus(rcwlShortlistHeader);
