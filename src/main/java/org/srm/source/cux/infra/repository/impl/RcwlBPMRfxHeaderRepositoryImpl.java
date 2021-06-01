@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.ClarifyToReleaseDTO;
 import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
@@ -43,5 +44,17 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     @Override
     public String getRealNameById(Long tenantId) {
         return  rcwlRfxHeaderMapper.getRealNameById(tenantId);
+    }
+
+    @Override
+    public ClarifyToReleaseDTO getClarifyToReleaseDTO(Long clarifyId) {
+        return rcwlRfxHeaderMapper.getClarifyToReleaseDTO(clarifyId);
+    }
+
+    @Override
+    public List<Long> getIssueLineIdListByClarifyId(Long clarifyId) {
+        List<Long> list = new ArrayList<Long>();
+        list = rcwlRfxHeaderMapper.getIssueLineIdListByClarifyId(clarifyId);
+        return list;
     }
 }

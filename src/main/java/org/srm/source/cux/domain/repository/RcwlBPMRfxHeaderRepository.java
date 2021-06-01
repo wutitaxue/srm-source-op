@@ -1,6 +1,7 @@
 package org.srm.source.cux.domain.repository;
 
 import org.hzero.mybatis.base.BaseRepository;
+import org.srm.source.cux.domain.entity.ClarifyToReleaseDTO;
 import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -18,4 +19,8 @@ public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
     Long getRfxHeaderIdByRfxNum(String rfxNum);
 
     String getRealNameById(Long tenantId);
+
+    ClarifyToReleaseDTO getClarifyToReleaseDTO(Long clarifyId);
+
+    List<Long> getIssueLineIdListByClarifyId(Long clarifyId);
 }

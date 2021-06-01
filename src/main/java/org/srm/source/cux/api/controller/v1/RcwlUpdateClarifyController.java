@@ -10,10 +10,8 @@ import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.srm.source.cux.app.service.RcwlClarifyService;
-import org.srm.source.cux.domain.entity.RcwlCarifyReleaseVO;
-import org.srm.source.cux.domain.entity.RcwlUpdateVO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
-import org.srm.source.cux.domain.entity.ResponseData;
+import org.srm.source.cux.domain.entity.*;
+import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.share.app.service.ClarifyService;
 import org.srm.source.share.domain.entity.Clarify;
 
@@ -31,6 +29,8 @@ public class RcwlUpdateClarifyController extends BaseController {
     private RcwlClarifyService rcwlClarifyService;
     @Autowired
     private ClarifyService clarifyService;
+    @Autowired
+    private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
 
     @ApiOperation("更新数据字段")
     @Permission(
@@ -88,7 +88,15 @@ public class RcwlUpdateClarifyController extends BaseController {
         }
         DetailsHelper.setCustomUserDetails(rcwlCarifyReleaseDTO.getTenantid(),"zh_CN");
         Long clarifyId = rcwlClarifyService.getClarifyIdByClarifyNum(rcwlCarifyReleaseDTO.getClarifyNum());
+        //基础数据
         Clarify clarify = clarifyService.queryClarifyDetail(rcwlCarifyReleaseDTO.getTenantid(),clarifyId);
+        //问题行表数据
+        List<Long> l = rcwlRfxHeaderRepository.getIssueLineIdListByClarifyId(clarify.getClarifyId());
+        clarify.setIssueLineIdList(l);
+        clarify.setSubmittedByUserName(rcwlRfxHeaderRepository.getRealNameById(clarify.getSubmittedBy()));
+        ClarifyToReleaseDTO clarifyToReleaseDTO = rcwlRfxHeaderRepository.getClarifyToReleaseDTO(clarify.getClarifyId());
+        clarify.setCompanyName(clarifyToReleaseDTO.getCompanyName());
+        clarify.setSourceNum(clarifyToReleaseDTO.getSourceNum());
         this.validObject(clarify, new Class[0]);
         try{
             clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
