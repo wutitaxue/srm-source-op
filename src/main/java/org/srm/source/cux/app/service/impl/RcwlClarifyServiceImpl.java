@@ -1,5 +1,6 @@
 package org.srm.source.cux.app.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -33,7 +34,6 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
 
     @Override
     public ResponseData releaseClarifyByBPM(RcwlClarifyForBPM clarify) {
-
         String username = rcwlRfxHeaderRepository.getRealNameById(clarify.getTenantId());
         ResponseData responseData = new ResponseData();
         RcwlDataForBPM rcwlDataForBPM = new RcwlDataForBPM();
@@ -42,6 +42,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         //固定获取BPM接口参数区-------------
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
+        String USERNAME = DetailsHelper.getUserDetails().getUsername();
         ResponsePayloadDTO responsePayloadDTO = new ResponsePayloadDTO();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         //方法区，获取调用BPM接口所需值DATA并填充
@@ -90,11 +91,12 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         //设置传输值
         rcwlGxBpmStartDataDTO.setReSrcSys(reSrcSys);
         rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
-        rcwlGxBpmStartDataDTO.setUserId(username);
+        rcwlGxBpmStartDataDTO.setUserId(USERNAME);
         rcwlGxBpmStartDataDTO.setBtid("RCWLSRMCQDY");
         rcwlGxBpmStartDataDTO.setBoid(clarify.getClarifyNum());
         rcwlGxBpmStartDataDTO.setProcinstId(clarify.getProcessInstanceId());
         rcwlGxBpmStartDataDTO.setData(rcwlDataForBPM.toString());
+        String xx =  JSONObject.toJSONString(rcwlGxBpmStartDataDTO);
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");
         String rcwl_page_urlip = profileClient.getProfileValueByOptions("RCWL_CLARIFY_TO_PAGE_URL");
