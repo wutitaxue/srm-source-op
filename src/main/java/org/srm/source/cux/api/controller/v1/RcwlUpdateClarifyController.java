@@ -1,9 +1,11 @@
 package org.srm.source.cux.api.controller.v1;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import org.srm.source.share.domain.entity.Clarify;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Slf4j
 @Api(
         tags = {"Rcwl Update Clarify"}
 )
@@ -35,6 +38,8 @@ public class RcwlUpdateClarifyController extends BaseController {
     )
     @PostMapping({"/update-clarify"})
     public ResponseData updateClarifyData(@RequestBody RcwlUpdateVO rcwlUpdateVO) {
+        String xx = JSONObject.toJSONString(rcwlUpdateVO);
+        log.info("澄清(修改)传进来的值：rcwlUpdateVO====>"+rcwlUpdateVO);
         ResponseData responseData = new ResponseData();
         RcwlUpdateDataVO rcwlUpdateDataVO = rcwlUpdateVO.getRcwlUpdateDataVO() ;
         if(null == rcwlUpdateVO || null == rcwlUpdateDataVO){
@@ -72,6 +77,8 @@ public class RcwlUpdateClarifyController extends BaseController {
     )
     @PostMapping({"/release/cqdy"})
     public ResponseData releaseClarify(@RequestBody RcwlCarifyReleaseVO rcwlCarifyReleaseDTO) {
+        String xx = JSONObject.toJSONString(rcwlCarifyReleaseDTO);
+        log.info("澄清(发布)传进来的值：rcwlCarifyReleaseDTO====>"+rcwlCarifyReleaseDTO);
         ResponseData responseData = new ResponseData();
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
