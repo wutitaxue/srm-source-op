@@ -23,8 +23,8 @@
         WHERE   source_id = #{id}
         AND     refer_flag = #{referFlag}
     </select>
-    <select id="getAttachmentList" resultType="String">
-        SELECT concat_ws('|+|',file_name,file_size,file_url)
+    <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
+        SELECT file_name fileName,file_size fileSize,file_url fileUrl
         FROM    hfle_file
         WHERE   attachment_uuid = #{id}
     </select>
@@ -42,5 +42,10 @@
         SELECT tenant_id
         FROM    ssrc_clarify
         WHERE   clarify_num = #{clarifyNum}
+    </select>
+    <select id="getMeaningByLovCodeAndValue" resultType="java.lang.String">
+        SELECT t.meaning FROM `hpfm_lov_value` t
+        where t.lov_code=#{lovCode}
+          and t.`value`=#{value}
     </select>
 </mapper>

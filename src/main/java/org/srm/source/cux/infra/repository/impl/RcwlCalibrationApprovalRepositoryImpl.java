@@ -2,8 +2,9 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataDTO;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
+import org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase;
+import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.infra.mapper.RcwlCalibrationApprovalMapper;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -11,7 +12,6 @@ import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -21,8 +21,8 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     private RcwlCalibrationApprovalMapper rcwlCalibrationApprovalMapper;
 
     @Override
-    public List<String> getAttachmentList(String data) {
-        List<String> list = new ArrayList<>();
+    public List<RcwlAttachmentListData> getAttachmentList(String data) {
+        List<RcwlAttachmentListData> list = new ArrayList<>();
         list = rcwlCalibrationApprovalMapper.getAttachmentList(data);
         return list;
     }
@@ -38,10 +38,9 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     }
 
     @Override
-    public List<String> getDbdbjgList(Long rfxHeaderId) {
-        List<String> l = new ArrayList<>();
-        l = rcwlCalibrationApprovalMapper.getDbdbjgList(rfxHeaderId);
-        return l;
+    public List<RcwlDBGetDataFromDatabase> getDbdbjgList(Long rfxHeaderId) {
+        List<RcwlDBGetDataFromDatabase> l = rcwlCalibrationApprovalMapper.getDbdbjgList(rfxHeaderId);
+        return l == null ? new ArrayList<RcwlDBGetDataFromDatabase>() : l ;
     }
 
     @Override
@@ -56,13 +55,13 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     }
 
     @Override
-    public void updateClarifyData(RcwlUpdateCalibrationApprovalDataDTO rcwlUpdateDataDTO) {
+    public void updateClarifyData(RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO) {
         rcwlCalibrationApprovalMapper.updateClarifyData(rcwlUpdateDataDTO);
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        Long data = rcwlCalibrationApprovalMapper.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        Long data = rcwlCalibrationApprovalMapper.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
         return data == null ? 0l:data ;
     }
 
@@ -88,5 +87,17 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
     public List<RfxQuotationLine> getQuotationLineListByQuotationHeaderID(Long id) {
         List<RfxQuotationLine> l = rcwlCalibrationApprovalMapper.getQuotationLineListByQuotationHeaderID(id);
         return l == null ? new ArrayList<RfxQuotationLine>() : l;
+    }
+
+    @Override
+    public RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id) {
+        RfxQuotationLine s =  rcwlCalibrationApprovalMapper.getRfxQuotationLineDataByQuotationHeaderIDs(id);
+        return s == null ? new RfxQuotationLine() : s;
+    }
+
+    @Override
+    public Long getRoundNumber(Long rfxHeaderId, Long tenantId) {
+        Long data = rcwlCalibrationApprovalMapper.getRoundNumber(rfxHeaderId,tenantId);
+        return data == null ? 0l:data ;
     }
 }

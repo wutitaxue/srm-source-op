@@ -1,6 +1,7 @@
 package org.srm.source.cux.api.controller.v1;
 
 import com.alibaba.fastjson.JSONObject;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
@@ -12,24 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.RcwlDBSPTGDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalVO;
-import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalDataVO;
 import org.srm.source.cux.domain.entity.ResponseCalibrationApprovalData;
 import org.srm.source.rfx.api.dto.CheckPriceDTO;
 import org.srm.source.rfx.api.dto.CheckPriceHeaderDTO;
-import org.srm.source.rfx.api.dto.HeaderQueryDTO;
 import org.srm.source.rfx.api.dto.RfxHeaderDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineItemService;
-import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
-import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
-import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
-import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
-import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 
 import javax.annotation.Resource;
@@ -38,113 +31,31 @@ import java.util.List;
 
 @Slf4j
 @Api(
-        tags = {"Rcwl Update Calibration Approval"}
+        tags = {"Rcwl To Submit Calibration Approval"}
 )
-@RestController("rcwlUpdateCalibrationApprovalController.v1")
-@RequestMapping({"/v1/rcwlUpdateCalibrationApprovalController"})
-public class RcwlUpdateCalibrationApprovalController extends BaseController {
+@RestController("rcwlToSubmitCalibrationApprovalController.v1")
+@RequestMapping({"/v1/toSubmitCalibrationApproval"})
+public class RcwlToSubmitCalibrationApprovalController extends BaseController {
     @Autowired
     private RcwlCalibrationApprovalService rcwlCalibrationApprovalService;
     @Resource
     private RfxHeaderService rfxHeaderService;
-    @Autowired
-    private RfxQuotationHeaderService rfxQuotationHeaderService;
-    @Resource
-    private RfxQuotationLineService rfxQuotationLineService;
-    @Autowired
-    private RfxLineItemService rfxLineItemService;
     @Resource
     private RfxHeaderRepository rfxHeaderRepository;
     @Resource
     private RfxHeaderMapper rfxHeaderMapper;
     @Autowired
-    private RfxEventUtil rfxEventUtil;
-
-    @ApiOperation("更新定标字段")
-    @Permission(
-            permissionPublic = true
-    )
-    @PostMapping({"/update-calibration-approval"})
-    public ResponseCalibrationApprovalData updateClarifyData(@RequestBody RcwlUpdateCalibrationApprovalVO rcwlUpdateDTO) {
-        ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        RcwlUpdateCalibrationApprovalDataVO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateCalibrationApprovalDataVO();
-        if(rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum())){
-            responseData.setCode("201");
-            responseData.setMessage("单据编号获取异常！");
-            return responseData;
-        }
-        if((rcwlUpdateDataDTO.getAttributeVarchar4() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar4()))&&
-                (rcwlUpdateDataDTO.getAttributeVarchar5() == null || "".equals(rcwlUpdateDataDTO.getAttributeVarchar5()))){
-            responseData.setCode("201");
-            responseData.setMessage("所需更新数据至少有一个值！");
-            return responseData;
-        }
-        responseData = rcwlCalibrationApprovalService.updateClarifyData(rcwlUpdateDataDTO);
-        return responseData;
-    }
-
-
-    @ApiOperation("定标审批通过")
-    @Permission(
-            permissionPublic = true
-    )
-    @PostMapping({"/check/approved/for/bpm"})
-    public ResponseCalibrationApprovalData checkPriceApproved(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
-        ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-//        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
-        responseData.setCode("200");
-        responseData.setMessage("操作成功！");
-        try{
-            RfxHeader rfxHeaderDb = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
-           //DetailsHelper.getUserDetails().setUserId(rfxHeaderDb.getCreatedBy());
-            DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
-            if (!"CHECK_REJECTED".equals(rfxHeaderDb.getRfxStatus()) && !"FINISHED".equals(rfxHeaderDb.getRfxStatus())) {
-                log.info("=======================我特么进来了=============================");
-                rcwlCalibrationApprovalService.checkPriceApproved(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId);
-                log.info("=======================我特么出来了=============================");
-            }else{
-                responseData.setCode("201");
-                responseData.setMessage("rfx status error!status:{"+rfxHeaderDb.getRfxStatus()+"}！");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("e.getMessage====================================================================="+e.getMessage());
-            System.out.println("e================================================================================"+e);
-            responseData.setCode("201");
-            responseData.setMessage("操作失败！");
-        }
-        return responseData;
-    }
-
-    @ApiOperation("定标审批拒绝")
-    @Permission(
-            permissionPublic = true
-    )
-    @PostMapping({"/check/reject/for/bpm"})
-    public ResponseCalibrationApprovalData checkPriceReject(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
-        ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
-        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
-        responseData.setCode("200");
-        responseData.setMessage("操作成功！");
-        try{
-            rfxHeaderService.checkPriceReject(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId);
-        }catch(Exception e){
-            responseData.setCode("201");
-            responseData.setMessage("操作失败！");
-        }
-        return responseData;
-    }
+    private RfxLineItemService rfxLineItemService;
 
     @ApiOperation("定标提交")
     @Permission(
-            permissionPublic = true
+            level = ResourceLevel.ORGANIZATION
     )
     @PostMapping({"/check/submit/for/bpm"})
-    public ResponseCalibrationApprovalData checkPriceSubmit(@RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
+    public ResponseCalibrationApprovalData checkPriceSubmit( @RequestBody RcwlDBSPTGDTO rcwlDBSPTGDTO) {
+//        rcwlDBSPTGDTO.setTenantId(organizationId);
         ResponseCalibrationApprovalData responseData = new ResponseCalibrationApprovalData();
-        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
+//        DetailsHelper.setCustomUserDetails(rcwlDBSPTGDTO.getTenantId(),"zh_CN");
         //获取头ID
         Long rfxHeaderId = rcwlCalibrationApprovalService.getRfxHeaderIdByRfxNum(rcwlDBSPTGDTO.getRfxNum(),rcwlDBSPTGDTO.getTenantId());
         responseData.setCode("200");
@@ -167,18 +78,16 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
                 log.info("+++++++++++++++++++++++++++++++++++++++开始+++++++++++++++++++++++++++++++++++++++++++");
 //                RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
 //                this.rfxEventUtil.eventSend("SSRC_RFX_CHECK_SUBMIT", "CHECK_SUBMIT", rfxHeader);
+                rcwlCalibrationApprovalService.checkSubmitCommon(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
                 log.info("++++++++++++++++++++++++++++++++++++++结束++++++++++++++++++++++++++++++++++++++++++++");
-
-
-
-                this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
 
             }catch (Exception e){
                 responseData.setCode("201");
-                responseData.setMessage("定标提交失败！");
+                responseData.setMessage("定标提交失败！失败原因::::"+e.getMessage());
+                log.info("++++++++++++++++++++++++++++++++++++++e.getMessage():"+e.getMessage()+"++++++++++++++++++++++++++++++++++++++++++++");
             }
         }
-            return responseData;
+        return responseData;
     }
 
     public CheckPriceHeaderDTO getCheckPriceHeaderDTOByData(Long rfxHeaderId,Long tenantId){
@@ -259,4 +168,5 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
         log.info("====================一========================="+json);
         return  checkPriceHeaderDTO;
     }
+
 }
