@@ -39,11 +39,11 @@ public class RcwlBpmShortListHeaderDTO {
 
     @ApiModelProperty("开始时间")
     @JsonProperty("STARTDATE")
-    private Date startdate;
+    private String startdate;
 
     @ApiModelProperty("结束时间")
     @JsonProperty("FINISHDATE")
-    private Date finishdate;
+    private String finishdate;
 
     @ApiModelProperty("注册资金（万元）")
     @JsonProperty("CAPITAL")
@@ -146,19 +146,19 @@ public class RcwlBpmShortListHeaderDTO {
         this.shortlistcategory = shortlistcategory;
     }
 
-    public Date getStartdate() {
+    public String getStartdate() {
         return startdate;
     }
 
-    public void setStartdate(Date startdate) {
+    public void setStartdate(String startdate) {
         this.startdate = startdate;
     }
 
-    public Date getFinishdate() {
+    public String getFinishdate() {
         return finishdate;
     }
 
-    public void setFinishdate(Date finishdate) {
+    public void setFinishdate(String finishdate) {
         this.finishdate = finishdate;
     }
 

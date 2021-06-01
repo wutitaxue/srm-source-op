@@ -32,6 +32,7 @@ import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -207,6 +208,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
     @Override
     public RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ObjectMapper mapper = new ObjectMapper();
         //公开征集时，报名时间截止后才可提交
         String shortlistCategory = rcwlShortlistHeader.getShortlistCategory();
@@ -288,13 +290,14 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setProjectname(bpmHeaderData.getProjectName());
         rcwlBpmShortListHeaderDTO.setBusinessentity(bpmHeaderData.getOuName());
         rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getShortlistCategory());
-        rcwlBpmShortListHeaderDTO.setStartdate(bpmHeaderData.getStartDate());
-        rcwlBpmShortListHeaderDTO.setFinishdate(bpmHeaderData.getFinishDate());
+        rcwlBpmShortListHeaderDTO.setStartdate(simpleDateFormat.format(bpmHeaderData.getStartDate()));
+        rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
         rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
         rcwlBpmShortListHeaderDTO.setYears(Long.toString(bpmHeaderData.getYears()));
         rcwlBpmShortListHeaderDTO.setOneprofit(Long.toString(bpmHeaderData.getOneProfit()));
         rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
+        rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
 
 
         rcwlBpmShortListHeaderDTO.setRcwlBpmShortListFilesDtoList(rcwlBpmShortListFilesDtoList);
