@@ -77,6 +77,9 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     @Transient
     @ApiModelProperty(value = "上传姓名")
     private String uploadUserName;
+    @Transient
+    @ApiModelProperty(value = "入围单头id")
+    private Long shortListId;
 
     //
     // getter/setter
@@ -91,6 +94,14 @@ public class RcwlSupplierAttachment extends ExpandDomain {
 
     public void setRcwlSupplierAttachmentId(Long rcwlSupplierAttachmentId) {
         this.rcwlSupplierAttachmentId = rcwlSupplierAttachmentId;
+    }
+
+    public Long getShortListId() {
+        return shortListId;
+    }
+
+    public void setShortListId(Long shortListId) {
+        this.shortListId = shortListId;
     }
 
     /**

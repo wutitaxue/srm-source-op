@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlSupplierAttachmentMapper">
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.RcwlSupplierAttachment">
         <result column="rcwl_supplier_attachment_id" property="rcwlSupplierAttachmentId" jdbcType="DECIMAL"/>
         <result column="rcwl_supplier_header_id" property="rcwlSupplierHeaderId" jdbcType="DECIMAL"/>
@@ -189,31 +189,28 @@
     </resultMap>
     <delete id="deleteByShortlistAttachmentId">
         DELETE
-        FROM
-            scux_rcwl_shortlist_attachment
-        WHERE
-            rcwl_shortlist_attachment_id = #{rcwlShortlistAttachmentId}
+        FROM scux_rcwl_shortlist_attachment
+        WHERE rcwl_shortlist_attachment_id = #{rcwlShortlistAttachmentId}
     </delete>
     <select id="selectByRcwlSupplierAttachment"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierAttachment">
-        SELECT
-            srsa2.rcwl_supplier_attachment_id,
-            srsa2.rcwl_supplier_header_id,
-            srsa2.rcwl_shortlist_attachment_id,
-            srsa2.attachment_name,
-            srsa2.attachment_url,
-            srsa.attachment_url temp_attachment_url,
-            srsa2.attachment_desc,
-            srsa2.upload_user_id,
-            srsa2.tenant_id,
-            srsa2.object_version_number,
-            srsa2.last_update_date,
-            iu.real_name upload_user_name
-        FROM
-            scux_rcwl_shortlist_attachment srsa
-            LEFT JOIN scux_rcwl_supplier_attachment srsa2 ON srsa.rcwl_shortlist_attachment_id = srsa2.rcwl_shortlist_attachment_id
-            LEFT JOIN iam_user iu ON iu.id = srsa.upload_user_id
-        WHERE
-            srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+        SELECT srsa2.rcwl_supplier_attachment_id,
+               srsa2.rcwl_supplier_header_id,
+               srsa2.rcwl_shortlist_attachment_id,
+               srsa2.attachment_name,
+               srsa2.attachment_url,
+               srsa.attachment_url temp_attachment_url,
+               srsa2.attachment_desc,
+               srsa2.upload_user_id,
+               srsa2.tenant_id,
+               srsa2.object_version_number,
+               srsa2.last_update_date,
+               iu.real_name        upload_user_name
+        FROM scux_rcwl_shortlist_attachment srsa
+                 LEFT JOIN scux_rcwl_supplier_attachment srsa2
+                           ON srsa.rcwl_shortlist_attachment_id = srsa2.rcwl_shortlist_attachment_id
+                 LEFT JOIN iam_user iu ON iu.id = srsa.upload_user_id
+        WHERE srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+           or srsa.shortlist_id = #{shortListId}
     </select>
 </mapper>
