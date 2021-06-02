@@ -11,4 +11,6 @@ public interface RcwlBPMRfxHeaderService {
     ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataVO rcwlUpdateDataDTO);
 
     Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId);
+
+    void chooseRfxCloseApproveType(Long tenantId, Long rfxHeaderId, String remark);
 }
