@@ -140,8 +140,8 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
         return l == null ? 0l:l;
     }
 }
