@@ -723,13 +723,18 @@
     </select>
     <select id="rcwlSelectBpmFile"
             resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListFilesDto">
-        SELECT h.attachment_name file_name,
-               h.attachment_url  url_mx,
-               h.attachment_name description,
-               NULL AS           file_size
-        FROM scux_rcwl_shortlist_attachment h
-        WHERE h.tenant_id = #{organizationId}
-          AND h.shortlist_id = #{shortlistHeaderId}
+        SELECT
+            h.attachment_name file_name,
+            h.attachment_url url_mx,
+            h.attachment_name description,
+            NULL AS file_size
+        FROM
+            scux_rcwl_shortlist_attachment hh,
+            scux_rcwl_supplier_attachment h
+        WHERE
+            h.rcwl_shortlist_attachment_id = hh.rcwl_shortlist_attachment_id
+          AND hh.tenant_id = #{organizationId}
+          AND hh.shortlist_id = #{shortlistHeaderId}
     </select>
     <select id="rcwlSelectShortListHeaderIdByCode" resultType="java.lang.Long">
         SELECT h.shortlist_header_id

@@ -31,9 +31,9 @@ public class RcwlBpmShortListPrDTO {
     @JsonProperty("ITEMNAME")
     private String itemName;
 
-    @ApiModelProperty("甄云链接")
-    @JsonProperty("URL_MX")
-    private String urlMx;
+//    @ApiModelProperty("甄云链接")
+//    @JsonProperty("URL_MX")
+//    private String urlMx;
 
     public String getPrHeaderId() {
         return prHeaderId;
@@ -75,11 +75,11 @@ public class RcwlBpmShortListPrDTO {
         this.itemName = itemName;
     }
 
-    public String getUrlMx() {
-        return urlMx;
-    }
-
-    public void setUrlMx(String urlMx) {
-        this.urlMx = urlMx;
-    }
+//    public String getUrlMx() {
+//        return urlMx;
+//    }
+//
+//    public void setUrlMx(String urlMx) {
+//        this.urlMx = urlMx;
+//    }
 }
