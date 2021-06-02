@@ -1,146 +1,154 @@
 package org.srm.source.cux.rfx.domain.vo;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 
 public class RcwlSendBpmData {
 
     //标题
-    @JsonProperty(value = "FSubject")
+    @JSONField(name = "FSubject")
     private String FSubject;
 
     //项目单号
-    @JsonProperty(value = "RFXNUM")
+    @JSONField(name = "RFXNUM")
     private String RfxNum;
 
     //项目名称
-    @JsonProperty(value = "RFXNAME")
+    @JSONField(name = "RFXNAME")
     private String RfxName;
 
     //招采模式
-    @JsonProperty(value = "BIDDINGMODE")
+    @JSONField(name = "BIDDINGMODE")
     private String BidDingMode;
 
     //招采方式
-    @JsonProperty(value = "SHORTLISTCATEGORY")
+    @JSONField(name = "SHORTLISTCATEGORY")
     private String ShortListCategory;
 
     //合同形式
-    @JsonProperty(value = "ATTRIBUTEVARCHAR9")
+    @JSONField(name = "ATTRIBUTEVARCHAR9")
     private String AttributeVarchar9;
 
     //标段划分
-    @JsonProperty(value = "SECTIONNUMBER")
+    @JSONField(name = "SECTIONNUMBER")
     private String SectionNumber;
 
     //定标方式
-    @JsonProperty(value = "ATTRIBUTEVARCHAR11")
+    @JSONField(name = "ATTRIBUTEVARCHAR11")
     private String AttributeVarchar11;
 
     //招标经办人
-    @JsonProperty(value = "CHECKEDBY")
+    @JSONField(name = "CHECKEDBY")
     private String CheckedBy;
 
     //标底金额
-    @JsonProperty(value = "ATTRIBUTEVARCHAR12")
+    @JSONField(name = "ATTRIBUTEVARCHAR12")
     private String AttributeVarchar12;
 
     //回标标轮数
-    @JsonProperty(value = "ROUNDNUMBER")
+    @JSONField(name = "ROUNDNUMBER")
     private String RoundNumber;
 
     //评标方法
-    @JsonProperty(value = "METHODREMARK")
+    @JSONField(name = "METHODREMARK")
     private String MethodRemark;
 
     //技术分得分比例
-    @JsonProperty(value = "BUSINESSWEIGHT")
+    @JSONField(name = "BUSINESSWEIGHT")
     private String BusinessWeight;
 
     //商务分得分比例
-    @JsonProperty(value = "TECHNOLOGYWEIGHT")
+    @JSONField(name = "TECHNOLOGYWEIGHT")
     private String TechnologyWeight;
 
     //计划发标时间
-    @JsonProperty(value = "ATTRIBUTEDATETIME10")
+    @JSONField(name = "ATTRIBUTEDATETIME10")
+
     private String AttributeDateTime10;
 
     //计划回标时间
-    @JsonProperty(value = "QUOTATIONSTARTDATE")
+    @JSONField(name = "QUOTATIONSTARTDATE")
+
     private String QuotationStartDate;
 
     //计划定标时间
-    @JsonProperty(value = "ATTRIBUTEDATETIME11")
+    @JSONField(name = "ATTRIBUTEDATETIME11")
+
     private String AttributeDateTime11;
 
     //计划开标时间
-    @JsonProperty(value = "QUOTATIONENDDATE")
+    @JSONField(name = "QUOTATIONENDDATE")
+
     private String QuotationEndDate;
 
     //质疑截止时间
-    @JsonProperty(value = "ATTRIBUTEDATETIME12")
+    @JSONField(name = "ATTRIBUTEDATETIME12")
+
     private String AttributeDateTime12;
 
     //中标供应商数
-    @JsonProperty(value = "ATTRIBUTEVARCHAR13")
+    @JSONField(name = "ATTRIBUTEVARCHAR13")
     private String AttributeVarchar13;
 
     //招标地址
-    @JsonProperty(value = "ATTRIBUTEVARCHAR14")
+    @JSONField(name = "ATTRIBUTEVARCHAR14")
     private String AttributeVarchar14;
 
     //招标联系人
-    @JsonProperty(value = "PURCHASERNAME")
+    @JSONField(name = "PURCHASERNAME")
     private String PurchaserName;
 
     //联系人电话
-    @JsonProperty(value = "PURCHASERPHONE")
+    @JSONField(name = "PURCHASERPHONE")
     private String PurchaserPhone;
 
     //招标范围
-    @JsonProperty(value = "ATTRIBUTEVARCHAR15")
+    @JSONField(name = "ATTRIBUTEVARCHAR15")
     private String AttributeVarchar15;
 
     //投标保证金金额
-    @JsonProperty(value = "BIDBOND")
+    @JSONField(name = "BIDBOND")
     private String BidBond;
 
     //投标保证金开户行名称
-    @JsonProperty(value = "ATTRIBUTEVARCHAR16")
+    @JSONField(name = "ATTRIBUTEVARCHAR16")
     private String AttributeVarchar16;
 
     //投标保证金开户银行
-    @JsonProperty(value = "ATTRIBUTEVARCHAR17")
+    @JSONField(name = "ATTRIBUTEVARCHAR17")
     private String AttributeVarchar17;
 
     //投标保证金银行账号
-    @JsonProperty(value = "ATTRIBUTEVARCHAR18")
+    @JSONField(name = "ATTRIBUTEVARCHAR18")
     private String AttributeVarchar18;
 
     //招标小组组长
-    @JsonProperty(value = "ATTRIBUTEVARCHAR19")
+    @JSONField(name = "ATTRIBUTEVARCHAR19")
     private String AttributeVarchar19;
 
     //甄云链接
-    @JsonProperty(value = "URL_MX")
+    @JSONField(name = "URL_MX")
     private String UrlMx;
 
     //评分小组
-    @JsonProperty(value = "ZBLXPFXZ")
+    @JSONField(name = "ZBLXPFXZ")
     private List<RcwlScoringTeamData> RcwlScoringTeamDataList;
 
     //供应商
-    @JsonProperty(value = "ZBLXGYS")
+    @JSONField(name = "ZBLXGYS")
     private List<RcwlSupplierData> RcwlSupplierDataList;
 
     //需求详细描述
-    @JsonProperty(value = "ZBLXXQMS")
+    @JSONField(name = "ZBLXXQMS")
     private List<RcwlDetailData> RcwlDetailDataList;
 
     //附件
-    @JsonProperty(value = "ATTACHMENTS1")
+    @JSONField(name = "ATTACHMENTS1")
     private List<RcwlAttachmentData> RcwlAttachmentDataList;
 
     public String getUrlMx() {
