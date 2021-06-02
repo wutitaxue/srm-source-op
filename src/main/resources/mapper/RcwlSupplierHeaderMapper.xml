@@ -267,7 +267,8 @@
         from scux_rcwl_shortlist_header srsh
         left join hpfm_company hc on hc.company_id = srsh.company_id
         left join scux_rcwl_supplier_header srsh2 on srsh2.shortlist_header_id = srsh.shortlist_header_id AND
-        (srsh2.created_by = #{userId} or srsh2.supplier_id = #{suppilerId})
+        (srsh2.created_by = #{userId} or srsh2.supplier_id =(select hc.company_id from hpfm_company hc where
+        hc.tenant_id = #{suppilerId}))
         left join iam_user iu on iu.id = srsh.created_by
         <include refid="selectRcwlSupplierHeaderWhere"/>
 
