@@ -6,7 +6,7 @@
         <result column="rcwl_supplier_attachment_id" property="rcwlSupplierAttachmentId" jdbcType="DECIMAL"/>
         <result column="rcwl_supplier_header_id" property="rcwlSupplierHeaderId" jdbcType="DECIMAL"/>
         <result column="rcwl_shortlist_attachment_id" property="rcwlShortlistAttachmentId" jdbcType="DECIMAL"/>
-        <result column="attachment_name" property="attachmentName" jdbcType="DECIMAL"/>
+        <result column="attachment_name" property="attachmentName" jdbcType="VARCHAR"/>
         <result column="attachment_url" property="attachmentUrl" jdbcType="VARCHAR"/>
         <result column="attachment_desc" property="attachmentDesc" jdbcType="VARCHAR"/>
         <result column="upload_user_id" property="uploadUserId" jdbcType="DECIMAL"/>
