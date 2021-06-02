@@ -90,7 +90,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
         Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
 
-        Long supplierHeaderId = CheckSupplierHeaderId;
+        Long supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
         if (supplierHeaderId == null) {
             rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_NOTSUBMITTED);
             //入围方式"邀请" 默认已报名
