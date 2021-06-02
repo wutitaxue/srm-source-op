@@ -118,6 +118,10 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
                 rfxLineSupplier.setReadFlag(0);
                 rfxLineSupplier.setAppendFlag(0);
 
+                rfxLineSupplier.setSupplierTenantId(supplier.getSupplierTenantId());
+                rfxLineSupplier.setSupplierContactId(supplier.getSupplierContactId());
+                rfxLineSupplier.setContactMail(supplier.getContactMail());
+
                 rfxLineSupplierList.add(rfxLineSupplier);
             }
         }
