@@ -296,7 +296,7 @@
         left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
         left join iam_user iu on iu.id = srsh2.created_by
         left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
-        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id and slc.company_id = srsh.company_id
         LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
         AND slc.supplier_company_id = hc.company_id
         LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
@@ -403,7 +403,7 @@
         LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
         LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         WHERE
-        iu.id = #{userId}
+        iu.id = #{userId} limit 1
     </select>
     <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
         SELECT scc.name        contact,
