@@ -434,15 +434,22 @@
         srsh2.enroll_date,
         srsh2.STATUS,
         srsh2.created_by,
-        srsh2.creation_date
+        srsh2.creation_date,
+        ssb.supplier_tenant_id,
+        ssc.supplier_contact_id,
+        ssc.mail AS contact_mail
         FROM
         scux_rcwl_supplier_header srsh2
         LEFT JOIN scux_rcwl_shortlist_header srsh ON srsh2.shortlist_header_id = srsh.shortlist_header_id
         LEFT JOIN iam_user iu ON iu.id = srsh2.created_by
-        where
+        LEFT JOIN sslm_supplier_basic ssb ON srsh2.supplier_id = ssb.supplier_company_id
+        AND srsh2.tenant_id = ssb.tenant_id
+        LEFT JOIN sslm_supplier_contact ssc ON ssb.supplier_basic_id = ssc.supplier_basic_id
+        AND ssc.default_flag = 1
+        WHERE
         srsh2.tenant_id = #{organizationId}
-        and srsh2.shortlist_header_id = #{shortlistHeaderId}
-        and srsh2.selected = 1
+        AND srsh2.shortlist_header_id = #{shortlistHeaderId}
+        AND srsh2.selected = 1
     </select>
     <select id="queryPrLine" resultType="java.lang.Long">
         select l.pr_line_id
