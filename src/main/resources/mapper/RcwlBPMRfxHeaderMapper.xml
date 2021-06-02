@@ -27,7 +27,8 @@
     <select id="getRfxHeaderIdByRfxNum" resultType="java.lang.Long">
         SELECT rfx_header_id
         FROM    ssrc_rfx_header
-        WHERE   rfx_num = #{rfxNumd}
+        WHERE   rfx_num = #{rfxNum}
+        AND     tenant_id = #{tenantId}
     </select>
     <select id="getRealNameById" resultType="String">
         select t.real_name from  iam_user t

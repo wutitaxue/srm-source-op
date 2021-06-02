@@ -59,7 +59,7 @@
                 GROUP BY
                     t.quotation_header_id
                 ORDER BY
-                    x.score_rank
+                    x.score desc
     </select>
     <select id="getAppendRemark" resultType="Integer">
         SELECT
