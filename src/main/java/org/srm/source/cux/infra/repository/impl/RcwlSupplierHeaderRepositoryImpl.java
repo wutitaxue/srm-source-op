@@ -120,7 +120,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
             if (i > 0) {
                 throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
             } else {
-                return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
+//                return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
             }
         }
         return null;
