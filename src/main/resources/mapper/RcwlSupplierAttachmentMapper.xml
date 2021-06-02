@@ -196,7 +196,7 @@
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierAttachment">
         SELECT srsa2.rcwl_supplier_attachment_id,
                srsa2.rcwl_supplier_header_id,
-               srsa2.rcwl_shortlist_attachment_id,
+               srsa.rcwl_shortlist_attachment_id,
                srsa2.attachment_name,
                srsa2.attachment_url,
                srsa.attachment_url temp_attachment_url,
