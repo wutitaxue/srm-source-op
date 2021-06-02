@@ -153,17 +153,6 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         rfxHeader.setTerminatedRemark(remark);
         Map<String, String> cnfArgs = new HashMap();
         cnfArgs.put("approveType", "RFX_CLOSE");
-        String approveType = (String) CnfHelper.select(tenantId, "SITE.SSRC.SOURCE_APPROVE", String.class).invokeWithParameter(cnfArgs);
-//        if ("SELF".equals(approveType)) {
-            rfxHeaderService.rfxClose(tenantId, rfxHeaderId, rfxHeader);
-//        }
-
-//        if ("WFL".equals(approveType)) {
-//            ((RfxHeaderService)this.self()).rfxCloseWorkflowApproval(tenantId, rfxHeaderId, rfxHeader);
-//        }
-//
-//        if ("EXT".equals(approveType)) {
-//            ((RfxHeaderService)this.self()).rfxCloseExternalApproval(tenantId, rfxHeaderId, rfxHeader);
-//        }
+        rfxHeaderService.rfxClose(tenantId, rfxHeaderId, rfxHeader);
     }
 }
