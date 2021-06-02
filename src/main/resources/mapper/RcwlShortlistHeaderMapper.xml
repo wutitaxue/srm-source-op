@@ -403,7 +403,7 @@
         LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
         LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         WHERE
-        iu.id = #{userId}
+        iu.id = #{userId} limit 1
     </select>
     <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
         SELECT scc.name        contact,
