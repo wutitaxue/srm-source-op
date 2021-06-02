@@ -76,10 +76,9 @@ public class RcwlUpdateRfxHeaderController {
         ResponseData responseData = new ResponseData();
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
-        List<Long> rfxHeaderIds = new ArrayList<>();
-        rfxHeaderIds.add(rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum(),rcwlGetDataCloseDTO.getTenantId()));
+        Long rfxHeaderIds = rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum(),rcwlGetDataCloseDTO.getTenantId());
         try{
-            rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+            rfxHeaderService.chooseRfxCloseApproveType(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
         }catch (Exception e){
             responseData.setCode("201");
             responseData.setMessage("操作失败！");
