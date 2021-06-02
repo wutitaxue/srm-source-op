@@ -42,8 +42,9 @@ public class RcwlSupplierAttachmentController extends BaseController {
     @ApiOperation(value = "入围供应商单附件列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
-    public ResponseEntity<Page<RcwlSupplierAttachment>> list(RcwlSupplierAttachment rcwlSupplierAttachment, @ApiIgnore @SortDefault(value = RcwlSupplierAttachment.FIELD_RCWL_SUPPLIER_ATTACHMENT_ID,
+    public ResponseEntity<Page<RcwlSupplierAttachment>> list(RcwlSupplierAttachment rcwlSupplierAttachment, @RequestParam("shortlistId") Long shortlistId, @ApiIgnore @SortDefault(value = RcwlSupplierAttachment.FIELD_RCWL_SUPPLIER_ATTACHMENT_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
+        rcwlSupplierAttachment.setShortListId(shortlistId);
         Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSortByRcwlSupplierAttachment(pageRequest, rcwlSupplierAttachment);
         return Results.success(list);
     }
