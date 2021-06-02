@@ -16,7 +16,7 @@ public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
 
     void updateRfxHeader(Long id , String remark,Long tenantId);
 
-    Long getRfxHeaderIdByRfxNum(String rfxNum);
+    Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId);
 
     String getRealNameById(Long tenantId);
 

@@ -7,16 +7,21 @@ import io.swagger.annotations.ApiOperation;
 import org.hzero.boot.platform.lov.annotation.ProcessLovValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlGetDataCloseDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateCloseRfxVO;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
 import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api(
         tags = {"Rcwl Update Rfx Header"}
@@ -29,6 +34,9 @@ public class RcwlUpdateRfxHeaderController {
     private RcwlBPMRfxHeaderService rcwlRfxHeaderService;
     @Autowired
     private RfxHeaderService rfxHeaderService;
+    @Autowired
+    private RfxHeaderRepository rfxHeaderRepository;
+
 
     @ApiOperation("更新询价单头表数据字段")
     @Permission(
@@ -76,10 +84,9 @@ public class RcwlUpdateRfxHeaderController {
         ResponseData responseData = new ResponseData();
         responseData.setCode("200");
         responseData.setMessage("操作成功！");
-        List<Long> rfxHeaderIds = new ArrayList<>();
-        rfxHeaderIds.add(rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum()));
+        Long rfxHeaderIds = rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum(),rcwlGetDataCloseDTO.getTenantId());
         try{
-            rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+            rcwlRfxHeaderService.chooseRfxCloseApproveType(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
         }catch (Exception e){
             responseData.setCode("201");
             responseData.setMessage("操作失败！");

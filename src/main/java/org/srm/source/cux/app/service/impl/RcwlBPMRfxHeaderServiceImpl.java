@@ -8,6 +8,7 @@ import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
@@ -15,13 +16,12 @@ import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
+import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
@@ -37,6 +37,8 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     //获取配置参数
     @Autowired
     private ProfileClient profileClient;
+    @Autowired
+    private RfxHeaderService rfxHeaderService;
 
     @Override
     public ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark) {
@@ -140,8 +142,17 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        Long l = rcwlRfxHeaderRepository.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
         return l == null ? 0l:l;
+    }
+
+    @Override
+    public void chooseRfxCloseApproveType(Long tenantId, Long rfxHeaderId, String remark) {
+        RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
+        rfxHeader.setTerminatedRemark(remark);
+        Map<String, String> cnfArgs = new HashMap();
+        cnfArgs.put("approveType", "RFX_CLOSE");
+        rfxHeaderService.rfxClose(tenantId, rfxHeaderId, rfxHeader);
     }
 }

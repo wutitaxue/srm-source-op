@@ -27,6 +27,7 @@ import org.srm.boot.pr.domain.vo.PrChangeVO;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
+import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.priceLib.app.service.PriceLibServiceService;
 import org.srm.source.priceLib.domain.vo.PriceServiceParamsVO;
 import org.srm.source.priceLib.domain.vo.PriceServiceVO;
@@ -137,12 +138,15 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     private SourceResultRepository sourceResultRepository;
     @Autowired
     private SourceResultService sourceResultService;
+    @Autowired
+    private RcwlClarifyRepository rcwlClarifyRepository;
 
 
     @Override
     public ResponseCalibrationApprovalData connectBPM(String organizationId, Long rfxHeaderId) {
         //根据id查出数据
-        RfxHeader rfxHeader = rfxHeaderRepository.selectSimpleRfxHeaderById(rfxHeaderId);
+//        RfxHeader rfxHeader = rfxHeaderRepository.selectSimpleRfxHeaderById(rfxHeaderId);
+        RfxHeader rfxHeader = rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         CalibrationApprovalForBPMData forBPMData =new CalibrationApprovalForBPMData();
         CalibrationApprovalDbdbjgDataForBPM dbdbjgDataForBPM = new CalibrationApprovalDbdbjgDataForBPM();
         CalibrationApprovalAttachmentDataForBPM attachmentDataForBPM = new CalibrationApprovalAttachmentDataForBPM();
@@ -167,8 +171,8 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setCOMPANYID(rfxHeader.getCompanyName());
         forBPMData.setRFXNAME(rfxHeader.getRfxTitle());
         forBPMData.setRFXNUM(rfxHeader.getRfxNum());
-        forBPMData.setBIDDINGMODE(rfxHeader.getAttributeVarchar8());
-        forBPMData.setSHORTLISTCATEGORY(rfxHeader.getSourceCategory());
+        forBPMData.setBIDDINGMODE(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8()));
+        forBPMData.setSHORTLISTCATEGORY(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RFX_STATUS",rfxHeader.getSourceCategory()));
         forBPMData.setMETHODREMARK(rfxHeader.getAttributeVarchar17());
         forBPMData.setATTRIBUTEVARCHAR9(rfxHeader.getAttributeVarchar9());
         forBPMData.setPROJECTAMOUNT(rfxHeader.getBudgetAmount() == null ? "":rfxHeader.getBudgetAmount().toString());
@@ -181,6 +185,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setURL_MX(sbUrl.toString());
             //组装供应商列表
         if(!CollectionUtils.isEmpty(listDbdbjgData)){
+            int i =1;
             for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
                 rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
@@ -190,11 +195,12 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setTECHNICALSCORE(dbdbjgListData.getTechnologyScore());
                 rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
                 rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
-                rald.setCOMPREHENSIVERANK(dbdbjgListData.getScoreRank());
+                rald.setCOMPREHENSIVERANK(String.valueOf(i));
                 rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.getSupplierCompanyName()));
                 rald.setFIXEDPRICE(dbdbjgListData.getTotal_amount());
                 rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
                 dbdbjgDataForBPMList.add(rald);
+                i++;
             }
             forBPMData.setDBDBJGS(dbdbjgDataForBPMList);
         }
