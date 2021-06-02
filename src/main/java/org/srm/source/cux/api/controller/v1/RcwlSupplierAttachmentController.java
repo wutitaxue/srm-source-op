@@ -1,5 +1,6 @@
 package org.srm.source.cux.api.controller.v1;
 
+import io.choerodon.core.oauth.DetailsHelper;
 import io.swagger.annotations.Api;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -53,6 +54,9 @@ public class RcwlSupplierAttachmentController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
     public ResponseEntity<List<RcwlSupplierAttachment>> create(@RequestBody List<RcwlSupplierAttachment> rcwlSupplierAttachments) {
+        rcwlSupplierAttachments.forEach(rcwlSupplierAttachment -> {
+            rcwlSupplierAttachment.setUploadUserId(DetailsHelper.getUserDetails().getUserId());
+        });
         rcwlSupplierAttachments.forEach(this::validObject);
         List<RcwlSupplierAttachment> rcwlSupplierAttachmentList = rcwlSupplierAttachmentService.createAndUpdate(rcwlSupplierAttachments);
         return Results.success(rcwlSupplierAttachmentList);
