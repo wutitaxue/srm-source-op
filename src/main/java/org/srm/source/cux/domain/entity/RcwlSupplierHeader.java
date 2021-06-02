@@ -142,6 +142,12 @@ public class RcwlSupplierHeader extends ExpandDomain {
     private String url;
 
 
+    @Transient
+    private Long supplierTenantId;
+    @Transient
+    private Long supplierContactId;
+    @Transient
+    private String contactMail;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -407,5 +413,29 @@ public class RcwlSupplierHeader extends ExpandDomain {
 
     public void setSupplierName(String supplierName) {
         this.supplierName = supplierName;
+    }
+
+    public Long getSupplierTenantId() {
+        return supplierTenantId;
+    }
+
+    public void setSupplierTenantId(Long supplierTenantId) {
+        this.supplierTenantId = supplierTenantId;
+    }
+
+    public Long getSupplierContactId() {
+        return supplierContactId;
+    }
+
+    public void setSupplierContactId(Long supplierContactId) {
+        this.supplierContactId = supplierContactId;
+    }
+
+    public String getContactMail() {
+        return contactMail;
+    }
+
+    public void setContactMail(String contactMail) {
+        this.contactMail = contactMail;
     }
 }
