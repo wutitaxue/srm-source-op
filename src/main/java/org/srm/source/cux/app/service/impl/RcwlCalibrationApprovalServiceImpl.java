@@ -2,10 +2,12 @@ package org.srm.source.cux.app.service.impl;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import groovy.lang.Lazy;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.boot.customize.service.CustomizeClient;
 import org.hzero.boot.customize.util.CustomizeHelper;
@@ -57,10 +59,11 @@ import org.srm.source.share.infra.feign.SmdmRemoteService;
 import org.srm.source.share.infra.utils.BusinessKeyUtil;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprovalService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlCalibrationApprovalServiceImpl.class);
@@ -141,7 +144,6 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     @Autowired
     private RcwlClarifyRepository rcwlClarifyRepository;
 
-
     @Override
     public ResponseCalibrationApprovalData connectBPM(String organizationId, Long rfxHeaderId) {
         //根据id查出数据
@@ -172,12 +174,12 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setRFXNAME(rfxHeader.getRfxTitle());
         forBPMData.setRFXNUM(rfxHeader.getRfxNum());
         forBPMData.setBIDDINGMODE(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8()));
-        forBPMData.setSHORTLISTCATEGORY(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RFX_STATUS",rfxHeader.getSourceCategory()));
+        forBPMData.setSHORTLISTCATEGORY(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory()));
         forBPMData.setMETHODREMARK(rfxHeader.getAttributeVarchar17());
-        forBPMData.setATTRIBUTEVARCHAR9(rfxHeader.getAttributeVarchar9());
+        forBPMData.setATTRIBUTEVARCHAR9(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SPCM.CONTRACT.KIND",rfxHeader.getAttributeVarchar9()));
         forBPMData.setPROJECTAMOUNT(rfxHeader.getBudgetAmount() == null ? "":rfxHeader.getBudgetAmount().toString());
         forBPMData.setATTRIBUTEVARCHAR12(rfxHeader.getAttributeVarchar10());
-            //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag
+            //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag为1的数量
         forBPMData.setATTRIBUTEVARCHAR13(winningSupplyNum);
             //根据source_header_id去ssrc_round_header表中的quotation_round_number字段
         forBPMData.setROUNDNUMBER(quotationRoundNumber);
@@ -186,6 +188,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             //组装供应商列表
         if(!CollectionUtils.isEmpty(listDbdbjgData)){
             int i =1;
+            DecimalFormat format = new DecimalFormat("0.00");
             for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
                 rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
@@ -196,8 +199,12 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
                 rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
                 rald.setCOMPREHENSIVERANK(String.valueOf(i));
-                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.getSupplierCompanyName()));
-                rald.setFIXEDPRICE(dbdbjgListData.getTotal_amount());
+                //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
+                String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
+                String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
+                rald.setBIDPRICE(BIDPRICE2);
+                //含税总价
+                rald.setFIXEDPRICE(dbdbjgListData.getTotalAmount());
                 rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
                 dbdbjgDataForBPMList.add(rald);
                 i++;
@@ -245,6 +252,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         try{
             //调用bpm接口
             responsePayloadDTO = rcwlGxBpmInterfaceService. RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
+            log.info("定标上传数据：{"+ JSONObject.toJSONString(rcwlGxBpmStartDataDTO) +"}");
         }catch (Exception e){
             responseData.setMessage("调用BPM接口失败！");
             responseData.setCode("201");

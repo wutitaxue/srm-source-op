@@ -57,4 +57,19 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
         list = rcwlRfxHeaderMapper.getIssueLineIdListByClarifyId(clarifyId);
         return list;
     }
+
+    @Override
+    public void updateSubmitBy(long l, Long rfxHeaderIds) {
+        rcwlRfxHeaderMapper.updateSubmitBy(l,rfxHeaderIds);
+    }
+
+    @Override
+    public void updateTerminatedBy(Long rfxHeaderIds) {
+        rcwlRfxHeaderMapper.updateTerminatedBy(rfxHeaderIds);
+    }
+
+    @Override
+    public void updateCheckedBy(Long rfxHeaderId) {
+        rcwlRfxHeaderMapper.updateCheckedBy(rfxHeaderId);
+    }
 }
