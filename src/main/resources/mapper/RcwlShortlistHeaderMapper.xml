@@ -274,6 +274,7 @@
         select
         srsh2.supplier_header_id,
         srsh2.supplier_id,
+        srsh2.tenant_id,
         srsh.sample_id,
         ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
         ifnull(ssb.company_num,hc.company_num) AS supplier_num,
@@ -289,6 +290,9 @@
         srsh2.created_by,
         srsh2.capital,
         srsh2.years,
+        srsh2.attribute_bigint1,
+        srsh2.attribute_bigint2,
+        srsh2.attribute_bigint3,
         srsh2.one_profit,
         srsh2.two_profit,
         srsh2.creation_date
