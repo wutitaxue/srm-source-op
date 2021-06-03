@@ -48,7 +48,7 @@
                     x.business_score businessScore,
                     x.score score,
                     x.score_rank scoreRank,
-                    sum( z.total_amount ) total_amount
+                    sum( z.total_amount ) totalAmount
                 FROM
                     ssrc_rfx_quotation_header t
                         LEFT JOIN sslm_supplier_basic y ON t.supplier_company_id = y.supplier_company_id

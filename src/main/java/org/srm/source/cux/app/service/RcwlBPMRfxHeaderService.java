@@ -15,4 +15,6 @@ public interface RcwlBPMRfxHeaderService {
     void chooseRfxCloseApproveType(Long tenantId, Long rfxHeaderId, String remark);
 
     void updateSubmitBy(long l, Long rfxHeaderIds);
+
+    void updateTerminatedBy(Long rfxHeaderIds);
 }

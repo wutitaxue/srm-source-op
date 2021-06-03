@@ -12,5 +12,5 @@ public class RcwlDBGetDataFromDatabase {
     private String businessScore;
     private String score;
     private String scoreRank;
-    private String total_amount;
+    private String totalAmount;
 }

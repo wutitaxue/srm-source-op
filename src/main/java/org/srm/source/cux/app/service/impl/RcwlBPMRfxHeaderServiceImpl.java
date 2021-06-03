@@ -164,4 +164,9 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     public void updateSubmitBy(long l, Long rfxHeaderIds) {
         rcwlRfxHeaderRepository.updateSubmitBy(l, rfxHeaderIds);
     }
+
+    @Override
+    public void updateTerminatedBy(Long rfxHeaderIds) {
+        rcwlRfxHeaderRepository.updateTerminatedBy(rfxHeaderIds);
+    }
 }

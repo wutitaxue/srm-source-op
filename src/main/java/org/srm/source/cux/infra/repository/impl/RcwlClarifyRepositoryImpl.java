@@ -20,8 +20,7 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
 
     @Override
     public String getSourceNumAndNameAndClarifyNumberById(Long id) {
-        String data =  rcwlClarifyMapper.getSourceNumAndNameAndClarifyNumberById(id);
-        return data == null ? "":data;
+        return  rcwlClarifyMapper.getSourceNumAndNameAndClarifyNumberById(id);
     }
 
     @Override
