@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
@@ -31,6 +32,8 @@ public class RcwlUpdateClarifyController extends BaseController {
     private ClarifyService clarifyService;
     @Autowired
     private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
+    @Resource
+    private RcwlBPMRfxHeaderService rcwlRfxHeaderService;
 
     @ApiOperation("更新数据字段")
     @Permission(
@@ -100,6 +103,8 @@ public class RcwlUpdateClarifyController extends BaseController {
         this.validObject(clarify, new Class[0]);
         try{
             clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
+            Long id = rcwlClarifyService.getSourceReleasedBy(clarify.getSourceId());
+            rcwlRfxHeaderService.updateSubmitBy(0l,clarify.getClarifyId());
         }catch(Exception e){
             responseData.setCode("201");
             responseData.setMessage("澄清答疑发布失败！");

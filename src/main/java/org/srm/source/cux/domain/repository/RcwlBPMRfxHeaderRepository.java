@@ -23,4 +23,6 @@ public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
     ClarifyToReleaseDTO getClarifyToReleaseDTO(Long clarifyId);
 
     List<Long> getIssueLineIdListByClarifyId(Long clarifyId);
+
+    void updateSubmitBy(long l, Long rfxHeaderIds);
 }

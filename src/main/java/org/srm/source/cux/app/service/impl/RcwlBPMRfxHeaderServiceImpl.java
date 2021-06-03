@@ -1,9 +1,11 @@
 package org.srm.source.cux.app.service.impl;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.fastjson.JSONObject;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Slf4j
 @Service
 public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
 
@@ -88,6 +91,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         try{
             //调用bpm接口
             responsePayloadDTO = rcwlGxBpmInterfaceService. RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
+            log.info("流标上传数据：{"+ JSONObject.toJSONString(rcwlGxBpmStartDataDTO) +"}");
         }catch (Exception e){
             responseData.setMessage("调用BPM接口失败！");
             responseData.setCode("201");
@@ -110,7 +114,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8())).append("\",");
-        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getScoreWay() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getScoreWay())).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getAttributeVarchar17() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getAttributeVarchar17())).append("\",");
         sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory())).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
@@ -154,5 +158,10 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         Map<String, String> cnfArgs = new HashMap();
         cnfArgs.put("approveType", "RFX_CLOSE");
         rfxHeaderService.rfxClose(tenantId, rfxHeaderId, rfxHeader);
+    }
+
+    @Override
+    public void updateSubmitBy(long l, Long rfxHeaderIds) {
+        rcwlRfxHeaderRepository.updateSubmitBy(l, rfxHeaderIds);
     }
 }

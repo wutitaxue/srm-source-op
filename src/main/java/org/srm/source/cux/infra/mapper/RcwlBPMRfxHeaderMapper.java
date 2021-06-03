@@ -20,4 +20,6 @@ public interface RcwlBPMRfxHeaderMapper {
     ClarifyToReleaseDTO getClarifyToReleaseDTO(Long clarifyId);
 
     List<Long> getIssueLineIdListByClarifyId(Long clarifyId);
+
+    void updateSubmitBy(long l, Long rfxHeaderIds);
 }

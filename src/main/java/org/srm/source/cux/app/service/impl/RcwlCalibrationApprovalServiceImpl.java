@@ -2,10 +2,12 @@ package org.srm.source.cux.app.service.impl;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import groovy.lang.Lazy;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.boot.customize.service.CustomizeClient;
 import org.hzero.boot.customize.util.CustomizeHelper;
@@ -60,7 +62,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprovalService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlCalibrationApprovalServiceImpl.class);
@@ -140,7 +142,6 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     private SourceResultService sourceResultService;
     @Autowired
     private RcwlClarifyRepository rcwlClarifyRepository;
-
 
     @Override
     public ResponseCalibrationApprovalData connectBPM(String organizationId, Long rfxHeaderId) {
@@ -245,6 +246,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         try{
             //调用bpm接口
             responsePayloadDTO = rcwlGxBpmInterfaceService. RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
+            log.info("定标上传数据：{"+ JSONObject.toJSONString(rcwlGxBpmStartDataDTO) +"}");
         }catch (Exception e){
             responseData.setMessage("调用BPM接口失败！");
             responseData.setCode("201");

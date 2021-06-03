@@ -15,4 +15,6 @@ public interface RcwlClarifyService {
     Long getClarifyIdByClarifyNum(String clarifyNum);
 
     List<String> getTenantIdByclarifyNum(String clarifyNum);
+
+    Long getSourceReleasedBy(Long sourceId);
 }
