@@ -246,6 +246,9 @@
             srsh.years,
             srsh.one_profit,
             srsh.two_profit,
+            srsh2.attribute_bigint1,
+            srsh2.attribute_bigint2,
+            srsh2.attribute_bigint3,
             srsh.state,
             srsh.examine,
             srsh.publish,
@@ -308,6 +311,9 @@
                srsh.creation_date,
                hc.company_num,
                hc.company_name,
+               srsh2.attribute_bigint1,
+               srsh2.attribute_bigint2,
+               srsh2.attribute_bigint3,
                iu.real_name created_name,
                srsh2.status supplier_status
         from scux_rcwl_shortlist_header srsh
