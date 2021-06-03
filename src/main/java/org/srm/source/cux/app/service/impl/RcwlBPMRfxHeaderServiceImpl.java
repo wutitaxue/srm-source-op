@@ -169,4 +169,9 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     public void updateTerminatedBy(Long rfxHeaderIds) {
         rcwlRfxHeaderRepository.updateTerminatedBy(rfxHeaderIds);
     }
+
+    @Override
+    public void updateCheckedBy(Long rfxHeaderId) {
+        rcwlRfxHeaderRepository.updateCheckedBy(rfxHeaderId);
+    }
 }
