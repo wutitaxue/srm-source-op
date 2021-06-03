@@ -26,6 +26,11 @@
         </trim>
         WHERE clarify_id=#{rfxHeaderIds}
     </update>
+    <update id="updateTerminatedBy">
+        UPDATE ssrc_rfx_header
+        SET terminated_by = 0
+        WHERE clarify_id=#{rfxHeaderIds}
+    </update>
     <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
         SELECT file_name fileName,file_size fileSize,file_url fileUrl
         FROM    hfle_file

@@ -22,4 +22,6 @@ public interface RcwlBPMRfxHeaderMapper {
     List<Long> getIssueLineIdListByClarifyId(Long clarifyId);
 
     void updateSubmitBy(long l, Long rfxHeaderIds);
+
+    void updateTerminatedBy(Long rfxHeaderIds);
 }

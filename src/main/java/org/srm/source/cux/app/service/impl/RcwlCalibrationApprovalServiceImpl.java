@@ -59,6 +59,7 @@ import org.srm.source.share.infra.feign.SmdmRemoteService;
 import org.srm.source.share.infra.utils.BusinessKeyUtil;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -187,6 +188,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             //组装供应商列表
         if(!CollectionUtils.isEmpty(listDbdbjgData)){
             int i =1;
+            DecimalFormat format = new DecimalFormat("0.00");
             for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
                 rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
@@ -198,9 +200,11 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
                 rald.setCOMPREHENSIVERANK(String.valueOf(i));
                 //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
-                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId()));
+                String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
+                String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
+                rald.setBIDPRICE(BIDPRICE2);
                 //含税总价
-                rald.setFIXEDPRICE(dbdbjgListData.getTotal_amount());
+                rald.setFIXEDPRICE(dbdbjgListData.getTotalAmount());
                 rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
                 dbdbjgDataForBPMList.add(rald);
                 i++;
