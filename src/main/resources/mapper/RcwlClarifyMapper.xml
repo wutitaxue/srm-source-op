@@ -48,4 +48,8 @@
         where t.lov_code=#{lovCode}
           and t.`value`=#{value}
     </select>
+    <select id="getSourceReleasedBy" resultType="java.lang.Long">
+        SELECT t.released_by FROM `ssrc_rfx_header` t
+        where t.rfx_header_id=#{sourceId}
+    </select>
 </mapper>

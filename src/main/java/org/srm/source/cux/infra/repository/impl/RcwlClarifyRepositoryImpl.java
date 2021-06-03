@@ -65,4 +65,9 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     public String getMeaningByLovCodeAndValue(String LovCode, String value) {
         return rcwlClarifyMapper.getMeaningByLovCodeAndValue(LovCode,value);
     }
+
+    @Override
+    public Long getSourceReleasedBy(Long sourceId) {
+        return rcwlClarifyMapper.getSourceReleasedBy(sourceId);
+    }
 }

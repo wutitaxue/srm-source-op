@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     @Autowired
@@ -55,7 +57,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         //方法区结束
         rcwlDataForBPM.setFILE(clarify.getReferFlag() == 0l ? "澄清":"答疑");//值为1传描述“答疑” 值为0传描述“ 澄清”
         //立项编号不确定----------
-        rcwlDataForBPM.setFSUBJECT(rcwlDataForBPM.getTITLE() + clarify.getTitle() + dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//答疑+标题+立项编号
+        rcwlDataForBPM.setFSUBJECT("答疑"+ clarify.getTitle() + dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//答疑+标题+立项编号
         rcwlDataForBPM.setSUBMITTEDBY(clarify.getCreatedBy() == null ? "":rcwlRfxHeaderRepository.getRealNameById(clarify.getCreatedBy()));//CREATED_BY
         rcwlDataForBPM.setTITLE(clarify.getTitle());
         rcwlDataForBPM.setSOURCENUM(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[0]);//用source_id去去ssrc_rfx_header匹配rfx_header_id找到对应rfx_num
@@ -105,6 +107,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         try{
             //调用bpm接口
             responsePayloadDTO = rcwlGxBpmInterfaceService. RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
+            log.info("澄清答疑上传数据：{"+ JSONObject.toJSONString(rcwlGxBpmStartDataDTO) +"}");
         }catch (Exception e){
             responseData.setMessage("调用BPM接口失败！");
             responseData.setCode("201");
@@ -135,5 +138,10 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     public List<String> getTenantIdByclarifyNum(String clarifyNum) {
         List<String> l  = rcwlClarifyRepository.getTenantIdByclarifyNum(clarifyNum);
         return l;
+    }
+
+    @Override
+    public Long getSourceReleasedBy(Long sourceId) {
+        return rcwlClarifyRepository.getSourceReleasedBy(sourceId);
     }
 }
