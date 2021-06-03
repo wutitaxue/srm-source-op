@@ -24,4 +24,6 @@ public interface RcwlBPMRfxHeaderMapper {
     void updateSubmitBy(long l, Long rfxHeaderIds);
 
     void updateTerminatedBy(Long rfxHeaderIds);
+
+    void updateCheckedBy(Long rfxHeaderId);
 }

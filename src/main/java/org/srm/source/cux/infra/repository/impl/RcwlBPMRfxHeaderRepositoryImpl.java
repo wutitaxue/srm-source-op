@@ -67,4 +67,9 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     public void updateTerminatedBy(Long rfxHeaderIds) {
         rcwlRfxHeaderMapper.updateTerminatedBy(rfxHeaderIds);
     }
+
+    @Override
+    public void updateCheckedBy(Long rfxHeaderId) {
+        rcwlRfxHeaderMapper.updateCheckedBy(rfxHeaderId);
+    }
 }

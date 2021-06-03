@@ -10,6 +10,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.app.service.RcwlCalibrationApprovalService;
 import org.srm.source.cux.domain.entity.RcwlDBSPTGDTO;
 import org.srm.source.cux.domain.entity.RcwlUpdateCalibrationApprovalVO;
@@ -59,6 +60,8 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
     private RfxHeaderMapper rfxHeaderMapper;
     @Autowired
     private RfxEventUtil rfxEventUtil;
+    @Resource
+    private RcwlBPMRfxHeaderService rcwlRfxHeaderService;
 
     @ApiOperation("更新定标字段")
     @Permission(
@@ -172,7 +175,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
 
 
                 this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
-
+                rcwlRfxHeaderService.updateCheckedBy(rfxHeaderId);
             }catch (Exception e){
                 responseData.setCode("201");
                 responseData.setMessage("定标提交失败！");
