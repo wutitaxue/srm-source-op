@@ -100,4 +100,9 @@ public class RcwlCalibrationApprovalRepositoryImpl extends BaseRepositoryImpl<Rf
         Long data = rcwlCalibrationApprovalMapper.getRoundNumber(rfxHeaderId,tenantId);
         return data == null ? 0l:data ;
     }
+
+    @Override
+    public String getBIDPRICE(String quotationHeaderId) {
+        return  rcwlCalibrationApprovalMapper.getBIDPRICE(quotationHeaderId);
+    }
 }

@@ -39,4 +39,6 @@ public interface RcwlCalibrationApprovalRepository extends BaseRepository<RfxHea
     RfxQuotationLine getRfxQuotationLineDataByQuotationHeaderIDs(String id);
 
     Long getRoundNumber(Long rfxHeaderId, Long tenantId);
+
+    String getBIDPRICE(String quotationHeaderId);
 }

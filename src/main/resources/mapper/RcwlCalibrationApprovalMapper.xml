@@ -137,4 +137,13 @@
         from ssrc_rfx_quotation_header t
         where t.rfx_header_id = #{rfxHeaderId}
     </select>
+    <select id="getBIDPRICE" resultType="String">
+        SELECT
+            quotation_amount
+        FROM
+            ssrc_round_rank_header
+        WHERE
+            quotation_header_id = #{quotationHeaderId}
+          AND quotation_round_number = 1
+    </select>
 </mapper>

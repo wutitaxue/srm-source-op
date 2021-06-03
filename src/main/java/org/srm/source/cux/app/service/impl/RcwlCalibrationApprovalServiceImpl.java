@@ -173,12 +173,12 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setRFXNAME(rfxHeader.getRfxTitle());
         forBPMData.setRFXNUM(rfxHeader.getRfxNum());
         forBPMData.setBIDDINGMODE(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8()));
-        forBPMData.setSHORTLISTCATEGORY(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RFX_STATUS",rfxHeader.getSourceCategory()));
+        forBPMData.setSHORTLISTCATEGORY(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory()));
         forBPMData.setMETHODREMARK(rfxHeader.getAttributeVarchar17());
-        forBPMData.setATTRIBUTEVARCHAR9(rfxHeader.getAttributeVarchar9());
+        forBPMData.setATTRIBUTEVARCHAR9(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SPCM.CONTRACT.KIND",rfxHeader.getAttributeVarchar9()));
         forBPMData.setPROJECTAMOUNT(rfxHeader.getBudgetAmount() == null ? "":rfxHeader.getBudgetAmount().toString());
         forBPMData.setATTRIBUTEVARCHAR12(rfxHeader.getAttributeVarchar10());
-            //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag
+            //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag为1的数量
         forBPMData.setATTRIBUTEVARCHAR13(winningSupplyNum);
             //根据source_header_id去ssrc_round_header表中的quotation_round_number字段
         forBPMData.setROUNDNUMBER(quotationRoundNumber);
@@ -197,7 +197,9 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
                 rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
                 rald.setCOMPREHENSIVERANK(String.valueOf(i));
-                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getQuotationAmount(dbdbjgListData.getSupplierCompanyName()));
+                //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
+                rald.setBIDPRICE(rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId()));
+                //含税总价
                 rald.setFIXEDPRICE(dbdbjgListData.getTotal_amount());
                 rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
                 dbdbjgDataForBPMList.add(rald);
