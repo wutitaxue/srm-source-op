@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class RcwlShortListSampleDTO {
 
+
     @ApiModelProperty("入围单号")
     private String shortListNum;
 
