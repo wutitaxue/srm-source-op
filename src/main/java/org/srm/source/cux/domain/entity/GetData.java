@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class GetData {
+
     @JsonProperty("remark")
     private String remark;
     @JsonProperty("rfxHeaderId")

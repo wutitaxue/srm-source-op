@@ -19,4 +19,5 @@ public interface RcwlBPMRfxHeaderService {
     void updateTerminatedBy(Long rfxHeaderIds);
 
     void updateCheckedBy(Long rfxHeaderId);
+
 }
