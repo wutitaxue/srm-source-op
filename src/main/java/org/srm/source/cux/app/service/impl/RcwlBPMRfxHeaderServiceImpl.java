@@ -48,6 +48,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         ResponseData responseData = new ResponseData();
         responseData.setMessage("操作成功！");
         responseData.setCode("200");
+
         List<RcwlAttachmentListData> listData = new ArrayList<RcwlAttachmentListData>();
         List<RcwlRfxHeaderAttachmentListDataForBPM> list = new ArrayList<RcwlRfxHeaderAttachmentListDataForBPM>();
         //方法区，获取调用BPM接口所需值DATA并填充
