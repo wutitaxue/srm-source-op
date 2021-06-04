@@ -44,7 +44,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     private RfxHeaderService rfxHeaderService;
 
     @Override
-    public ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark,String attributeVarchar20) {
+    public ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark) {
         ResponseData responseData = new ResponseData();
         responseData.setMessage("操作成功！");
         responseData.setCode("200");
@@ -53,7 +53,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         //方法区，获取调用BPM接口所需值DATA并填充
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         String userName =rcwlRfxHeaderRepository.getRealNameById(rfxHeader.getCreatedBy());
-        listData = rcwlRfxHeaderRepository.getAttachmentList(attributeVarchar20);
+        listData = rcwlRfxHeaderRepository.getAttachmentList(rfxHeader.getAttributeVarchar20());
         rcwlRfxHeaderRepository.updateRfxHeader(rfxHeader.getRfxHeaderId(), remark,tenantId);
         //方法区结束
         //data数据填充附件信息
