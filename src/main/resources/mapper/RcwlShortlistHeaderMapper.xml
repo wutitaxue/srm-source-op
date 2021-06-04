@@ -251,9 +251,9 @@
         hpfm_lov_value l,
         hpfm_lov_value_tl tl
         WHERE
-        and tl.lang = #{lang}
-        tl.lov_value_id = l.lov_value_id
-        and l.value = srsh.source_category
+        tl.lang = 'zh_CN'
+        AND tl.lov_value_id = l.lov_value_id
+        AND l.value= srsh.source_category
         AND l.lov_code = 'SCUX_RCWL_SOURCE_CATEGORY') source_category_meaning,
         srsh.one_profit,
         srsh.two_profit,
