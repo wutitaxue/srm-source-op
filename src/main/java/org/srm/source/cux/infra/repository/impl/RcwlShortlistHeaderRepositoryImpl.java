@@ -289,7 +289,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setShortListNum(bpmHeaderData.getShortlistNum());
         rcwlBpmShortListHeaderDTO.setProjectname(bpmHeaderData.getProjectName());
         rcwlBpmShortListHeaderDTO.setBusinessentity(bpmHeaderData.getOuName());
-        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getShortlistCategory());
+        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getSourceCategoryMeaning());
         rcwlBpmShortListHeaderDTO.setStartdate(simpleDateFormat.format(bpmHeaderData.getStartDate()));
         rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
         rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
@@ -298,7 +298,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
         rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
-        rcwlBpmShortListHeaderDTO.setUrlMx(prUrl+bpmHeaderData.getShortlistHeaderId());
+        rcwlBpmShortListHeaderDTO.setUrlMx(prUrl + bpmHeaderData.getShortlistHeaderId());
 
 
         rcwlBpmShortListHeaderDTO.setRcwlBpmShortListFilesDtoList(rcwlBpmShortListFilesDtoList);
