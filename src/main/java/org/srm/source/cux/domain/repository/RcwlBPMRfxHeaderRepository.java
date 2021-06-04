@@ -29,4 +29,6 @@ public interface RcwlBPMRfxHeaderRepository extends BaseRepository<RfxHeader> {
     void updateTerminatedBy(Long rfxHeaderIds);
 
     void updateCheckedBy(Long rfxHeaderId);
+
+    void updateActionBy(Long tenantId, Long rfxHeaderIds);
 }
