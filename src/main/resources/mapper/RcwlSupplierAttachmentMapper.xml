@@ -213,10 +213,10 @@
         <where>
             1=1
             <if test="rcwlSupplierHeaderId!=null and rcwlSupplierHeaderId!=''">
-                srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+                and srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
             </if>
             <if test="rcwlSupplierHeaderId==null or rcwlSupplierHeaderId==''">
-                srsa.shortlist_id = #{shortListId}
+                and srsa.shortlist_id = #{shortListId}
             </if>
         </where>
     </select>
