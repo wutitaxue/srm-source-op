@@ -72,4 +72,9 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     public void updateCheckedBy(Long rfxHeaderId) {
         rcwlRfxHeaderMapper.updateCheckedBy(rfxHeaderId);
     }
+
+    @Override
+    public void updateActionBy(Long tenantId, Long rfxHeaderIds) {
+        rcwlRfxHeaderMapper.updateActionBy(tenantId,rfxHeaderIds);
+    }
 }

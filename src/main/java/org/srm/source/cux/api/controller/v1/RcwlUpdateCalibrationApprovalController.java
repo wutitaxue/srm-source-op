@@ -176,6 +176,7 @@ public class RcwlUpdateCalibrationApprovalController extends BaseController {
 
                 this.rfxHeaderService.checkPriceSubmit(rcwlDBSPTGDTO.getTenantId(), rfxHeaderId, checkPriceHeaderDTO);
                 rcwlRfxHeaderService.updateCheckedBy(rfxHeaderId);
+                rcwlRfxHeaderService.updateActionBy(rcwlDBSPTGDTO.getTenantId(),rfxHeaderId);
             }catch (Exception e){
                 responseData.setCode("201");
                 responseData.setMessage("定标提交失败！");
