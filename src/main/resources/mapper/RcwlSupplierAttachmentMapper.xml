@@ -213,7 +213,9 @@
         <where>
             1=1
             <if test="rcwlSupplierHeaderId!=null and rcwlSupplierHeaderId!=''">
-                and srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+                and srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId} or (not EXISTS (SELECT 1 from
+                scux_rcwl_supplier_attachment t where t.rcwl_supplier_header_id =#{rcwlSupplierHeaderId}) and
+                srsa.shortlist_id = #{shortListId})
             </if>
             <if test="rcwlSupplierHeaderId==null or rcwlSupplierHeaderId==''">
                 and srsa.shortlist_id = #{shortListId}
