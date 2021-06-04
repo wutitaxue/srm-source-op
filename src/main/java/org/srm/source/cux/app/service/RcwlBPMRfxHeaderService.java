@@ -6,7 +6,7 @@ import org.srm.source.cux.domain.entity.ResponseData;
 
 public interface RcwlBPMRfxHeaderService {
 
-    ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark);
+    ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark,String attributeVarchar20);
 
     ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataVO rcwlUpdateDataDTO);
 

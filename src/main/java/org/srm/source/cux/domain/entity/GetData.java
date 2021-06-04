@@ -9,4 +9,6 @@ public class GetData {
     private String remark;
     @JsonProperty("rfxHeaderId")
     private Long rfxHeaderId;
+    @JsonProperty("attributeVarchar20")
+    private String attributeVarchar20;
 }
