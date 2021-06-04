@@ -253,7 +253,7 @@
         WHERE
         and tl.lang = #{lang}
         tl.lov_value_id = l.lov_value_id
-        and l.`value` = srsh.source_category
+        and l.value = srsh.source_category
         AND l.lov_code = 'SCUX_RCWL_SOURCE_CATEGORY') source_category_meaning,
         srsh.one_profit,
         srsh.two_profit,
