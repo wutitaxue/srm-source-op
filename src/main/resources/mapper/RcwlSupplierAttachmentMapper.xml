@@ -195,22 +195,29 @@
     <select id="selectByRcwlSupplierAttachment"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierAttachment">
         SELECT srsa2.rcwl_supplier_attachment_id,
-               srsa2.rcwl_supplier_header_id,
-               srsa.rcwl_shortlist_attachment_id,
-               srsa2.attachment_name,
-               srsa2.attachment_url,
-               srsa.attachment_url temp_attachment_url,
-               srsa2.attachment_desc,
-               srsa2.upload_user_id,
-               srsa2.tenant_id,
-               srsa2.object_version_number,
-               srsa2.last_update_date,
-               iu.real_name        upload_user_name
+        srsa2.rcwl_supplier_header_id,
+        srsa.rcwl_shortlist_attachment_id,
+        srsa2.attachment_name,
+        srsa2.attachment_url,
+        srsa.attachment_url temp_attachment_url,
+        srsa2.attachment_desc,
+        srsa2.upload_user_id,
+        srsa2.tenant_id,
+        srsa2.object_version_number,
+        srsa2.last_update_date,
+        iu.real_name upload_user_name
         FROM scux_rcwl_shortlist_attachment srsa
-                 LEFT JOIN scux_rcwl_supplier_attachment srsa2
-                           ON srsa.rcwl_shortlist_attachment_id = srsa2.rcwl_shortlist_attachment_id
-                 LEFT JOIN iam_user iu ON iu.id = srsa.upload_user_id
-        WHERE srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
-           or srsa.shortlist_id = #{shortListId}
+        LEFT JOIN scux_rcwl_supplier_attachment srsa2
+        ON srsa.rcwl_shortlist_attachment_id = srsa2.rcwl_shortlist_attachment_id
+        LEFT JOIN iam_user iu ON iu.id = srsa.upload_user_id
+        <where>
+            1=1
+            <if test="rcwlSupplierHeaderId!=null and rcwlSupplierHeaderId!=''">
+                srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+            </if>
+            <if test="rcwlSupplierHeaderId==null or rcwlSupplierHeaderId==''">
+                srsa.shortlist_id = #{shortListId}
+            </if>
+        </where>
     </select>
 </mapper>
