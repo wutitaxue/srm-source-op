@@ -102,13 +102,12 @@ public class RcwlUpdateClarifyController extends BaseController {
         clarify.setSourceNum(clarifyToReleaseDTO.getSourceNum());
         this.validObject(clarify, new Class[0]);
         try{
-            clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
+            rcwlClarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
             Long id = rcwlClarifyService.getSourceReleasedBy(clarify.getSourceId());
+            rcwlRfxHeaderService.updateSubmitBy(0l,clarify.getClarifyId());
         }catch(Exception e){
             responseData.setCode("201");
             responseData.setMessage("澄清答疑发布失败！");
-        }finally {
-            rcwlRfxHeaderService.updateSubmitBy(0l,clarify.getClarifyId());
         }
         return responseData;
     }

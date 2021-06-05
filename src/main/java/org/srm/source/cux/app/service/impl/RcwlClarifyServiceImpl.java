@@ -3,21 +3,37 @@ package org.srm.source.cux.app.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
+import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
 import org.hzero.boot.platform.profile.ProfileClient;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.srm.source.bid.app.service.common.BidSendMessageHandle;
+import org.srm.source.bid.domain.entity.BidHeader;
+import org.srm.source.bid.domain.repository.BidHeaderRepository;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.*;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlCalibrationApprovalRepository;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
+import org.srm.source.rfx.app.service.common.SendMessageHandle;
+import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.share.domain.entity.Clarify;
+import org.srm.source.share.domain.entity.IssueLine;
+import org.srm.source.share.domain.repository.ClarifyRepository;
+import org.srm.source.share.domain.repository.IssueLineRepository;
+import org.srm.source.share.infra.utils.ShareEventUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,9 +46,25 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     private RcwlBPMRfxHeaderRepository rcwlRfxHeaderRepository;
     @Autowired
     private RcwlCalibrationApprovalRepository rcwlCalibrationApprovalRepository;
+    @Lazy
+    private BidSendMessageHandle bidSendMessageHandle;
     //获取配置参数
     @Autowired
     private ProfileClient profileClient;
+    @Autowired
+    private BidHeaderRepository bidHeaderRepository;
+    @Autowired
+    private ShareEventUtil shareEventUtil;
+    @Autowired
+    private SendMessageHandle sendMessageHandle;
+    @Autowired
+    private RfxHeaderRepository rfxHeaderRepository;
+    @Autowired
+    private IssueLineRepository issueLineRepository;
+    @Autowired
+    private CodeRuleBuilder codeRuleBuilder;
+    @Autowired
+    private ClarifyRepository clarifyRepository;
 
     @Override
     public ResponseData releaseClarifyByBPM(RcwlClarifyForBPM clarify) {
@@ -143,5 +175,82 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
     @Override
     public Long getSourceReleasedBy(Long sourceId) {
         return rcwlClarifyRepository.getSourceReleasedBy(sourceId);
+    }
+
+    @Override
+    public Clarify releaseClarify(Long tenantId, Clarify clarify) {
+        clarify.checkContextLength(524288);
+        List<IssueLine> issueLines = this.validIssueLine(clarify.getIssueLineIdList(), clarify.getClarifyId());
+        clarify.setIssueLineList(issueLines);
+        Clarify releaseClarify;
+        if (clarify.getClarifyId() == null) {
+            releaseClarify = this.releaseNewClarify(tenantId, clarify);
+        } else {
+            releaseClarify = this.releaseUpdateClarify(clarify);
+        }
+        return releaseClarify;
+    }
+
+    public List<IssueLine> validIssueLine(List<Long> issueLineIdList, Long clarifyId) {
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(issueLineIdList)) {
+            return null;
+        } else {
+            String ids = (String)issueLineIdList.stream().map(Objects::toString).collect(Collectors.joining(", "));
+            List<IssueLine> issueLines = this.issueLineRepository.selectByIds(ids);
+            if (org.apache.commons.collections4.CollectionUtils.isEmpty(issueLines)) {
+                throw new CommonException("error.issueLine.cite_failed", new Object[0]);
+            } else {
+                Iterator var5 = issueLines.iterator();
+
+                IssueLine issueLine;
+                do {
+                    if (!var5.hasNext()) {
+                        return issueLines;
+                    }
+
+                    issueLine = (IssueLine)var5.next();
+                } while((issueLine.getClarifyId() != null || "SUBMITTED".equals(issueLine.getIssueLineStatus())) && (issueLine.getClarifyId() == null || issueLine.getClarifyId().equals(clarifyId)));
+
+                throw new CommonException("error.issueLine.cite_failed", new Object[0]);
+            }
+        }
+    }
+
+    public Clarify releaseNewClarify(Long tenantId, Clarify clarify) {
+        clarify.init(tenantId, this.codeRuleBuilder.generateCode(tenantId, "SSRC.CLARIFY_NUM", "GLOBAL", "GLOBAL", (Map)null), "RELEASED", org.apache.commons.collections4.CollectionUtils.isEmpty(clarify.getIssueLineList()) ? 0 : 1, DetailsHelper.getUserDetails().getUserId(), new Date());
+        this.clarifyRepository.insert(clarify);
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(clarify.getIssueLineList())) {
+            clarify.getIssueLineList().forEach((issueLine) -> {
+                issueLine.setIssueLineStatus("CLARIFIED");
+                issueLine.setClarifyId(clarify.getClarifyId());
+            });
+            this.issueLineRepository.batchUpdateOptional(clarify.getIssueLineList(), new String[]{"issueLineStatus", "clarifyId"});
+        }
+
+        return clarify;
+    }
+
+    public Clarify releaseUpdateClarify(Clarify clarify) {
+        Clarify validClarify = (Clarify)this.clarifyRepository.selectByPrimaryKey(clarify);
+        if (validClarify != null && !"RELEASED".equals(validClarify.getClarifyStatus())) {
+            Integer referFlag = org.apache.commons.collections4.CollectionUtils.isEmpty(clarify.getIssueLineList()) ? 0 : 1;
+            clarify.init("RELEASED", referFlag,0l, new Date());
+            List<IssueLine> selectIssueLines = this.issueLineRepository.selectByCondition(Condition.builder(IssueLine.class).andWhere(Sqls.custom().andEqualTo("issueLineStatus", "CLARIFYING").andEqualTo("clarifyId", clarify.getClarifyId())).build());
+            List issueLineIds;
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(clarify.getIssueLineList())) {
+                issueLineIds = (List)clarify.getIssueLineList().stream().map(IssueLine::getIssueLineId).collect(Collectors.toList());
+                String ids = (String)issueLineIds.stream().map(Objects::toString).collect(Collectors.joining(","));
+                List<IssueLine> updateIssueLines = this.issueLineRepository.selectByIds(ids);
+                updateIssueLines.forEach((issueLine) -> {
+                    issueLine.setIssueLineStatus("CLARIFIED");
+                    issueLine.setClarifyId(clarify.getClarifyId());
+                });
+                this.issueLineRepository.batchUpdateOptional(updateIssueLines, new String[]{"issueLineStatus", "clarifyId"});
+            }
+            this.clarifyRepository.updateOptional(clarify, new String[]{"title", "attachmentUuid", "context", "referFlag", "clarifyStatus", "submittedBy", "submittedDate"});
+            return clarify;
+        } else {
+            throw new CommonException("error.clarify_release_failed", new Object[0]);
+        }
     }
 }
