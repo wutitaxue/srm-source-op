@@ -22,7 +22,8 @@
         FROM
             `ssrc_rfx_quotation_line` t
         WHERE
-                t.quotation_header_id IN (
+              t.suggested_flag = 1
+              AND t.quotation_header_id IN (
                 SELECT
                     y.quotation_header_id
                 FROM
