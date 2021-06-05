@@ -81,6 +81,7 @@ public class RcwlUpdateClarifyController extends BaseController {
     @PostMapping({"/release/cqdy"})
     public ResponseData releaseClarify(@RequestBody RcwlCarifyReleaseVO rcwlCarifyReleaseDTO) {
         String xx = JSONObject.toJSONString(rcwlCarifyReleaseDTO);
+        DetailsHelper.setCustomUserDetails(0l,"zh_CN");
         log.info("澄清(发布)传进来的值：rcwlCarifyReleaseDTO====>"+rcwlCarifyReleaseDTO);
         ResponseData responseData = new ResponseData();
         responseData.setCode("200");
@@ -102,7 +103,7 @@ public class RcwlUpdateClarifyController extends BaseController {
         clarify.setSourceNum(clarifyToReleaseDTO.getSourceNum());
         this.validObject(clarify, new Class[0]);
         try{
-            rcwlClarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
+            clarifyService.releaseClarify(rcwlCarifyReleaseDTO.getTenantid(), clarify);
             Long id = rcwlClarifyService.getSourceReleasedBy(clarify.getSourceId());
             rcwlRfxHeaderService.updateSubmitBy(0l,clarify.getClarifyId());
         }catch(Exception e){
