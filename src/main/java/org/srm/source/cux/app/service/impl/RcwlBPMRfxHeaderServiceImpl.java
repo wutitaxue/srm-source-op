@@ -205,14 +205,16 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     }
 
     public void rfxClose(Long tenantId, Long rfxHeaderId, RfxHeader rfxHeader) {
+        log.info("进入rfxClose方法=================================");
         List<RfxLineItem> rfxLineItems = this.rfxLineItemRepository.select(new RfxLineItem(tenantId, rfxHeaderId));
         rfxHeader.validClose();
         rfxHeader.initClose(rfxHeader.getTerminatedRemark());
         this.rfxLineItemDomainService.rfxBatchReleasePrLines(rfxHeader, rfxLineItems);
+        log.info("查看是否进入releaseSourceProject方法==============================="+rfxHeader.getSourceFrom()+"==========");
         if ("PROJECT".equals(rfxHeader.getSourceFrom())) {
             this.releaseSourceProject(rfxHeader);
         }
-
+        log.info("===============数量=rfxLineItems"+rfxLineItems.size()+"=================");
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineItems)) {
 
             Iterator var5 = rfxLineItems.iterator();
@@ -230,6 +232,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         CustomizeHelper.ignore(() -> {
             return this.rfxHeaderRepository.updateOptional(rfxHeader, new String[]{"rfxStatus", "closedFlag", "terminatedBy", "terminatedDate", "terminatedRemark"});
         });
+        log.info("进入rfxHeaderRepository.updateOptional方法===================================以下是rfxActionDomainService.insertAction");
         this.rfxActionDomainService.insertAction(rfxHeader, "CLOSE", rfxHeader.getTerminatedRemark());
 //        this.sendMessageHandle.sendMessageForOperation(rfxHeader, "SSRC.RFX_CLOSE");
 //        this.rfxEventUtil.eventSend("SSRC_RFX_CLOSE", "CLOSE", rfxHeader);
