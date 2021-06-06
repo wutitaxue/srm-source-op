@@ -178,7 +178,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     public void chooseRfxCloseApproveType(Long tenantId, Long rfxHeaderId, String remark) {
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         rfxHeader.setTerminatedRemark(remark);
-        rfxHeader.setTerminatedBy(0l);
+//        rfxHeader.setTerminatedBy(0l);
         Map<String, String> cnfArgs = new HashMap();
         cnfArgs.put("approveType", "RFX_CLOSE");
         this.rfxClose(tenantId, rfxHeaderId, rfxHeader);
@@ -207,7 +207,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     public void rfxClose(Long tenantId, Long rfxHeaderId, RfxHeader rfxHeader) {
         log.info("进入rfxClose方法=================================");
         List<RfxLineItem> rfxLineItems = this.rfxLineItemRepository.select(new RfxLineItem(tenantId, rfxHeaderId));
-        rfxHeader.validClose();
+//        rfxHeader.validClose();
         rfxHeader.initClose(rfxHeader.getTerminatedRemark());
         this.rfxLineItemDomainService.rfxBatchReleasePrLines(rfxHeader, rfxLineItems);
         log.info("查看是否进入releaseSourceProject方法==============================="+rfxHeader.getSourceFrom()+"==========");
