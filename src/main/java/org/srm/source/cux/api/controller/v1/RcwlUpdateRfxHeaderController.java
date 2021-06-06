@@ -77,7 +77,7 @@ public class RcwlUpdateRfxHeaderController {
             targetField = {"body"}
     )
     public ResponseData controlClose(@RequestBody RcwlGetDataCloseDTO rcwlGetDataCloseDTO) {
-        DetailsHelper.setCustomUserDetails(rcwlGetDataCloseDTO.getTenantId(),"zh_CN");
+//        DetailsHelper.setCustomUserDetails(rcwlGetDataCloseDTO.getTenantId(),"zh_CN");
         if(rcwlGetDataCloseDTO.getRemark() == null){
             rcwlGetDataCloseDTO.setRemark("备注");
         }
