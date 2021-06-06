@@ -6,8 +6,12 @@ import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.oauth.DetailsHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.hzero.boot.customize.util.CustomizeHelper;
 import org.hzero.boot.interfaces.sdk.dto.ResponsePayloadDTO;
 import org.hzero.boot.platform.profile.ProfileClient;
+import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.srm.boot.platform.configcenter.CnfHelper;
@@ -20,7 +24,15 @@ import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
+import org.srm.source.rfx.domain.service.IRfxActionDomainService;
+import org.srm.source.rfx.domain.service.IRfxLineItemDomainService;
+import org.srm.source.share.domain.entity.ProjectLineSection;
+import org.srm.source.share.domain.entity.SourceProject;
+import org.srm.source.share.domain.repository.ProjectLineSectionRepository;
+import org.srm.source.share.domain.repository.SourceProjectRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -42,6 +54,16 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     private ProfileClient profileClient;
     @Autowired
     private RfxHeaderService rfxHeaderService;
+    @Autowired
+    private RfxLineItemRepository rfxLineItemRepository;
+    @Autowired
+    private IRfxLineItemDomainService rfxLineItemDomainService;
+    @Autowired
+    private IRfxActionDomainService rfxActionDomainService;
+    @Autowired
+    private SourceProjectRepository sourceProjectRepository;
+    @Autowired
+    private ProjectLineSectionRepository projectLineSectionRepository;
 
     @Override
     public ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark) {
@@ -159,7 +181,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         rfxHeader.setTerminatedBy(0l);
         Map<String, String> cnfArgs = new HashMap();
         cnfArgs.put("approveType", "RFX_CLOSE");
-        rfxHeaderService.rfxClose(tenantId, rfxHeaderId, rfxHeader);
+        this.rfxClose(tenantId, rfxHeaderId, rfxHeader);
     }
 
     @Override
@@ -181,4 +203,77 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     public void updateActionBy(Long tenantId, Long rfxHeaderIds) {
         rcwlRfxHeaderRepository.updateActionBy(tenantId,rfxHeaderIds);
     }
+
+    public void rfxClose(Long tenantId, Long rfxHeaderId, RfxHeader rfxHeader) {
+        List<RfxLineItem> rfxLineItems = this.rfxLineItemRepository.select(new RfxLineItem(tenantId, rfxHeaderId));
+        rfxHeader.validClose();
+        rfxHeader.initClose(rfxHeader.getTerminatedRemark());
+        this.rfxLineItemDomainService.rfxBatchReleasePrLines(rfxHeader, rfxLineItems);
+        if ("PROJECT".equals(rfxHeader.getSourceFrom())) {
+            this.releaseSourceProject(rfxHeader);
+        }
+
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(rfxLineItems)) {
+
+            Iterator var5 = rfxLineItems.iterator();
+
+            while(var5.hasNext()) {
+                RfxLineItem rfxLineItem = (RfxLineItem)var5.next();
+                rfxLineItem.setFinishedFlag(BaseConstants.Flag.YES);
+            }
+
+            CustomizeHelper.ignore(() -> {
+                return this.rfxLineItemRepository.batchUpdateOptional(rfxLineItems, new String[]{"finishedFlag"});
+            });
+        }
+
+        CustomizeHelper.ignore(() -> {
+            return this.rfxHeaderRepository.updateOptional(rfxHeader, new String[]{"rfxStatus", "closedFlag", "terminatedBy", "terminatedDate", "terminatedRemark"});
+        });
+        this.rfxActionDomainService.insertAction(rfxHeader, "CLOSE", rfxHeader.getTerminatedRemark());
+//        this.sendMessageHandle.sendMessageForOperation(rfxHeader, "SSRC.RFX_CLOSE");
+//        this.rfxEventUtil.eventSend("SSRC_RFX_CLOSE", "CLOSE", rfxHeader);
+    }
+
+    public void releaseSourceProject(RfxHeader rfxHeader) {
+        SourceProject sourceProject = (SourceProject)this.sourceProjectRepository.selectByPrimaryKey(rfxHeader.getSourceProjectId());
+        if (!"PACK".equals(sourceProject.getSubjectMatterRule())) {
+            sourceProject.setReferenceFlag(BaseConstants.Flag.NO);
+            sourceProject.setSourceHeaderNum((String)null);
+            sourceProject.setSourceHeaderId((Long)null);
+            this.sourceProjectRepository.updateByPrimaryKey(sourceProject);
+        } else {
+            ProjectLineSection projectLineSectionParam = new ProjectLineSection();
+            projectLineSectionParam.setSourceProjectId(sourceProject.getSourceProjectId());
+            projectLineSectionParam.setSourceHeaderId(rfxHeader.getRfxHeaderId());
+            projectLineSectionParam.setReferenceFlag(BaseConstants.Flag.YES);
+            List<ProjectLineSection> projectLineSections = this.projectLineSectionRepository.selectRefenceSections(projectLineSectionParam);
+            Iterator var5 = projectLineSections.iterator();
+
+            while(var5.hasNext()) {
+                ProjectLineSection projectLineSection = (ProjectLineSection)var5.next();
+                projectLineSection.setCreateSourceFlag(BaseConstants.Flag.NO);
+                projectLineSection.setReferenceFlag(BaseConstants.Flag.NO);
+                projectLineSection.setSourceFrom((String)null);
+                projectLineSection.setSourceHeaderId((Long)null);
+                projectLineSection.setSourceHeaderNum((String)null);
+                projectLineSection.setTempSourceHeaderId((Long)null);
+            }
+
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(projectLineSections)) {
+                this.projectLineSectionRepository.batchUpdateOptional(projectLineSections, new String[]{"referenceFlag", "createSourceFlag", "sourceHeaderId", "sourceHeaderNum", "tempSourceHeaderId", "sourceFrom"});
+            }
+
+            int referenceCount = this.projectLineSectionRepository.selectCountByCondition(Condition.builder(ProjectLineSection.class).where(Sqls.custom().andEqualTo("sourceProjectId", sourceProject.getSourceProjectId()).andEqualTo("referenceFlag", BaseConstants.Flag.YES)).build());
+            if (referenceCount == 0) {
+                sourceProject.setReferenceFlag(BaseConstants.Flag.NO);
+                sourceProject.setSourceHeaderNum((String)null);
+                sourceProject.setSourceHeaderId((Long)null);
+                sourceProject.setSourceProjectStatus("APPROVED");
+                this.sourceProjectRepository.updateByPrimaryKey(sourceProject);
+            }
+        }
+
+    }
+
 }
