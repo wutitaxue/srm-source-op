@@ -29,12 +29,12 @@
     <update id="updateTerminatedBy">
         UPDATE ssrc_rfx_header
         SET terminated_by = 0
-        WHERE clarify_id=#{rfxHeaderIds}
+        WHERE rfx_header_id=#{rfxHeaderIds}
     </update>
     <update id="updateCheckedBy">
         UPDATE ssrc_rfx_header
         SET checked_by = 0
-        WHERE clarify_id=#{rfxHeaderId}
+        WHERE rfx_header_id=#{rfxHeaderId}
     </update>
     <update id="updateActionBy">
         UPDATE ssrc_rfx_action sra
