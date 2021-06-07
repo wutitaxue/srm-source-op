@@ -136,8 +136,8 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8())).append("\",");
-        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getAttributeVarchar17() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getSourceCategory())).append("\",");
-        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getAttributeVarchar17())).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getAttributeVarchar17() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory())).append("\",");
+        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getAttributeVarchar17())).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark() == null ? "":rfxHeader.getTerminatedRemark()).append("\",");
