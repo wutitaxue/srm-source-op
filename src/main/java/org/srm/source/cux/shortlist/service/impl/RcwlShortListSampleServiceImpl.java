@@ -3,6 +3,7 @@ package org.srm.source.cux.shortlist.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import javassist.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,8 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
                 rcwlSampleSendReqDTO.setRecUserName(rcwlShortListSampleDTO.getRecUserName());
                 rcwlSampleSendReqDTO.setRecUserPhone(rcwlShortListSampleDTO.getRecUserPhone());
                 rcwlSampleSendReqDTO.setSampleSendAddress(rcwlShortListSampleDTO.getSampleSendAddress());
+                rcwlSampleSendReqDTO.setReqUserId(DetailsHelper.getUserDetails().getUserId());
+                rcwlSampleSendReqDTO.setReqUserName(DetailsHelper.getUserDetails().getRealName());
 
                 try {
                     logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO:" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
