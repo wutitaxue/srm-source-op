@@ -274,7 +274,7 @@
             hc.company_name,
             hc.tenant_id
         from hpfm_company hc
-        where hc.hc.company_id = #{companyId}
+        where hc.company_id = #{companyId}
 
     </select>
     <select id="selectRcwlSupplierHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
