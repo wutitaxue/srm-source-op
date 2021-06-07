@@ -4,22 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import javassist.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
+import org.srm.source.cux.infra.mapper.RcwlSupplierHeaderMapper;
 import org.srm.source.cux.shortlist.api.dto.RcwlSampleInfoDTO;
 import org.srm.source.cux.shortlist.api.dto.RcwlSampleSendReqDTO;
 import org.srm.source.cux.shortlist.api.dto.RcwlShortListSampleDTO;
 import org.srm.source.cux.shortlist.api.dto.RcwlShortListSupplierDTO;
 import org.srm.source.cux.shortlist.service.RcwlShortListSampleSendService;
 import org.srm.source.cux.shortlist.service.RcwlShortListSampleService;
+import org.srm.source.rfx.api.dto.CompanyDTO;
 import org.srm.source.share.domain.vo.PrLineVO;
 
-import javax.naming.CommunicationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +37,10 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
     @Autowired
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(Loader.class);
+    @Autowired
+    private RcwlSupplierHeaderMapper rcwlSupplierHeaderMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(RcwlShortListSampleService.class);
 
     /**
      * 入围单批量创建送样单，并发布
@@ -91,15 +94,20 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
                 rcwlSampleSendReqDTO.setSupplierId(rcwlShortListSupplierDTO.getSupplierId());
                 rcwlSampleSendReqDTO.setSupplierNum(rcwlShortListSupplierDTO.getSupplierNum());
                 rcwlSampleSendReqDTO.setSupplierName(rcwlShortListSupplierDTO.getSupplierName());
+                //供应商信息查询
+                logger.info("-------------查询供应商信息-------");
+                CompanyDTO companyDTO = rcwlSupplierHeaderMapper.selectCompanyById(rcwlShortListSupplierDTO.getSupplierId());
+                rcwlSampleSendReqDTO.setSupplierTenantId(companyDTO.getTenantId());
 
                 rcwlSampleSendReqDTO.setRecUserName(rcwlShortListSampleDTO.getRecUserName());
                 rcwlSampleSendReqDTO.setRecUserPhone(rcwlShortListSampleDTO.getRecUserPhone());
                 rcwlSampleSendReqDTO.setSampleSendAddress(rcwlShortListSampleDTO.getSampleSendAddress());
                 rcwlSampleSendReqDTO.setReqUserId(DetailsHelper.getUserDetails().getUserId());
                 rcwlSampleSendReqDTO.setReqUserName(DetailsHelper.getUserDetails().getRealName());
+                rcwlSampleSendReqDTO.setReqUserPhone(rcwlShortListSampleDTO.getRecUserPhone());
 
                 try {
-                    logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO:" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
+                    logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO: {0}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlSupplierHeaderMapper">
-    <!-- 可根据自己的需求，是否要使用 -->
+	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap id="BaseResultMap" type="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
         <result column="supplier_id" property="supplierId" jdbcType="DECIMAL"/>
         <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
@@ -226,10 +226,7 @@
     </sql>
 
     <sql id="selectRcwlSupplierHeaderResult">
-        srsh2
-        .
-        supplier_header_id
-        ,
+        srsh2.supplier_header_id,
             srsh2.supplier_id,
             srsh.shortlist_header_id,
             srsh.tenant_id,
@@ -279,8 +276,10 @@
 
     </select>
     <select id="selectCompanyById" resultType="org.srm.source.rfx.api.dto.CompanyDTO">
-        select hc.company_num,
-               hc.company_name
+        select
+            hc.company_num,
+            hc.company_name,
+            hc.tenant_id
         from hpfm_company hc
         where hc.hc.company_id = #{companyId}
 
