@@ -40,10 +40,7 @@
         UPDATE ssrc_rfx_action sra
         SET sra.process_user_id = 0
         WHERE
-            sra.rfx_header_id = #{rfxHeaderIds}
-            ORDER BY
-        sra.rfx_action_id DESC
-        LIMIT 0,1
+            sra.rfx_action_id = #{id}
     </update>
     <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
         SELECT file_name fileName,file_size fileSize,file_url fileUrl
@@ -69,5 +66,8 @@
     <select id="getIssueLineIdListByClarifyId" resultType="java.lang.Long">
         SELECT t.issue_line_id FROM `ssrc_issue_line` t
         where t.clarify_id = #{clarifyId}
+    </select>
+    <select id="getActionId" resultType="String">
+        select sra2.rfx_action_id from  ssrc_rfx_action sra2 WHERE sra2.rfx_header_id = #{rfxHeaderIds} ORDER BY sra2.rfx_action_id DESC LIMIT 0,1
     </select>
 </mapper>
