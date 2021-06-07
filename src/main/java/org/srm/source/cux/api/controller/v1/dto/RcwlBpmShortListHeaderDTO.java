@@ -65,6 +65,10 @@ public class RcwlBpmShortListHeaderDTO {
     @JsonProperty("REQUIREMENTS")
     private String requirements;
 
+    @ApiModelProperty("甄云链接")
+    @JsonProperty("URL_MX")
+    private String urlMx;
+
     @JsonProperty("RWGYS")
     private List<RcwlBpmShortListSuppierDTO> rcwlBpmShortListSuppierDTOList;
 
@@ -200,5 +204,13 @@ public class RcwlBpmShortListHeaderDTO {
 
     public void setRequirements(String requirements) {
         this.requirements = requirements;
+    }
+
+    public String getUrlMx() {
+        return urlMx;
+    }
+
+    public void setUrlMx(String urlMx) {
+        this.urlMx = urlMx;
     }
 }

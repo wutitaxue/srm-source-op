@@ -100,11 +100,11 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                 }
                 logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                 if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
-                    str2 = "一年营收不符合";
+                    str3 = "一年营收不符合";
                 }
                 logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
-                    str2 = "两年营收不符合";
+                    str4 = "两年营收不符合";
                 }
                 logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
                 if (org.springframework.util.ObjectUtils.isEmpty(str1) && org.springframework.util.ObjectUtils.isEmpty(str2) && org.springframework.util.ObjectUtils.isEmpty(str3) && org.springframework.util.ObjectUtils.isEmpty(str4)) {
@@ -246,7 +246,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
-        String prUrl = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_PR_TO_BPM_URL");
+        String prUrl = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SHORT_LIST_BPM_URL");
         String userName = DetailsHelper.getUserDetails().getUsername();
 
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
@@ -266,12 +266,12 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                 fileNumber++;
             }
         }
-        if (null != rcwlBpmShortListPrDTOList && rcwlBpmShortListPrDTOList.size() > 0) {
-            for (RcwlBpmShortListPrDTO e : rcwlBpmShortListPrDTOList
-            ) {
-                e.setUrlMx(prUrl + e.getUrlMx());
-            }
-        }
+//        if (null != rcwlBpmShortListPrDTOList && rcwlBpmShortListPrDTOList.size() > 0) {
+//            for (RcwlBpmShortListPrDTO e : rcwlBpmShortListPrDTOList
+//            ) {
+//                e.setUrlMx(prUrl + e.getUrlMx());
+//            }
+//        }
         //设置传输值
         rcwlGxBpmStartDataDTO.setReSrcSys(reSrcSys);
         rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
@@ -289,7 +289,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setShortListNum(bpmHeaderData.getShortlistNum());
         rcwlBpmShortListHeaderDTO.setProjectname(bpmHeaderData.getProjectName());
         rcwlBpmShortListHeaderDTO.setBusinessentity(bpmHeaderData.getOuName());
-        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getShortlistCategory());
+        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getSourceCategoryMeaning());
         rcwlBpmShortListHeaderDTO.setStartdate(simpleDateFormat.format(bpmHeaderData.getStartDate()));
         rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
         rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
@@ -298,6 +298,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
         rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
+        rcwlBpmShortListHeaderDTO.setUrlMx(prUrl + bpmHeaderData.getShortlistHeaderId());
 
 
         rcwlBpmShortListHeaderDTO.setRcwlBpmShortListFilesDtoList(rcwlBpmShortListFilesDtoList);
