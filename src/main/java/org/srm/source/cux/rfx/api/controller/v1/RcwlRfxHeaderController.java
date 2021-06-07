@@ -64,8 +64,6 @@ public class RcwlRfxHeaderController {
     @Autowired
     private RfxHeaderService rfxHeaderService;
     @Autowired
-    private RfxHeaderServiceV2 rfxHeaderServiceV2;
-    @Autowired
     private RcwlRfxHeaderBpmMapper rcwlRfxHeaderBpmMapper;
 
 
