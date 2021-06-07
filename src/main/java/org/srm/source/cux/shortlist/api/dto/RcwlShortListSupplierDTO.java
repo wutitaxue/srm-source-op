@@ -10,19 +10,19 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class RcwlShortListSupplierDTO {
     @ApiModelProperty("供应商id")
-    private String supplierId;
+    private Long supplierId;
 
     @ApiModelProperty("供应商编码")
     private String supplierNum;
 
     @ApiModelProperty("供应商名称")
-    private String companyName;
+    private String supplierName;
 
-    public String getSupplierId() {
+    public Long getSupplierId() {
         return supplierId;
     }
 
-    public void setSupplierId(String supplierId) {
+    public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
     }
 
@@ -34,12 +34,12 @@ public class RcwlShortListSupplierDTO {
         this.supplierNum = supplierNum;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public String getSupplierName() {
+        return supplierName;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RcwlShortListSupplierDTO {
         return "RcwlShortListSupplierDTO{" +
                 "supplierId='" + supplierId + '\'' +
                 ", supplierNum='" + supplierNum + '\'' +
-                ", companyName='" + companyName + '\'' +
+                ", supplierName='" + supplierName + '\'' +
                 '}';
     }
 }

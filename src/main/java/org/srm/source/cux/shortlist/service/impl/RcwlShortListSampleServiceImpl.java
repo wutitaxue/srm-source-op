@@ -1,5 +1,8 @@
 package org.srm.source.cux.shortlist.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.choerodon.core.exception.CommonException;
 import javassist.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +13,12 @@ import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.shortlist.api.dto.RcwlSampleInfoDTO;
 import org.srm.source.cux.shortlist.api.dto.RcwlSampleSendReqDTO;
 import org.srm.source.cux.shortlist.api.dto.RcwlShortListSampleDTO;
+import org.srm.source.cux.shortlist.api.dto.RcwlShortListSupplierDTO;
 import org.srm.source.cux.shortlist.service.RcwlShortListSampleSendService;
 import org.srm.source.cux.shortlist.service.RcwlShortListSampleService;
 import org.srm.source.share.domain.vo.PrLineVO;
 
+import javax.naming.CommunicationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,22 +48,64 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
     @Override
     public void rcwlBanthCreateSample(Long tenantId, RcwlShortListSampleDTO rcwlShortListSampleDTO) {
         logger.info("-------------入围单批量创建送样开始-----------");
-        RcwlSampleSendReqDTO rcwlSampleSendReqDTO = new RcwlSampleSendReqDTO();
         List<RcwlSampleInfoDTO> infoDtoList = new ArrayList<>();
-        RcwlSampleInfoDTO rcwlSampleInfoDTO = new RcwlSampleInfoDTO();
+        ObjectMapper mapper = new ObjectMapper();
 
         logger.info("---------------------查询采购申请开始：-------------------organizationId:{0},shortListId:{1}", tenantId, rcwlShortListSampleDTO.getShortListId());
         List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(rcwlShortListSampleDTO.getShortListId());
         //设置送样物料
         if (!ObjectUtils.isEmpty(prLineVOList)) {
             for (PrLineVO prLineVO : prLineVOList) {
+                RcwlSampleInfoDTO rcwlSampleInfoDTO = new RcwlSampleInfoDTO();
+                rcwlSampleInfoDTO.setTenantId(tenantId);
+                rcwlSampleInfoDTO.setItemCode(prLineVO.getItemCode());
+                rcwlSampleInfoDTO.setItemName(prLineVO.getItemName());
+                rcwlSampleInfoDTO.setLineNum(prLineVO.getDisplayLineNum());
+                rcwlSampleInfoDTO.setUomCode(prLineVO.getUomCode());
+                rcwlSampleInfoDTO.setUomName(prLineVO.getUomName());
+                rcwlSampleInfoDTO.setCategoryId(prLineVO.getCategoryId());
+                rcwlSampleInfoDTO.setCategoryNames(prLineVO.getCategoryName());
+                rcwlSampleInfoDTO.setReqQuantity(prLineVO.getQuantity());
+                rcwlSampleInfoDTO.setReqTime(prLineVO.getNeededDate());
+                infoDtoList.add(rcwlSampleInfoDTO);
+            }
+        }
+        if (!ObjectUtils.isEmpty(rcwlShortListSampleDTO.getRcwlShortListSupplierDTOList())) {
+            for (RcwlShortListSupplierDTO rcwlShortListSupplierDTO : rcwlShortListSampleDTO.getRcwlShortListSupplierDTOList()
+            ) {
+                RcwlSampleSendReqDTO rcwlSampleSendReqDTO = new RcwlSampleSendReqDTO();
+                rcwlSampleSendReqDTO.setInfoDtoList(infoDtoList);
+                rcwlSampleSendReqDTO.setTenantId(tenantId);
+                rcwlSampleSendReqDTO.setAttributeVarchar11(rcwlShortListSampleDTO.getShortListNum());
+                rcwlSampleSendReqDTO.setCompanyId(rcwlShortListSampleDTO.getCompanyId());
+                rcwlSampleSendReqDTO.setCompanyNum(rcwlShortListSampleDTO.getCompanyNum());
+                rcwlSampleSendReqDTO.setCompanyName(rcwlShortListSampleDTO.getCompanyName());
+                rcwlSampleSendReqDTO.setOuId(rcwlShortListSampleDTO.getOuId());
+                rcwlSampleSendReqDTO.setOuCode(rcwlShortListSampleDTO.getOuCode());
+                rcwlSampleSendReqDTO.setOuName(rcwlShortListSampleDTO.getOuName());
+                rcwlSampleSendReqDTO.setInvOrganizationId(rcwlShortListSampleDTO.getInvOrganizationId());
+                rcwlSampleSendReqDTO.setOrganizationCode(rcwlShortListSampleDTO.getOrganizationCode());
+                rcwlSampleSendReqDTO.setOrganizationName(rcwlShortListSampleDTO.getOrganizationName());
+                //供应商信息
+                rcwlSampleSendReqDTO.setSupplierId(rcwlShortListSupplierDTO.getSupplierId());
+                rcwlSampleSendReqDTO.setSupplierNum(rcwlShortListSupplierDTO.getSupplierNum());
+                rcwlSampleSendReqDTO.setSupplierName(rcwlShortListSupplierDTO.getSupplierName());
 
+                rcwlSampleSendReqDTO.setRecUserName(rcwlShortListSampleDTO.getRecUserName());
+                rcwlSampleSendReqDTO.setRecUserPhone(rcwlShortListSampleDTO.getRecUserPhone());
+                rcwlSampleSendReqDTO.setSampleSendAddress(rcwlShortListSampleDTO.getSampleSendAddress());
+
+                try {
+                    logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO:" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                rcwlShortListSampleSendService.releaseSubmit(tenantId, rcwlSampleSendReqDTO);
+                logger.info("---------------创建结束-------------");
             }
 
+        } else {
+            throw new CommonException("至少选择一家送样供应商!");
         }
-
-        rcwlSampleSendReqDTO.setAttributeVarchar11(rcwlShortListSampleDTO.getShortListNum());
-        rcwlShortListSampleSendService.releaseSubmit(tenantId, rcwlSampleSendReqDTO);
-
     }
 }

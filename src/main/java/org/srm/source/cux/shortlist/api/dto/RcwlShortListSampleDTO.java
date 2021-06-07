@@ -30,12 +30,6 @@ public class RcwlShortListSampleDTO {
     @ApiModelProperty("库存组织编码")
     private String organizationCode;
 
-    @ApiModelProperty("供应商编码")
-    private String supplierNum;
-
-    @ApiModelProperty("供应商名称")
-    private String supplierName;
-
     @ApiModelProperty("公司id")
     @NotNull
     private Long companyId;
@@ -127,22 +121,6 @@ public class RcwlShortListSampleDTO {
 
     public void setOrganizationCode(String organizationCode) {
         this.organizationCode = organizationCode;
-    }
-
-    public String getSupplierNum() {
-        return supplierNum;
-    }
-
-    public void setSupplierNum(String supplierNum) {
-        this.supplierNum = supplierNum;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
     }
 
     public Long getCompanyId() {
@@ -290,8 +268,6 @@ public class RcwlShortListSampleDTO {
                 ", invOrganizationId=" + invOrganizationId +
                 ", organizationName='" + organizationName + '\'' +
                 ", organizationCode='" + organizationCode + '\'' +
-                ", supplierNum='" + supplierNum + '\'' +
-                ", supplierName='" + supplierName + '\'' +
                 ", companyId=" + companyId +
                 ", companyNum='" + companyNum + '\'' +
                 ", companyName='" + companyName + '\'' +
