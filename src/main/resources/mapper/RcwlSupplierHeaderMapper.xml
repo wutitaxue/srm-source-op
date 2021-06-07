@@ -271,7 +271,8 @@
     <select id="selectCompanyById" resultType="org.srm.source.rfx.api.dto.CompanyDTO">
         select
             hc.company_num,
-            hc.company_name
+            hc.company_name,
+            hc.tenant_id
         from hpfm_company hc
         where hc.hc.company_id = #{companyId}
 
