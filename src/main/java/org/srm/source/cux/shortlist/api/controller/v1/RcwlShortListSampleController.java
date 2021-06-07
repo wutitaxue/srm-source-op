@@ -18,7 +18,7 @@ import org.srm.source.cux.shortlist.service.RcwlShortListSampleService;
  * @version:1.0
  */
 @Api("入围单转询价")
-@RestController("RcwlShortToRfxController.v1")
+@RestController("RcwlShortListSampleController.v1")
 @RequestMapping({"/v1/{organizationId}/shortlist/sample"})
 public class RcwlShortListSampleController {
     @Autowired
