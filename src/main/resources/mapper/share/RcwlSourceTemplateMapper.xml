@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.cux.share.infra.mapper.RCWLSourceTemplateMapper">
+<mapper namespace="org.srm.source.cux.share.infra.mapper.RcwlSourceTemplateMapper">
 
     <resultMap id="templateMap" type="org.srm.source.share.domain.entity.SourceTemplate" autoMapping="true">
 

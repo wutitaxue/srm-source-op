@@ -19,6 +19,7 @@ import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
 import org.srm.source.cux.infra.constant.RcwlShortlistContants;
 import org.srm.source.cux.infra.feign.RcwlSpucRemoteService;
+import org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper;
 import org.srm.source.share.api.dto.PrLine;
 import org.srm.source.share.domain.vo.PrLineVO;
 
@@ -28,8 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.CodeRule.SCUX_RCWL_SHORT_HEADER_NUM;
-import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.RW_STUTAS_DELETE;
-import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.RW_STUTAS_NEW;
+import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
 /**
  * 入围单头表应用服务默认实现
@@ -53,6 +53,9 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
 
     @Autowired
     private RcwlSpucRemoteService rcwlSpucRemoteService;
+
+    @Autowired
+    private RcwlShortlistHeaderMapper rcwlShortlistHeaderMapper;
 
     @Autowired
     private RcwlSupplierHeaderRepository rcwlSupplierHeaderRepository;
@@ -127,8 +130,72 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
 //            }
 
 
-
         }
+    }
+
+    /**
+     * 提交成功
+     *
+     * @param tenantId
+     * @param ShorListNum
+     */
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void rcwlSubmitBpmSuccessed(Long tenantId, String ShorListNum) {
+        Long shortListHeaderId = rcwlShortlistHeaderRepository.rcwlSelectShortListHeaderIdByCode(tenantId, ShorListNum);
+
+        RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(tenantId, shortListHeaderId);
+        rcwlShortlistHeader.setState(RW_STUTAS_APPROVING);
+        rcwlShortlistHeaderMapper.updateByPrimaryKeySelective(rcwlShortlistHeader);
+    }
+
+    /**
+     * 审批拒绝
+     *
+     * @param tenantId
+     * @param ShorListNum
+     */
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void rcwlSubmitBpmReject(Long tenantId, String ShorListNum) {
+        Long shortListHeaderId = rcwlShortlistHeaderRepository.rcwlSelectShortListHeaderIdByCode(tenantId, ShorListNum);
+
+        RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(tenantId, shortListHeaderId);
+        rcwlShortlistHeader.setState(RW_STUTAS_REJECTED);
+        rcwlShortlistHeaderMapper.updateByPrimaryKeySelective(rcwlShortlistHeader);
+
+    }
+
+    /**
+     * 审批通过
+     *
+     * @param tenantId
+     * @param ShorListNum
+     */
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void rcwlSubmitBpmApproved(Long tenantId, String ShorListNum) {
+        Long shortListHeaderId = rcwlShortlistHeaderRepository.rcwlSelectShortListHeaderIdByCode(tenantId, ShorListNum);
+
+        RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(tenantId, shortListHeaderId);
+        rcwlShortlistHeader.setState(RW_STUTAS_APPROVED);
+        rcwlShortlistHeaderMapper.updateByPrimaryKeySelective(rcwlShortlistHeader);
+
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void RcwlBpmUpateInstance(Long tenantId, String shorListNum, String attributeVarchar8, String attributeVarchar9) {
+        Long shortListHeaderId = rcwlShortlistHeaderRepository.rcwlSelectShortListHeaderIdByCode(tenantId, shorListNum);
+
+        RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(tenantId, shortListHeaderId);
+        if (null != attributeVarchar8 && !"".equals(attributeVarchar8)) {
+            rcwlShortlistHeader.setAttributeVarchar8(attributeVarchar8);
+        }
+        if (null != attributeVarchar9 && !"".equals(attributeVarchar9)) {
+            rcwlShortlistHeader.setAttributeVarchar9(attributeVarchar9);
+        }
+        rcwlShortlistHeaderMapper.updateByPrimaryKeySelective(rcwlShortlistHeader);
     }
 
     /**
@@ -140,14 +207,16 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
         Long shortlistHeaderId = rcwlShortlistHeader.getShortlistHeaderId();
         List<Long> prLineIds = rcwlShortlistHeader.getPrLineIds();
         //1.prLine是否已存在入围单
-        if(CollectionUtils.isNotEmpty(prLineIds)) {
+        if (CollectionUtils.isNotEmpty(prLineIds)) {
             prLineIds.forEach(prLineId -> {
                 PrLineVO prLineVO = rcwlShortlistHeaderRepository.selectPrLineByIdDontShortHeaderId(prLineId, shortlistHeaderId);
-                if(ObjectUtils.allNotNull(prLineVO)){
+                if (ObjectUtils.allNotNull(prLineVO)) {
                     throw new CommonException("采购订单：" + prLineVO.getPrNum() + " 行号：" + prLineVO.getLineNum() + " 已存在其他入围单中！！");
                 }
             });
         }
         //2.prLine 数量 校验
     }
+
+
 }

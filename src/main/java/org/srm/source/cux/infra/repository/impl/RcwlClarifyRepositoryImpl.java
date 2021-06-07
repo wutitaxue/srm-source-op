@@ -2,13 +2,14 @@ package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateDataVO;
 import org.srm.source.cux.domain.repository.RcwlClarifyRepository;
 import org.srm.source.cux.infra.mapper.RcwlClarifyMapper;
-import org.srm.source.share.domain.entity.Clarify;
+
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -19,8 +20,7 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
 
     @Override
     public String getSourceNumAndNameAndClarifyNumberById(Long id) {
-        String data =  rcwlClarifyMapper.getSourceNumAndNameAndClarifyNumberById(id);
-        return data == null ? "":data;
+        return  rcwlClarifyMapper.getSourceNumAndNameAndClarifyNumberById(id);
     }
 
     @Override
@@ -30,12 +30,12 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     }
 
     @Override
-    public void updateClarifyData(RcwlUpdateDataDTO rcwlUpdateDTO) {
+    public void updateClarifyData(RcwlUpdateDataVO rcwlUpdateDTO) {
         rcwlClarifyMapper.updateClarifyData(rcwlUpdateDTO);
     }
 
     @Override
-    public List<String> getAttachmentList(String id) {
+    public List<RcwlAttachmentListData> getAttachmentList(String id) {
         return rcwlClarifyMapper.getAttachmentList(id);
     }
 
@@ -49,5 +49,24 @@ public class RcwlClarifyRepositoryImpl extends BaseRepositoryImpl<RcwlClarifyFor
     public Long getClarifyIdByClarifyNum(String clarifyNum) {
         Long l = rcwlClarifyMapper.getClarifyIdByClarifyNum(clarifyNum);
         return l == null ? 0l:l;
+    }
+
+    @Override
+    public List<String> getTenantIdByclarifyNum(String clarifyNum) {
+        List<String> l = rcwlClarifyMapper.getTenantIdByclarifyNum(clarifyNum);
+        if(l == null || l.size()==0){
+            l = new ArrayList<String>();
+        }
+        return l;
+    }
+
+    @Override
+    public String getMeaningByLovCodeAndValue(String LovCode, String value) {
+        return rcwlClarifyMapper.getMeaningByLovCodeAndValue(LovCode,value);
+    }
+
+    @Override
+    public Long getSourceReleasedBy(Long sourceId) {
+        return rcwlClarifyMapper.getSourceReleasedBy(sourceId);
     }
 }

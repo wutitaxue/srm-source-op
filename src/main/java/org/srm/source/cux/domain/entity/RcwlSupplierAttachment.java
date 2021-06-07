@@ -53,7 +53,7 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     @ApiModelProperty(value = "入围单附件模板ID")
     private Long rcwlShortlistAttachmentId;
     @ApiModelProperty(value = "附件名称")
-    private Long attachmentName;
+    private String attachmentName;
     @ApiModelProperty(value = "附件URL")
     private String attachmentUrl;
     @ApiModelProperty(value = "附件说明")
@@ -77,6 +77,9 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     @Transient
     @ApiModelProperty(value = "上传姓名")
     private String uploadUserName;
+    @Transient
+    @ApiModelProperty(value = "入围单头id")
+    private Long shortListId;
 
     //
     // getter/setter
@@ -91,6 +94,14 @@ public class RcwlSupplierAttachment extends ExpandDomain {
 
     public void setRcwlSupplierAttachmentId(Long rcwlSupplierAttachmentId) {
         this.rcwlSupplierAttachmentId = rcwlSupplierAttachmentId;
+    }
+
+    public Long getShortListId() {
+        return shortListId;
+    }
+
+    public void setShortListId(Long shortListId) {
+        this.shortListId = shortListId;
     }
 
     /**
@@ -118,11 +129,11 @@ public class RcwlSupplierAttachment extends ExpandDomain {
     /**
      * @return 附件名称
      */
-    public Long getAttachmentName() {
+    public String getAttachmentName() {
         return attachmentName;
     }
 
-    public void setAttachmentName(Long attachmentName) {
+    public void setAttachmentName(String attachmentName) {
         this.attachmentName = attachmentName;
     }
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class RcwlCarifyReleaseDTO {
+public class RcwlCarifyReleaseVO {
     @JsonProperty("tenantid")
     private Long tenantid;
     @JsonProperty("clarifyNum")

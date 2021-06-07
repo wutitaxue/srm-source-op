@@ -53,7 +53,7 @@ public interface RcwlSupplierHeaderRepository extends BaseRepository<RcwlSupplie
      *
      * @param rcwlSupplierHeader 入围单供应商
      */
-    void checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader);
+    Long checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader);
 
     /**
      * 更新状态

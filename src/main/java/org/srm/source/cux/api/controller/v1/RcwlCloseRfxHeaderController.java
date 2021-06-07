@@ -34,6 +34,7 @@ public class RcwlCloseRfxHeaderController extends BaseController {
     )
     public ResponseData controlClose(@PathVariable("organizationId") Long organizationId,@RequestBody RcwlGetData data) {
         ResponseData responseData = new ResponseData();
+
         responseData = rcwlRfxHeaderService.newClose(organizationId, data.getGetData().getRfxHeaderId(), data.getGetData().getRemark());
         return responseData;
     }
