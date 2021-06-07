@@ -111,7 +111,7 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                rcwlShortListSampleSendService.releaseSubmit(tenantId, rcwlSampleSendReqDTO);
+                rcwlShortListSampleSendService.createReqWithLine(tenantId, rcwlSampleSendReqDTO);
                 logger.info("---------------创建结束-------------");
             }
 
