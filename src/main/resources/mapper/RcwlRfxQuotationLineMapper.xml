@@ -12,32 +12,79 @@
                  JOIN ssrc_rfx_line_item srli ON srql.rfx_line_item_id = srli.rfx_line_item_id
             AND srql.round_number = srli.current_round_number
                  JOIN ssrc_rfx_header srh ON srh.rfx_header_id = srqh.rfx_header_id
-                 JOIN ssrc_source_template sst ON sst.template_id = srh.template_id
         WHERE srqh.rfx_header_id = #{rfxHeaderId}
+          AND srqh.tenant_id = #{tenantId}
           AND srql.valid_quotation_price IS NOT NULL
           AND srql.round_number = (SELECT MAX(h.round_number)
                                    FROM ssrc_rfx_header h
                                    WHERE h.rfx_header_id =
                                          srli.rfx_header_id)
-          AND (
-                sst.initial_review = 'NONE'
-                OR sst.initial_review IS NULL
-                OR (
-                        sst.initial_review = 'NEED'
-                        AND EXISTS(
-                                SELECT 1
-                                FROM ssrc_evaluate_summary ses
-                                WHERE ses.invalid_flag = 0
-                                  AND ses.quotation_header_id = srqh.quotation_header_id
-                                  AND ses.tenant_id = srqh.tenant_id
-                                  AND ses.source_header_id = srqh.rfx_header_id
-                                  AND ses.source_from = 'RFX'
-                                  AND ses.round_number = srqh.round_number
-                                  AND ses.evaluate_summary_type = 'REVIEW_SCORE'
-                                  AND ses.summary_review_result = 'APPROVED'
-                            )
-                    )
+        GROUP BY srqh.quotation_header_id;
+    </select>
+    <!--<select id="querySumQuotationByRfxHeaderId" resultType="org.srm.source.rfx.domain.entity.RfxQuotationLine">
+        SELECT srqh.quotation_header_id,
+               SUM(srql.net_amount)   net_amount,
+               SUM(srql.total_amount) total_amount
+        FROM ssrc_rfx_quotation_line srql
+                 JOIN ssrc_rfx_quotation_header srqh ON srql.quotation_header_id = srqh.quotation_header_id AND
+                                                        srqh.quotation_status IN ('QUOTED', 'ROUND_QUOTATION', 'FINISHED')
+            AND srql.round_number = srqh.round_number
+                 JOIN ssrc_rfx_line_item srli ON srql.rfx_line_item_id = srli.rfx_line_item_id
+            AND srql.round_number = srli.current_round_number
+                 JOIN ssrc_rfx_header srh ON srh.rfx_header_id = srqh.rfx_header_id
+        WHERE srqh.rfx_header_id = #{rfxHeaderId}
+          AND srqh.tenant_id = #{tenantId}
+          AND srql.valid_quotation_price IS NOT NULL
+          AND srql.round_number = (SELECT MAX(h.round_number)
+                                   FROM ssrc_rfx_header h
+                                   WHERE h.rfx_header_id =
+                                         srli.rfx_header_id)
+          AND EXISTS(
+                SELECT 1
+                FROM ssrc_evaluate_summary ses
+                WHERE ses.quotation_header_id = srqh.quotation_header_id
+                  AND ses.tenant_id = srqh.tenant_id
+                  AND ses.source_header_id = srqh.rfx_header_id
+                  AND ses.invalid_flag = 0
+                  AND ses.source_from = 'RFX'
+                  AND ses.round_number = srqh.round_number
+                  AND ses.evaluate_summary_type = 'REVIEW_SCORE'
+                  AND ses.summary_review_result = 'APPROVED'
             )
         GROUP BY srqh.quotation_header_id;
+    </select>-->
+    <select id="queryEvaluateSummary"
+            resultType="org.srm.source.share.domain.entity.EvaluateSummary">
+        SELECT ses.evaluate_summary_id,
+               ses.tenant_id,
+               ses.source_header_id,
+               ses.source_from,
+               ses.round_number,
+               ses.section_flag,
+               ses.section_id,
+               ses.quotation_header_id,
+               ses.business_score,
+               ses.technology_score,
+               ses.score,
+               ses.invalid_flag,
+               ses.candidate_flag,
+               ses.candidate_suggestion,
+               ses.score_rank,
+               ses.summary_status,
+               ses.sequence_num,
+               ses.object_version_number,
+               ses.creation_date,
+               ses.created_by,
+               ses.last_updated_by,
+               ses.last_update_date,
+               ses.evaluate_summary_type,
+               ses.summary_review_result
+        FROM ssrc_evaluate_summary ses
+                 JOIN ssrc_rfx_quotation_header srqh ON ses.quotation_header_id = srqh.quotation_header_id
+                 JOIN ssrc_rfx_header srh ON srh.rfx_header_id = ses.source_header_id AND srh.round_number = srqh.round_number
+        WHERE IFNULL(ses.evaluate_summary_type, 'SCORE') = 'SCORE'
+          AND ses.source_from = #{sourceFrom}
+          AND ses.tenant_id = #{tenantId}
+          AND ses.source_header_id = #{sourceHeaderId}
     </select>
 </mapper>

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.rfx.domain.strategy.IRcwlEvaluateIndicAutoScoreCalculator;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.share.api.dto.EvaluateScoreLineDTO;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
 import org.srm.source.share.domain.strategy.impl.ProportionCalculator;
@@ -13,16 +14,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
+ * RCWL 比例法，计算逻辑
  * @author kaibo.li
  * @date 2021-05-12 16:28
  */
 
 @Component
-@Tenant("SRM-RCWL")
-public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProportionCalculator.class);
+@Tenant(Constant.TENANT_NUM)
+//public class RcwlProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+public class RcwlProportionCalculator extends ProportionCalculator implements IRcwlEvaluateIndicAutoScoreCalculator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcwlProportionCalculator.class);
 
     public RcwlProportionCalculator() {
+        super();
     }
 
     @Override

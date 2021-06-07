@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Tenant(SourceBaseConstant.TENANT_NUM)
-public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
+public class RcwlEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
     @Autowired
     private EvaluateScoreLineService evaluateScoreLineService;
     @Autowired
@@ -222,12 +222,14 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
 
 
     private void updateSourceHeaderStateAndSentMessage(EvaluateScoreQueryDTO evaluateScoreQueryDTO, BidHeader header, RfxHeader rfxHeader) {
+        Integer currentSequenceNum = rfxHeader.getCurrentSequenceNum();
+        evaluateScoreQueryDTO.setCurrentSequenceNum(currentSequenceNum);
         int count = this.evaluateExpertService.selectExpertScoreNumByExpertIdAndSourceHeaderId(evaluateScoreQueryDTO);
         if (count == 0) {
-
-            //评分负责人不评分，给各个评分人的均值
-            this.evaluateLeaderScore(header, rfxHeader);
-
+            if (BaseConstants.Flag.YES.equals(currentSequenceNum)) {
+                //技术评分评分负责人不评分，给各个评分人的均值
+                this.evaluateLeaderScore(header, rfxHeader);
+            }
             if (header.getBidHeaderId() != null) {
                 header.setBidStatus(SourceBaseConstant.RfxStatus.BID_EVALUATION_PENDING);
                 this.bidHeaderRepository.updateByPrimaryKeySelective(header);
@@ -252,7 +254,7 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
      * @param header
      * @param rfxHeader
      */
-    private void evaluateLeaderScore( BidHeader header, RfxHeader rfxHeader) {
+    private void evaluateLeaderScore(BidHeader header, RfxHeader rfxHeader) {
         Long sourceHeaderId = rfxHeader.getRfxHeaderId();
         String sourceFrom = SourceBaseConstant.SourceFrom.RFX;
         Integer currentSequenceNum = rfxHeader.getCurrentSequenceNum();
@@ -312,7 +314,7 @@ public class RCWLEvaluateScoreServiceImpl extends EvaluateScoreServiceImpl {
             for (Long quoID : scoreLines.keySet()) {
                 Long scoreId = leaderIds.get(quoID).get(0);
                 EvaluateScoreLine scoreLine = scoreLines.get(quoID).stream().filter(e -> e.getEvaluateIndicId().equals(line.getEvaluateIndicId())).collect(Collectors.toList()).get(0);
-                if(scoreId.equals(line.getEvaluateScoreId())&&line.getEvaluateIndicId().equals(scoreLine.getEvaluateIndicId())){
+                if (scoreId.equals(line.getEvaluateScoreId()) && line.getEvaluateIndicId().equals(scoreLine.getEvaluateIndicId())) {
                     line.setIndicScore(scoreLine.getIndicScore());
                 }
             }

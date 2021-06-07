@@ -1,5 +1,8 @@
 package org.srm.source.cux.app.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -10,10 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.srm.boot.platform.message.MessageHelper;
 import org.srm.boot.platform.message.entity.SpfmMessageSender;
 import org.srm.source.cux.app.service.RcwlRoundHeaderService;
+import org.srm.source.cux.domain.repository.RcwlRfxQuotationOtherRepository;
+import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
+import org.srm.source.rfx.app.service.RfxQuotationLineService;
 import org.srm.source.rfx.app.service.common.SendMessageHandle;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineSupplier;
@@ -21,6 +28,7 @@ import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.repository.RfxLineSupplierRepository;
+import org.srm.source.rfx.domain.repository.RfxQuotationHeaderRepository;
 import org.srm.source.rfx.domain.service.IRfxActionDomainService;
 import org.srm.source.share.domain.entity.RoundHeader;
 import org.srm.source.share.domain.entity.RoundHeaderDate;
@@ -64,12 +72,34 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
     private RfxLineSupplierRepository rfxLineSupplierRepository;
     @Autowired
     private CommonQueryRepository commonQueryRepository;
+    @Autowired
+    private RfxQuotationHeaderService rfxQuotationHeaderService;
+    @Autowired
+    private RfxQuotationHeaderRepository rfxQuotationHeaderRepository;
+    @Autowired
+    private RcwlRfxQuotationOtherRepository rcwlRfxQuotationOtherRepository;
+
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void startQuotation(Long tenantId, Long sourceHeaderId, Date roundQuotationEndDate, String startingReason, List<RfxQuotationHeader> rfxQuotationHeaderList) {
 
+        ObjectMapper mapper = new ObjectMapper();
+        for (RfxQuotationHeader e : rfxQuotationHeaderList
+        ) {
+            try {
+                logger.info("-------------供应商列表：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(e));
+            } catch (JsonProcessingException jsonProcessingException) {
+                jsonProcessingException.printStackTrace();
+            }
+        }
+        //this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaderList, new String[]{"attributeVarchar2"});
+        //修改为手动更新状态
+
+        this.rcwlRfxQuotationOtherRepository.updateSuppierFlag(rfxQuotationHeaderList);
+        logger.info("------------更新寻源--------多伦报价-------");
         RoundHeader roundHeaderDb = (RoundHeader) this.roundHeaderRepository.selectOne(new RoundHeader(tenantId, sourceHeaderId, "RFX"));
         Assert.isTrue(DateUtil.beforeNow(roundQuotationEndDate, (String) null), "error.round_quotation_end_date");
         Assert.isTrue(!DateUtil.beforeNow(roundHeaderDb.getRoundQuotationEndDate(), (String) null), "error.round_deadline_is_not_reached");
@@ -109,6 +139,7 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
 
     @Async
     public void sendMessageForRoundQuotation(RfxHeader rfxHeader, CustomUserDetails userDetails, List<RfxQuotationHeader> rfxQuotationHeaderList) {
+        ObjectMapper mapper = new ObjectMapper();
         try {
             DetailsHelper.setCustomUserDetails(userDetails);
             if (rfxHeader != null && rfxHeader.getRfxHeaderId() != null) {
@@ -122,17 +153,22 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
                 temp.setTenantId(rfxHeader.getTenantId());
                 temp.setFeedbackStatus("PARTICIPATED");
                 List<RfxLineSupplier> rfxLineSupplierList = this.rfxLineSupplierRepository.select(temp);
+                logger.info("-------------供应商个数：" + rfxLineSupplierList.size());
                 List<RfxLineSupplier> list = new ArrayList<>();
                 for (RfxQuotationHeader e : rfxQuotationHeaderList
                 ) {
-                    if ("1".equals(e.getAttributeVarchar2())) {
-                        Optional<RfxLineSupplier> optional = rfxLineSupplierList.stream().filter(suppier -> suppier.getSupplierCompanyId().equals(e.getSupplierCompanyId())).findFirst();
+                    if (!"1".equals(e.getAttributeVarchar2())) {
+                        RfxQuotationHeader rfxQuotationHeader = rfxQuotationHeaderRepository.selectByPrimaryKey(e.getQuotationHeaderId());
+                        logger.info("-------查询RfxQuotationHeader：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rfxQuotationHeader));
+                        Optional<RfxLineSupplier> optional = rfxLineSupplierList.stream().filter(suppier -> suppier.getSupplierCompanyId().equals(rfxQuotationHeader.getSupplierCompanyId())).findFirst();
+                        logger.info("-------------optional:" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(optional));
                         if (optional.isPresent()) {
                             RfxLineSupplier rfxLineSupplier = optional.get();
+                            logger.info("-------------供应商数量+1");
                             list.add(rfxLineSupplier);
-                            map.put("supplierTenantId", String.valueOf(rfxLineSupplier.getSupplierTenantId()));
-                            map.put("supplierCompanyId", String.valueOf(rfxLineSupplier.getSupplierCompanyId()));
-                            this.messageHelper.sendMessage(this.getSpfmMessageSender(rfxHeader.getTenantId(), "SSRC.RFX_ROUND_QUOTATION", map, DetailsHelper.getUserDetails()));
+//                            map.put("supplierTenantId", String.valueOf(rfxLineSupplier.getSupplierTenantId()));
+//                            map.put("supplierCompanyId", String.valueOf(rfxLineSupplier.getSupplierCompanyId()));
+//                            this.messageHelper.sendMessage(this.getSpfmMessageSender(rfxHeader.getTenantId(), "SSRC.RFX_ROUND_QUOTATION", map, DetailsHelper.getUserDetails()));
                         }
                     }
                 }
@@ -150,6 +186,8 @@ public class RcwlRoundHeaderServiceImpl implements RcwlRoundHeaderService {
                 }
 
             }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         } finally {
             SecurityContextHolder.clearContext();
         }

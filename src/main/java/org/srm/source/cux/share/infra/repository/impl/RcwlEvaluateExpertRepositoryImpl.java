@@ -3,7 +3,7 @@ package org.srm.source.cux.share.infra.repository.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.share.infra.constant.SourceBaseConstant;
-import org.srm.source.cux.share.infra.mapper.RCWLEvaluateExpertMapper;
+import org.srm.source.cux.share.infra.mapper.RcwlEvaluateExpertMapper;
 import org.srm.source.share.api.dto.EvaluateScoreQueryDTO;
 import org.srm.source.share.infra.repository.impl.EvaluateExpertRepositoryImpl;
 import org.srm.web.annotation.Tenant;
@@ -16,9 +16,9 @@ import org.srm.web.annotation.Tenant;
  */
 @Component
 @Tenant(SourceBaseConstant.TENANT_NUM)
-public class RCWLEvaluateExpertRepositoryImpl extends EvaluateExpertRepositoryImpl {
+public class RcwlEvaluateExpertRepositoryImpl extends EvaluateExpertRepositoryImpl {
     @Autowired
-    private RCWLEvaluateExpertMapper evaluateExpertMapper;
+    private RcwlEvaluateExpertMapper evaluateExpertMapper;
 
     @Override
     public int selectExpertScoreNumByExpertIdAndSourceHeaderId(EvaluateScoreQueryDTO evaluateScoreQueryDTO) {

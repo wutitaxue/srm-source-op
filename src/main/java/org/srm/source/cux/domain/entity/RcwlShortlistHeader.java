@@ -115,6 +115,10 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @Transient
     private List<Long> prLineIds;
 
+    @ApiModelProperty(value = "寻源类别")
+    @Transient
+    private String sourceCategoryMeaning;
+
     @ApiModelProperty(value = "公司编码")
     @Transient
     private String companyNum;
@@ -152,9 +156,33 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @Transient
     private Long supplierHeaderId;
 
+    @ApiModelProperty("bpmUrl")
+    @Transient
+
+    private String url;
+
+
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
+
+
+    public String getSourceCategoryMeaning() {
+        return sourceCategoryMeaning;
+    }
+
+    public void setSourceCategoryMeaning(String sourceCategoryMeaning) {
+        this.sourceCategoryMeaning = sourceCategoryMeaning;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     /**
      * @return 主键ID，PK

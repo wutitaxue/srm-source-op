@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.srm.source.cux.share.infra.mapper.RCWLEvaluateExpertMapper">
+<mapper namespace="org.srm.source.cux.share.infra.mapper.RcwlEvaluateExpertMapper">
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap id="BaseResultMap" type="org.srm.source.share.domain.entity.EvaluateExpert">
         <result column="evaluate_expert_id" property="evaluateExpertId" jdbcType="DECIMAL"/>
@@ -207,7 +207,10 @@
                 and see.tenant_id = #{tenantId}
                 and see.source_header_id = #{sourceHeaderId}
                 and see.source_from = #{sourceFrom}
-                and see.evaluate_leader_flag !=1
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
             </when>
             <when test="sourceFrom !='' and sourceFrom =='RFX'">
                 SELECT count(evaluate_expert_id)
@@ -218,7 +221,10 @@
                 and see.tenant_id = #{tenantId}
                 and see.source_header_id = #{sourceHeaderId}
                 and see.source_from = #{sourceFrom}
-                and see.evaluate_leader_flag !=1
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
             </when>
         </choose>
 

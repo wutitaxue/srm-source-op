@@ -1,17 +1,16 @@
 package org.srm.source.cux.api.controller.v1;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.hzero.core.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.srm.common.annotation.FilterSupplier;
 import org.srm.source.cux.app.service.RcwlClarifyService;
 import org.srm.source.cux.domain.entity.RcwlClarifyForBPM;
-import org.srm.source.cux.domain.entity.RcwlUpdateDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateDataDTO;
 import org.srm.source.cux.domain.entity.ResponseData;
 import org.srm.source.share.app.service.impl.ClarifyServiceImpl;
 import org.srm.source.share.domain.entity.Clarify;
@@ -20,6 +19,7 @@ import org.srm.source.share.domain.entity.IssueLine;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Slf4j
 @Api(
         tags = {"Rcwl Clarify"}
 )
@@ -38,6 +38,8 @@ public class RcwlClarifyController extends BaseController{
     )
     @PostMapping({"/release-bpm-simulate"})
     public ResponseData releaseClarifyByBPM(@PathVariable String organizationId,@RequestBody Clarify clarify) {
+        String clarifyData = JSONObject.toJSONString(clarify);
+        log.info("clarifyData>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+clarifyData);
         ResponseData responseData = new ResponseData();
         this.validObject(clarify, new Class[0]);
         List<IssueLine> issueLines = clarifyService.validIssueLine(clarify.getIssueLineIdList(), clarify.getClarifyId());
