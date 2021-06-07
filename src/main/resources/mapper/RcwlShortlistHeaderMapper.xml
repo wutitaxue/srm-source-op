@@ -718,6 +718,8 @@
         LEFT JOIN hpfm_unit ehu ON ehu.unit_id = spl.exp_bear_dep_id
         LEFT JOIN hpfm_unit_tl ehut ON ehut.unit_id = ehu.unit_id AND ehut.lang = #{lang}
         LEFT JOIN smdm_currency sc ON sph.original_currency = sc.currency_code AND sph.tenant_id = sc.tenant_id
+        LEFT JOIN sprm_pr_relation spre ON spre.pr_line_id = spl.pr_line_id
+
     </select>
     <select id="rcwlSelectBpmSuppier"
             resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListSuppierDTO">
