@@ -24,8 +24,8 @@ public class RcwlShortListSampleController {
     @Autowired
     private RcwlShortListSampleService rcwlShortListSampleService;
 
-    @ApiOperation("入围单采购申请查询")
-    @GetMapping("/batch-create")
+    @ApiOperation("入围单批量创建送样")
+    @PostMapping("/batch-create")
     @Permission(
             level = ResourceLevel.ORGANIZATION
     )
