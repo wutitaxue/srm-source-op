@@ -88,7 +88,9 @@ public class RcwlUpdateRfxHeaderController {
         try{
             rcwlRfxHeaderService.chooseRfxCloseApproveType(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
             rcwlRfxHeaderService.updateTerminatedBy(rfxHeaderIds);
-            rcwlRfxHeaderService.updateActionBy(rcwlGetDataCloseDTO.getTenantId(),rfxHeaderIds);
+            //找到记录的actionid
+            String id = rcwlRfxHeaderService.getActionId(rfxHeaderIds);
+            rcwlRfxHeaderService.updateActionBy(id);
         }catch (Exception e){
             responseData.setCode("201");
             responseData.setMessage("操作失败！");

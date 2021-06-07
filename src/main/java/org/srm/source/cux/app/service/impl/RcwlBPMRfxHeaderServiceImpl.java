@@ -14,7 +14,6 @@ import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlRfxHeaderAttachmentListDataForBPM;
@@ -200,8 +199,13 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
     }
 
     @Override
-    public void updateActionBy(Long tenantId, Long rfxHeaderIds) {
-        rcwlRfxHeaderRepository.updateActionBy(tenantId,rfxHeaderIds);
+    public void updateActionBy(String id) {
+        rcwlRfxHeaderRepository.updateActionBy(id);
+    }
+
+    @Override
+    public String getActionId(Long rfxHeaderIds) {
+        return rcwlRfxHeaderRepository.getActionId(rfxHeaderIds);
     }
 
     public void rfxClose(Long tenantId, Long rfxHeaderId, RfxHeader rfxHeader) {
@@ -234,6 +238,7 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         });
         log.info("进入rfxHeaderRepository.updateOptional方法===================================以下是rfxActionDomainService.insertAction");
         this.rfxActionDomainService.insertAction(rfxHeader, "CLOSE", rfxHeader.getTerminatedRemark());
+        log.info("===============insertAction方法结束=================");
 //        this.sendMessageHandle.sendMessageForOperation(rfxHeader, "SSRC.RFX_CLOSE");
 //        this.rfxEventUtil.eventSend("SSRC_RFX_CLOSE", "CLOSE", rfxHeader);
     }
