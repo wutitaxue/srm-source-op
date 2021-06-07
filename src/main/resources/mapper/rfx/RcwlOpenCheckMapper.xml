@@ -8,6 +8,6 @@
         LEFT JOIN ssrc_issue_header sih on sih.issue_header_id = sil.issue_header_id
         where sih.source_id = #{rfxHeaderId}
         and sil.tenant_id = #{tenantId}
-        and sil.issue_line_status = 'CLARIFIED'
+        and sil.issue_line_status != 'CLARIFIED'
     </select>
 </mapper>
