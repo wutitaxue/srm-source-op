@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.srm.source.bid.api.dto.BiddingWorkDTO;
+import org.srm.source.bid.domain.entity.SourceNotice;
 import org.srm.source.bid.domain.service.ISourceNoticeDomainService;
 import org.srm.source.cux.infra.constant.Constants;
 import org.srm.source.cux.infra.constant.RcwlShareConstants;
-import org.srm.source.bid.domain.entity.SourceNotice;
 import org.srm.source.cux.rfx.infra.constant.RfxBaseConstant;
 import org.srm.source.cux.share.infra.constant.SourceBaseConstant;
 import org.srm.source.rfx.api.dto.FieldPropertyDTO;
@@ -40,7 +40,8 @@ import org.srm.source.share.app.service.PrequalHeaderService;
 import org.srm.source.share.app.service.PrequalMemberService;
 import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.*;
-import org.srm.source.share.domain.repository.*;
+import org.srm.source.share.domain.repository.PrequalHeaderRepository;
+import org.srm.source.share.domain.repository.PrequalScoreAssignRepository;
 import org.srm.source.share.domain.service.IEvaluateDomainService;
 import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.source.share.infra.constant.ShareConstants;
@@ -191,11 +192,11 @@ public class RcwlRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
             });
         }
 
-        rfxMemberList.stream().filter((e) -> {
-            return RfxBaseConstant.RfxRole.OPENED_BY.equals(e.getRfxRole());
-        }).forEach((rfxMember) -> {
-            rfxMember.setPasswordFlag(rfxFullHeader.getRfxHeader().getPasswordFlag() == null ? BaseConstants.Flag.NO : rfxFullHeader.getRfxHeader().getPasswordFlag());
-        });
+//        rfxMemberList.stream().filter((e) -> {
+//            return RfxBaseConstant.RfxRole.OPENED_BY.equals(e.getRfxRole());
+//        }).forEach((rfxMember) -> {
+//            rfxMember.setPasswordFlag(rfxFullHeader.getRfxHeader().getPasswordFlag() == null ? BaseConstants.Flag.NO : rfxFullHeader.getRfxHeader().getPasswordFlag());
+//        });
         this.rfxMemberService.save(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), rfxMemberList);
         SourceNotice sourceNotice = rfxFullHeader.getSourceNotice();
         if (!Objects.isNull(sourceNotice)) {
