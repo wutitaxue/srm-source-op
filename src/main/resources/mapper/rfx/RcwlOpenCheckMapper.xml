@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.rfx.infra.mapper.RcwlOpenCheckMapper">
+    <select id="selectOpenCheck" resultType="java.lang.Long">
+        select
+            count(*)
+        from ssrc_issue_line sil
+        LEFT JOIN ssrc_issue_header sih on sih.issue_header_id = sil.issue_header_id
+        where sih.source_id = #{rfxHeaderId}
+        and sil.tenant_id = #{tenantId}
+        and sil.issue_line_status != 'CLARIFIED'
+    </select>
+</mapper>
