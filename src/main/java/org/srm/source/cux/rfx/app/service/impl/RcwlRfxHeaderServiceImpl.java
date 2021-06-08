@@ -1,12 +1,7 @@
 package org.srm.source.cux.rfx.app.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hzero.boot.customize.service.CustomizeClient;
-import org.hzero.boot.file.FileClient;
-import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
-import org.hzero.boot.platform.lov.handler.LovValueHandle;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.redis.RedisHelper;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.BeanUtils;
@@ -14,47 +9,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.srm.boot.event.service.sender.EventSender;
-import org.srm.boot.platform.group.GroupApproveHelper;
-import org.srm.boot.platform.group.feign.HwfpRemoteService;
-import org.srm.boot.pr.app.service.PrManageDomainService;
-import org.srm.source.bid.domain.repository.SourceNoticeRepository;
-import org.srm.source.bid.domain.service.ISourceNoticeDomainService;
 import org.srm.source.cux.rfx.api.controller.dto.RcwlRfxHeaderDTO;
-import org.srm.source.priceLib.app.service.PriceLibServiceService;
-import org.srm.source.priceLib.infra.util.LovUtil;
 import org.srm.source.rfx.api.dto.HeaderQueryDTO;
 import org.srm.source.rfx.api.dto.RfxHeaderDTO;
-import org.srm.source.rfx.app.service.*;
-import org.srm.source.rfx.app.service.common.SendMessageHandle;
+import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.app.service.RfxMemberService;
 import org.srm.source.rfx.app.service.impl.RfxHeaderServiceImpl;
-import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.domain.entity.RfxMember;
-import org.srm.source.rfx.domain.repository.*;
-import org.srm.source.rfx.domain.service.*;
-import org.srm.source.rfx.domain.service.v2.RfxHeaderDomainService;
-import org.srm.source.rfx.domain.strategy.CheckSelectionStrategyService;
+import org.srm.source.rfx.domain.repository.CommonQueryRepository;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
+import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
+import org.srm.source.rfx.domain.repository.RfxMemberRepository;
+import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
-import org.srm.source.rfx.infra.feign.SitfRemoteService;
-import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
-import org.srm.source.rfx.infra.mapper.RfxLineItemMapper;
-import org.srm.source.rfx.infra.util.RfxEventUtil;
-import org.srm.source.share.app.service.*;
+import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.PrequalHeader;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 import org.srm.source.share.domain.entity.RoundHeaderDate;
 import org.srm.source.share.domain.entity.SourceTemplate;
-import org.srm.source.share.domain.repository.*;
-import org.srm.source.share.domain.service.*;
-import org.srm.source.share.infra.feign.HfleRemoteService;
-import org.srm.source.share.infra.feign.SmdmRemoteService;
-import org.srm.source.share.infra.feign.SpfmRemoteService;
-import org.srm.source.share.infra.feign.SsmlRemoteService;
-import org.srm.source.share.infra.handle.CommonMultilingualHandle;
-import org.srm.source.share.infra.utils.ExcelUtil;
-import org.srm.source.share.infra.utils.PromptUtil;
+import org.srm.source.share.domain.repository.ProjectLineSectionRepository;
+import org.srm.source.share.domain.repository.RoundHeaderDateRepository;
+import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.web.annotation.Tenant;
 
 import java.util.Collections;
@@ -121,7 +98,7 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
     }
 
     @Override
-    public RfxHeaderDTO selectOneRfxHeader(HeaderQueryDTO headerQueryDTO) {
+    public RcwlRfxHeaderDTO selectOneRfxHeader(HeaderQueryDTO headerQueryDTO) {
         RfxHeaderDTO rfxHeaderDTO = this.rfxHeaderRepository.selectOneRfxHeader(headerQueryDTO);
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeaderDTO.getTemplateId());
         rfxHeaderDTO.setFastBidding(sourceTemplate.getFastBidding());
