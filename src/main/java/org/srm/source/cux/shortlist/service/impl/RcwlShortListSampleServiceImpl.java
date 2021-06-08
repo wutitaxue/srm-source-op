@@ -107,7 +107,7 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
                 rcwlSampleSendReqDTO.setReqUserPhone(rcwlShortListSampleDTO.getRecUserPhone());
 
                 try {
-                    logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO: {0}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
+                    logger.info("-----------送样创建开始---------：rcwlSampleSendReqDTO:" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rcwlSampleSendReqDTO));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
