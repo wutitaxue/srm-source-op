@@ -57,7 +57,7 @@ public class RcwlShortListSampleServiceImpl implements RcwlShortListSampleServic
 
         logger.info("---------------------查询采购申请开始：-------------------organizationId:" + tenantId + ",shortListId:" + rcwlShortListSampleDTO.getShortListId());
         List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(rcwlShortListSampleDTO.getShortListId());
-        logger.info("-------------查询采购申请结束：" + prLineVOList.size());
+        logger.info("-------------查询采购申请结束：----------------" + prLineVOList.size());
         //设置送样物料
         if (!ObjectUtils.isEmpty(prLineVOList)) {
             for (PrLineVO prLineVO : prLineVOList) {
