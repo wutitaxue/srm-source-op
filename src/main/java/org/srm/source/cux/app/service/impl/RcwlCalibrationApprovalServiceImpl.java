@@ -178,7 +178,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setMETHODREMARK(rfxHeader.getAttributeVarchar17());
         forBPMData.setATTRIBUTEVARCHAR9(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SPCM.CONTRACT.KIND",rfxHeader.getAttributeVarchar9()));
         forBPMData.setPROJECTAMOUNT(rfxHeader.getBudgetAmount() == null ? "":rfxHeader.getBudgetAmount().toString());
-        forBPMData.setATTRIBUTEVARCHAR12(String.valueOf(rfxHeader.getAttributeDecimal10()));
+        forBPMData.setATTRIBUTEVARCHAR12(rfxHeader.getAttributeDecimal10().setScale(2).toString());
             //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag为1的数量
         forBPMData.setATTRIBUTEVARCHAR13(winningSupplyNum);
             //根据source_header_id去ssrc_round_header表中的quotation_round_number字段
