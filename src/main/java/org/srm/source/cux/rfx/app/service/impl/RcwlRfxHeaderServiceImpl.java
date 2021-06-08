@@ -6,6 +6,7 @@ import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.srm.source.bid.infra.constant.BidConstants;
@@ -23,13 +24,12 @@ import org.srm.source.rfx.domain.repository.CommonQueryRepository;
 import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
 import org.srm.source.rfx.domain.repository.RfxMemberRepository;
-import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
+import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.ProjectLineSection;
 import org.srm.source.share.domain.entity.RoundHeaderDate;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.repository.ProjectLineSectionRepository;
 import org.srm.source.share.domain.repository.RoundHeaderDateRepository;
-import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
@@ -42,13 +42,6 @@ import java.util.stream.Collectors;
 @Service
 @Tenant(RcwlSourceConstant.TENANT_CODE)
 public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
-    @Autowired
-    private RfxHeaderRepository rfxHeaderRepository;
-    private IRfxHeaderDomainService rfxHeaderDomainService;
-    @Autowired
-    @Lazy
-    private IPrequelDomainService prequelDomainService;
-
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
     @Autowired
@@ -64,6 +57,8 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
     private RoundHeaderDateRepository roundHeaderDateRepository;
     @Autowired
     private ProjectLineSectionRepository projectLineSectionRepository;
+    @Autowired
+    private SourceTemplateService sourceTemplateService;
 
     @Override
     public RfxHeader copyRfxHeader(Long rfxHeaderId) {
