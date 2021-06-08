@@ -178,7 +178,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setMETHODREMARK(rfxHeader.getAttributeVarchar17());
         forBPMData.setATTRIBUTEVARCHAR9(rcwlClarifyRepository.getMeaningByLovCodeAndValue("SPCM.CONTRACT.KIND",rfxHeader.getAttributeVarchar9()));
         forBPMData.setPROJECTAMOUNT(rfxHeader.getBudgetAmount() == null ? "":rfxHeader.getBudgetAmount().toString());
-        forBPMData.setATTRIBUTEVARCHAR12(rfxHeader.getAttributeVarchar10());
+        forBPMData.setATTRIBUTEVARCHAR12(String.valueOf(rfxHeader.getAttributeDecimal10()));
             //根据quotation_header_id去ssrc_rfx_quotation_line查询suggested_flag为1的数量
         forBPMData.setATTRIBUTEVARCHAR13(winningSupplyNum);
             //根据source_header_id去ssrc_round_header表中的quotation_round_number字段
@@ -242,7 +242,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         rcwlGxBpmStartDataDTO.setUserId(userName);
         rcwlGxBpmStartDataDTO.setBtid("RCWLSRMDBSP");
         rcwlGxBpmStartDataDTO.setBoid(rfxHeader.getRfxNum());
-        rcwlGxBpmStartDataDTO.setProcinstId(rfxHeader.getAttributeVarchar6());
+        rcwlGxBpmStartDataDTO.setProcinstId(rfxHeader.getAttributeVarchar4());
         rcwlGxBpmStartDataDTO.setData(forBPMData.toString());
         //返回前台的跳转URL
         String rcwl_bpm_urlip = profileClient.getProfileValueByOptions("RCWL_BPM_URLIP");

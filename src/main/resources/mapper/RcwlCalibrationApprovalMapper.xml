@@ -60,7 +60,7 @@
                 GROUP BY
                     t.quotation_header_id
                 ORDER BY
-                    x.score desc
+                    totalAmount
     </select>
     <select id="getAppendRemark" resultType="Integer">
         SELECT
