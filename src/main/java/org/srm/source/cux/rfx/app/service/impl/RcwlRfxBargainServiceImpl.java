@@ -30,9 +30,11 @@ public class RcwlRfxBargainServiceImpl extends RfxBargainServiceImpl {
         //ssrc_rfx_quotation_header-attribute_varchar2    标识Y
         //ssrc_rfx_quotation_header-attribute_varchar3    原因
         RfxQuotationHeader rfxQuotationHeader = new RfxQuotationHeader();
+        Long quotationHeaderId;
         for(RfxQuotationLine rfxQuotationLine:rfxQuotationLineLists){
             if (1 == rfxQuotationLine.getBargainSectionSelectedFlag() && 1 == rfxQuotationLine.getBargainSelectedFlag()){
                 rfxQuotationHeader.setQuotationHeaderId(rfxQuotationLine.getQuotationHeaderId());
+                rfxQuotationHeader.setObjectVersionNumber(rfxQuotationHeaderRepository.selectOne(rfxQuotationHeader).getObjectVersionNumber());
                 rfxQuotationHeader.setAttributeVarchar2(rfxQuotationLine.getAttributeVarchar2());
                 rfxQuotationHeader.setAttributeVarchar3(rfxQuotationLine.getAttributeVarchar3());
             }
