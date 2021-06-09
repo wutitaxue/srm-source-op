@@ -29,8 +29,8 @@ public class RcwlCalibrationApprovalController extends BaseController {
 
     @ApiOperation("定标审批BPM模拟")
     @Permission(
-//            permissionPublic = true
-            level = ResourceLevel.ORGANIZATION
+            permissionPublic = true
+//            level = ResourceLevel.ORGANIZATION
     )
     @PostMapping({"/release-bpm-simulate"})
     public ResponseCalibrationApprovalData connectCalibrationApprovalByBPM(@PathVariable String organizationId, @RequestBody CalibrationApprovalGetData calibrationApprovalData) {
