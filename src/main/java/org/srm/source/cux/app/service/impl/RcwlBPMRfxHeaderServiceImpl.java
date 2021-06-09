@@ -73,10 +73,10 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         List<RcwlAttachmentListData> listData = new ArrayList<RcwlAttachmentListData>();
         List<RcwlRfxHeaderAttachmentListDataForBPM> list = new ArrayList<RcwlRfxHeaderAttachmentListDataForBPM>();
         //方法区，获取调用BPM接口所需值DATA并填充
+        rcwlRfxHeaderRepository.updateRfxHeader(rfxHeaderId, remark,tenantId);
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         String userName =rcwlRfxHeaderRepository.getRealNameById(rfxHeader.getCreatedBy());
         listData = rcwlRfxHeaderRepository.getAttachmentList(rfxHeader.getAttributeVarchar20());
-        rcwlRfxHeaderRepository.updateRfxHeader(rfxHeader.getRfxHeaderId(), remark,tenantId);
         //方法区结束
         //data数据填充附件信息
         if(!CollectionUtils.isEmpty(listData)){
