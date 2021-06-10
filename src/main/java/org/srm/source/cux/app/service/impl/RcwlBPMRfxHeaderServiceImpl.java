@@ -73,10 +73,10 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         List<RcwlAttachmentListData> listData = new ArrayList<RcwlAttachmentListData>();
         List<RcwlRfxHeaderAttachmentListDataForBPM> list = new ArrayList<RcwlRfxHeaderAttachmentListDataForBPM>();
         //方法区，获取调用BPM接口所需值DATA并填充
+        rcwlRfxHeaderRepository.updateRfxHeader(rfxHeaderId, remark,tenantId);
         RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
         String userName =rcwlRfxHeaderRepository.getRealNameById(rfxHeader.getCreatedBy());
         listData = rcwlRfxHeaderRepository.getAttachmentList(rfxHeader.getAttributeVarchar20());
-        rcwlRfxHeaderRepository.updateRfxHeader(rfxHeader.getRfxHeaderId(), remark,tenantId);
         //方法区结束
         //data数据填充附件信息
         if(!CollectionUtils.isEmpty(listData)){
@@ -136,8 +136,8 @@ public class RcwlBPMRfxHeaderServiceImpl implements RcwlBPMRfxHeaderService {
         sb.append("\"RFXTITLE\":\"").append(rfxHeader.getRfxTitle()).append("\",");
         sb.append("\"RFXNUM\":\"").append(rfxHeader.getRfxNum()).append("\",");
         sb.append("\"BIDDINGMODE\":\"").append(rfxHeader.getAttributeVarchar8() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SCUX.RCWL.SCEC.JH_BIDDING",rfxHeader.getAttributeVarchar8())).append("\",");
-        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getAttributeVarchar17() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory())).append("\",");
-        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getAttributeVarchar17())).append("\",");
+        sb.append("\"EVALMETHODNAME\":\"").append(rfxHeader.getSourceCategory() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.SOURCE_CATEGORY",rfxHeader.getSourceCategory())).append("\",");
+        sb.append("\"SOURCECATEGORY\":\"").append(rfxHeader.getAttributeVarchar17() == null ? "":rcwlClarifyRepository.getMeaningByLovCodeAndValue("SSRC.RCWL.BID_EVAL_METHOD",rfxHeader.getAttributeVarchar17())).append("\",");
         sb.append("\"TERMINATEDBY\":\"").append(userName).append("\",");
         sb.append("\"TERMINATEDDATE\":\"").append(df.format(new Date())).append("\",");
         sb.append("\"TERMINATEDREMARK\":\"").append(rfxHeader.getTerminatedRemark() == null ? "":rfxHeader.getTerminatedRemark()).append("\",");
