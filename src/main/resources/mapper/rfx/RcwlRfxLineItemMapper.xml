@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.rfx.infra.mapper.RcwlRfxLineItemMapper">
+<select id="listPartnerItemDim" resultType="org.srm.source.rfx.api.dto.ItemDTO">
+    <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+    SELECT
+    i.item_id,
+    i.item_id AS partner_item_id,
+    i.item_code,
+    i.specifications,
+    i.model,
+    hit.item_name,
+    i.item_number,
+    i.common_name,
+    i.primary_uom_id,
+    i.chart_code,
+    i.drawing_version,
+    hu.uom_code,
+    sut.uom_name,
+    hu.uom_id,
+    <!-- sic.category_id,
+    sic.category_code,
+    sic.category_name, -->
+    i.source_code,
+    i.enabled_flag,
+    i.query_item_code,
+    st.tax_id,
+    st.description AS tax_description,
+    st.tax_code,
+    st.tax_rate,
+    i.item_abc as item_abc_class,
+    i.bi_uom_id,
+    hum.uom_code as bi_uom_code,
+    sutu.uom_name as bi_uom_name,
+    i.uom_conversion_rate,
+    i.planned_price,
+    i.order_uom_id,
+    huo.uom_name as order_uom_name
+    FROM
+    smdm_item i
+    LEFT JOIN smdm_item_tl hit ON hit.item_id = i.item_id AND hit.lang = #{lang}
+    LEFT JOIN smdm_uom hu ON i.primary_uom_id = hu.uom_id
+    left join smdm_uom_tl sut on sut.uom_id = hu.uom_id and sut.lang = #{lang}
+    LEFT JOIN smdm_uom hum ON i.bi_uom_id = hum.uom_id
+    left join smdm_uom_tl sutu on sutu.uom_id = hum.uom_id and sutu.lang = #{lang}
+    <!-- LEFT JOIN smdm_item_category_assign sica on
+    (i.item_id = sica.item_id
+    AND sica.category_assign_id = (
+    case when( (select count(0) from smdm_item_category_assign sica1 where sica1.item_id = i.item_id ) = 1 )
+    THEN
+    (SELECT category_assign_id FROM smdm_item_category_assign sica2 WHERE sica2.item_id = i.item_id)
+    ELSE
+    (SELECT category_assign_id FROM smdm_item_category_assign sica3 WHERE sica3.item_id = i.item_id and sica3.default_flag = 1) END))
+    LEFT JOIN smdm_item_category sic on sic.category_id = sica.category_id -->
+    <!-- left JOIN smdm_item_category sic on sic.category_id = (
+        case
+        when(
+        (select count(0) from smdm_item_category_assign sica1 where sica1.item_id =  i.item_id ) = 1
+        )
+        THEN(
+        SELECT category_assign_id FROM smdm_item_category_assign sica2 WHERE sica2.item_id = i.item_id
+        )ELSE(
+        SELECT category_assign_id FROM smdm_item_category_assign sica3 WHERE sica3.item_id = i.item_id and sica3.default_flag = 1
+        ) END
+    ) -->
+    LEFT JOIN smdm_tax st ON i.tax_id = st.tax_id
+    LEFT JOIN smdm_uom huo ON i.order_uom_id = huo.uom_id
+    WHERE
+    i.tenant_id = #{tenantId}
+    AND i.enabled_flag = 1
+    <if test="itemCode != null and itemCode != ''">
+        <bind name="itemCodeLike" value="'%' + itemCode + '%'"/>
+        AND i.item_code LIKE #{itemCodeLike}
+    </if>
+    <if test="itemName != null and itemName != ''">
+        <bind name="itemNameLike" value="'%' + itemName + '%'"/>
+        AND i.item_name LIKE #{itemNameLike}
+    </if>
+    <if test="specifications != null and specifications != ''">
+        <bind name="specificationsLike" value="'%' + specifications + '%'"/>
+        AND i.specifications LIKE #{specificationsLike}
+    </if>
+    <if test="model != null and model != ''">
+        <bind name="modelLike" value="'%' + model + '%'"/>
+        AND i.model LIKE #{modelLike}
+    </if>
+    <if test="itemId != null and itemId != ''">
+        AND i.item_id = #{itemId}
+    </if>
+    <if test="itemIds != null and itemIds.size() > 0">
+        and i.item_id in
+        <foreach collection="itemIds" open="(" close=")" separator="," item="itemId">
+            #{itemId}
+        </foreach>
+    </if>
+    <if test="externalSystemCode != null and externalSystemCode != ''">
+        AND i.external_system_code = #{externalSystemCode}
+    </if>
+    <if test="invOrganizationId != null and invOrganizationId != ''">
+        AND ( (EXISTS(SELECT 1 from smdm_item_org_rel sior2 where sior2.organization_id = #{invOrganizationId} and
+        sior2.item_id = i.item_id and sior2.tenant_id = i.tenant_id and sior2.enabled_flag = 1))
+        OR (select count(1) from smdm_item_org_rel sior2 where sior2.item_id = i.item_id and sior2.tenant_id = i.tenant_id) = 0
+        )
+    </if>
+<!--    and (EXISTS (-->
+<!--    select 1 from-->
+<!--    smdm_item_org_rel sior-->
+<!--    join hpfm_inv_organization hio on hio.organization_id = sior.organization_id-->
+<!--    join hpfm_operation_unit hou on hou.ou_id = hio.ou_id-->
+<!--    join hpfm_company hc on hc.company_id = hou.company_id-->
+<!--    where sior.item_id = i.item_id-->
+<!--    <if test="ouId != null">-->
+<!--        AND hou.ou_id = #{ouId}-->
+<!--    </if>-->
+<!--    <if test="companyId != null">-->
+<!--        AND hc.company_id = #{companyId}-->
+<!--    </if>-->
+<!--    ) OR i.item_all_org_flag = 1)-->
+</select>
+</mapper>
