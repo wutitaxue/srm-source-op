@@ -3,22 +3,26 @@ package org.srm.source.cux.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import javassist.Loader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
 import org.hzero.boot.platform.code.constant.CodeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.srm.source.cux.api.dto.RcwlAbilityHeadDTO;
+import org.srm.source.cux.api.dto.RcwlAbilityLineDTO;
 import org.srm.source.cux.app.service.RcwlShortlistAttachmentService;
 import org.srm.source.cux.app.service.RcwlShortlistHeaderService;
 import org.springframework.stereotype.Service;
-import org.srm.source.cux.domain.entity.RcwlShortlistAttachment;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
-import org.srm.source.cux.infra.constant.RcwlShortlistContants;
 import org.srm.source.cux.infra.feign.RcwlSpucRemoteService;
+import org.srm.source.cux.infra.mapper.RcwlShortListSelectMapper;
 import org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper;
 import org.srm.source.share.api.dto.PrLine;
 import org.srm.source.share.domain.vo.PrLineVO;
@@ -60,6 +64,10 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
     @Autowired
     private RcwlSupplierHeaderRepository rcwlSupplierHeaderRepository;
 
+    @Autowired
+    private RcwlShortListSelectMapper rcwlShortListSelectMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(RcwlShortlistHeaderServiceImpl.class);
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -181,6 +189,54 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
         rcwlShortlistHeader.setState(RW_STUTAS_APPROVED);
         rcwlShortlistHeaderMapper.updateByPrimaryKeySelective(rcwlShortlistHeader);
 
+        //查询selected为1的供应商
+        List<RcwlSupplierHeader> rcwlSupplierHeaders = rcwlShortListSelectMapper.selectSuppliers(tenantId, shortListHeaderId);
+        logger.info("25140===================rcwlSupplierHeaders"+rcwlSupplierHeaders);
+        //查询关联采购申请的物品行
+        List<RcwlAbilityLineDTO> rcwlCategoryDTOS = rcwlShortListSelectMapper.selectItems(tenantId, shortListHeaderId);
+        logger.info("25140===================rcwlCategoryDTOS"+rcwlCategoryDTOS);
+
+        //判断供应商是否在sslm_supply_ability中存在
+        rcwlSupplierHeaders.forEach(supplierHeader -> {
+            Long exist = rcwlShortListSelectMapper.checkExistAbility(tenantId, supplierHeader.getSupplierId());
+            logger.info("25140=======判断供应商是否存在============exist"+exist);
+            //存在则只更新品类
+            if(exist > 0){
+                rcwlCategoryDTOS.forEach(category -> {
+                    //判断供应商是否在sslm_supply_ability中存在
+                    Long existline = rcwlShortListSelectMapper.checkExistAbilityLine(tenantId, supplierHeader.getSupplierId(), category.getCategoryId());
+                    logger.info("25140=======情况1============existline"+existline);
+                    if(existline == 0){
+                        RcwlAbilityLineDTO rcwlAbilityLineDTO = new RcwlAbilityLineDTO();
+                        rcwlAbilityLineDTO.setTenantId(tenantId);
+                        rcwlAbilityLineDTO.setCategoryCode(category.getCategoryCode());
+                        rcwlAbilityLineDTO.setCategoryId(category.getCategoryId());
+                        rcwlAbilityLineDTO.setSupplyAbilityId(supplierHeader.getSupplierId());
+                        logger.info("25140========情况1===========rcwlAbilityLineDTO"+rcwlAbilityLineDTO);
+                        rcwlShortListSelectMapper.insetAbilityLine(rcwlAbilityLineDTO);
+                    }
+                });
+            //不存在则新增头行
+            }else {
+                //创建能力头
+                RcwlAbilityHeadDTO rcwlAbilityHeadDTO = new RcwlAbilityHeadDTO();
+                rcwlAbilityHeadDTO.setSupplierCompanyId(supplierHeader.getSupplierId());
+                rcwlAbilityHeadDTO.setSupplierTenantId(supplierHeader.getSupplierTenantId());
+                rcwlAbilityHeadDTO.setTenantId(tenantId);
+                logger.info("25140=======情况2============rcwlAbilityHeadDTO"+rcwlAbilityHeadDTO);
+                RcwlAbilityHeadDTO rcwlAbilityHeadDTO1 = rcwlShortListSelectMapper.insetAbilityHead(rcwlAbilityHeadDTO);
+                //创建能力行
+                rcwlCategoryDTOS.forEach(category -> {
+                        RcwlAbilityLineDTO rcwlAbilityLineDTO = new RcwlAbilityLineDTO();
+                        rcwlAbilityLineDTO.setTenantId(tenantId);
+                        rcwlAbilityLineDTO.setCategoryCode(category.getCategoryCode());
+                        rcwlAbilityLineDTO.setCategoryId(category.getCategoryId());
+                        rcwlAbilityLineDTO.setSupplyAbilityId(rcwlAbilityHeadDTO1.getSupplierCompanyId());
+                        logger.info("25140======情况2=============rcwlAbilityLineDTO"+rcwlAbilityLineDTO);
+                        rcwlShortListSelectMapper.insetAbilityLine(rcwlAbilityLineDTO);
+                });
+            }
+        });
     }
 
     @Override
