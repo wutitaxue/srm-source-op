@@ -37,13 +37,13 @@
         INSERT INTO sslm_supply_ability
         ( tenant_id,supplier_tenant_id,supplier_company_id,remark)
           VALUES
-        ( #{rcwlAbilityHeadDTO.tenantId}, #{rcwlAbilityHeadDTO.supplierTenantId},#{rcwlAbilityHeadDTO.supplierCompanyId},'审批通过创建' )
+        ( #{tenantId}, #{supplierTenantId},#{supplierCompanyId},'审批通过创建' )
     </insert>
 
     <insert id="insetAbilityLine" useGeneratedKeys="true" keyColumn="ability_line_id" keyProperty="abilityLineId">
         INSERT INTO sslm_supply_ability_line
         ( tenant_id,supply_ability_id,item_category_id,item_category_code,supply_flag)
           VALUES
-        ( #{rcwlAbilityLine.tenantId}, #{rcwlAbilityLine.supplyAbilityId},#{rcwlAbilityLine.itemCategoryId},#{rcwlAbilityLine.itemCategoryCode},1)
+        ( #{tenantId}, #{supplyAbilityId},#{itemCategoryId},#{itemCategoryCode},1)
     </insert>
 </mapper>
