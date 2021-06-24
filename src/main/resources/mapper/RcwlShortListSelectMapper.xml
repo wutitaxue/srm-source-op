@@ -16,7 +16,7 @@
         FROM
             sprm_pr_line t
             LEFT JOIN smdm_item_category sic ON t.category_id = sic.category_id
-        where t.attribute_varchar2 = #{shortListHeaderId}
+        where t.attribute_bigint1 = #{shortListHeaderId}
         and t.tenant_id = #{tenantId}
     </select>
 
