@@ -22,8 +22,8 @@ public interface RcwlShortListSelectMapper {
     Long checkExistAbilityLine(@Param("tenantId") Long tenantId , @Param("supplyAbilityId") Long supplyAbilityId,@Param("itemCategoryId") Long itemCategoryId);
 
     //插入供应商能力头
-    RcwlAbilityHeadDTO insetAbilityHead(RcwlAbilityHeadDTO rcwlAbilityHeadDTO);
+    Long insetAbilityHead(RcwlAbilityHeadDTO rcwlAbilityHeadDTO);
 
     //插入供应商能力行
-    RcwlAbilityLineDTO insetAbilityLine(RcwlAbilityLineDTO rcwlAbilityLine);
+    Long insetAbilityLine(RcwlAbilityLineDTO rcwlAbilityLine);
 }
