@@ -2,9 +2,18 @@ package org.srm.source.cux.api.dto;
 
 public class RcwlAbilityHeadDTO {
 
+    private Long supplyAbilityId;
     private Long supplierCompanyId;
     private Long supplierTenantId;
     private Long tenantId;
+
+    public Long getSupplyAbilityId() {
+        return supplyAbilityId;
+    }
+
+    public void setSupplyAbilityId(Long supplyAbilityId) {
+        this.supplyAbilityId = supplyAbilityId;
+    }
 
     public Long getSupplierCompanyId() {
         return supplierCompanyId;

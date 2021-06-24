@@ -4,10 +4,19 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class RcwlAbilityLineDTO {
 
+    private Long abilityLineId;
     private String categoryCode;
     private Long categoryId;
     private Long supplyAbilityId;
     private Long tenantId;
+
+    public Long getAbilityLineId() {
+        return abilityLineId;
+    }
+
+    public void setAbilityLineId(Long abilityLineId) {
+        this.abilityLineId = abilityLineId;
+    }
 
     public Long getSupplyAbilityId() {
         return supplyAbilityId;
