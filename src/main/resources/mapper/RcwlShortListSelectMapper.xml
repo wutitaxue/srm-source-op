@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.infra.mapper.RcwlShortListSelectMapper">
+    <select id="selectSuppliers" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        select t.*,(select hc.tenant_id from hpfm_company hc where hc.company_id = t.supplier_id) supplierTenantId from scux_rcwl_supplier_header t
+        where t.shortlist_header_id = #{shortListHeaderId}
+        and t.tenant_id = #{tenantId}
+        and t.selected = 1
+    </select>
+
+    <select id="selectItems" resultType="org.srm.source.cux.api.dto.RcwlAbilityLineDTO">
+        SELECT
+            sic.category_code,
+            sic.category_id,
+            t.tenant_id
+        FROM
+            sprm_pr_line t
+            LEFT JOIN smdm_item_category sic ON t.category_id = sic.category_id
+        where t.attribute_varchar2 = #{shortListHeaderId}
+        and t.tenant_id = #{tenantId}
+    </select>
+
+    <select id="checkExistAbility" resultType="java.lang.Long">
+        select count(*) from sslm_supply_ability t
+        where t.supplier_company_id = #{supplierCompanyId}
+        and t.supplier_tenant_id = #{tenantId}
+    </select>
+
+    <select id="checkExistAbilityLine" resultType="java.lang.Long">
+        select count(*) from sslm_supply_ability_line t
+        where t.supply_ability_id = #{supplyAbilityId}
+        and t.tenant_id = #{tenantId}
+        and t.item_category_id = #{itemCategoryId}
+    </select>
+
+    <insert id="insetAbilityHead" useGeneratedKeys="true" keyColumn="supply_ability_id" keyProperty="supplyAbilityId">
+        INSERT INTO sslm_supply_ability
+        ( tenant_id,supplier_tenant_id,supplier_company_id,remark)
+          VALUES
+        ( #{rcwlAbilityHeadDTO.tenantId}, #{rcwlAbilityHeadDTO.supplierTenantId},#{rcwlAbilityHeadDTO.supplierCompanyId},'审批通过创建' )
+    </insert>
+
+    <insert id="insetAbilityLine" useGeneratedKeys="true" keyColumn="ability_line_id" keyProperty="abilityLineId">
+        INSERT INTO sslm_supply_ability_line
+        ( tenant_id,supply_ability_id,item_category_id,item_category_code,supply_flag)
+          VALUES
+        ( #{rcwlAbilityLine.tenantId}, #{rcwlAbilityLine.supplyAbilityId},#{rcwlAbilityLine.itemCategoryId},#{rcwlAbilityLine.itemCategoryCode},1)
+    </insert>
+</mapper>
