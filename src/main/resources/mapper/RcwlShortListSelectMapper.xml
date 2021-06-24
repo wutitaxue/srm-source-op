@@ -44,6 +44,6 @@
         INSERT INTO sslm_supply_ability_line
         ( tenant_id,supply_ability_id,item_category_id,item_category_code,supply_flag)
           VALUES
-        ( #{tenantId}, #{supplyAbilityId},#{itemCategoryId},#{itemCategoryCode},1)
+        ( #{tenantId}, #{supplyAbilityId},#{categoryId},#{categoryCode},1)
     </insert>
 </mapper>
