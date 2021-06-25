@@ -212,6 +212,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                         rcwlAbilityLineDTO.setCategoryCode(category.getCategoryCode());
                         rcwlAbilityLineDTO.setCategoryId(category.getCategoryId());
                         rcwlAbilityLineDTO.setSupplyAbilityId(supplierHeader.getSupplierId());
+                        rcwlAbilityLineDTO.setCreatedBy(supplierHeader.getCreatedBy());
+                        rcwlAbilityLineDTO.setLastUpdatedBy(supplierHeader.getLastUpdatedBy());
                         logger.info("25140========情况1===========rcwlAbilityLineDTO"+rcwlAbilityLineDTO);
                         rcwlShortListSelectMapper.insetAbilityLine(rcwlAbilityLineDTO);
                     }
@@ -222,6 +224,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                 RcwlAbilityHeadDTO rcwlAbilityHeadDTO = new RcwlAbilityHeadDTO();
                 rcwlAbilityHeadDTO.setSupplierCompanyId(supplierHeader.getSupplierId());
                 rcwlAbilityHeadDTO.setSupplierTenantId(supplierHeader.getSupplierTenantId());
+                rcwlAbilityHeadDTO.setCreatedBy(supplierHeader.getCreatedBy());
+                rcwlAbilityHeadDTO.setLastUpdatedBy(supplierHeader.getLastUpdatedBy());
                 rcwlAbilityHeadDTO.setTenantId(tenantId);
                 logger.info("25140=======情况2============rcwlAbilityHeadDTO"+rcwlAbilityHeadDTO);
                 rcwlShortListSelectMapper.insetAbilityHead(rcwlAbilityHeadDTO);
@@ -233,6 +237,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                         rcwlAbilityLineDTO.setCategoryCode(category.getCategoryCode());
                         rcwlAbilityLineDTO.setCategoryId(category.getCategoryId());
                         rcwlAbilityLineDTO.setSupplyAbilityId(headId);
+                        rcwlAbilityLineDTO.setCreatedBy(supplierHeader.getCreatedBy());
+                        rcwlAbilityLineDTO.setLastUpdatedBy(supplierHeader.getLastUpdatedBy());
                         logger.info("25140======情况2=============rcwlAbilityLineDTO"+rcwlAbilityLineDTO);
                         rcwlShortListSelectMapper.insetAbilityLine(rcwlAbilityLineDTO);
                 });
