@@ -6,6 +6,24 @@ public class RcwlAbilityHeadDTO {
     private Long supplierCompanyId;
     private Long supplierTenantId;
     private Long tenantId;
+    private Long createdBy;
+    private Long lastUpdatedBy;
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(Long lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
+    }
 
     public Long getSupplyAbilityId() {
         return supplyAbilityId;

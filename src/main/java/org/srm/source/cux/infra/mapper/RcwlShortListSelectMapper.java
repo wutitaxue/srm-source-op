@@ -15,6 +15,9 @@ public interface RcwlShortListSelectMapper {
     //查询关联采购申请的物品行
     List<RcwlAbilityLineDTO> selectItems(@Param("tenantId") Long tenantId , @Param("shortListHeaderId") Long shortListHeaderId);
 
+    //查id
+    Long selectHeaderId(@Param("supplierTenantId") Long supplierTenantId , @Param("supplierCompanyId") Long supplierCompanyId);
+
     //判断供应商是否在sslm_supply_ability中存在
     Long checkExistAbility(@Param("tenantId") Long tenantId , @Param("supplierCompanyId") Long supplierCompanyId);
 
