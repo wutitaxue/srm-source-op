@@ -204,7 +204,7 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
             if(exist > 0){
                 rcwlCategoryDTOS.forEach(category -> {
                     //判断供应商是否在sslm_supply_ability中存在
-                    Long existline = rcwlShortListSelectMapper.checkExistAbilityLine(tenantId, supplierHeader.getSupplierId(), category.getCategoryId());
+                    Long existline = rcwlShortListSelectMapper.checkExistAbilityLine(tenantId, rcwlShortListSelectMapper.selectHeaderId(supplierHeader.getSupplierTenantId(),supplierHeader.getSupplierId()), category.getCategoryId());
                     logger.info("25140=======情况1============existline"+existline);
                     if(existline == 0){
                         RcwlAbilityLineDTO rcwlAbilityLineDTO = new RcwlAbilityLineDTO();
