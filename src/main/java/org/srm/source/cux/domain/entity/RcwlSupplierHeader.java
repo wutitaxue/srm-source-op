@@ -142,6 +142,8 @@ public class RcwlSupplierHeader extends ExpandDomain {
     private String url;
 
 
+
+
     @Transient
     private Long supplierTenantId;
     @Transient
@@ -151,6 +153,7 @@ public class RcwlSupplierHeader extends ExpandDomain {
     //
     // getter/setter
     // ------------------------------------------------------------------------------
+
 
 
     public String getUrl() {
