@@ -224,7 +224,8 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                 rcwlAbilityHeadDTO.setSupplierTenantId(supplierHeader.getSupplierTenantId());
                 rcwlAbilityHeadDTO.setTenantId(tenantId);
                 logger.info("25140=======情况2============rcwlAbilityHeadDTO"+rcwlAbilityHeadDTO);
-                Long headId = rcwlShortListSelectMapper.insetAbilityHead(rcwlAbilityHeadDTO);
+                rcwlShortListSelectMapper.insetAbilityHead(rcwlAbilityHeadDTO);
+                Long headId = rcwlShortListSelectMapper.selectHeaderId(supplierHeader.getSupplierTenantId(),supplierHeader.getSupplierId());
                 //创建能力行
                 rcwlCategoryDTOS.forEach(category -> {
                         RcwlAbilityLineDTO rcwlAbilityLineDTO = new RcwlAbilityLineDTO();
