@@ -6,7 +6,7 @@ import org.srm.source.cux.rfx.infra.constant.RcwlSourceConstant;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
 import org.srm.web.annotation.Tenant;
-import org.srm.web.dynamic.ExtendMapper;
+import io.choerodon.mybatis.helper.ExtendMapper;
 
 import java.util.List;
 

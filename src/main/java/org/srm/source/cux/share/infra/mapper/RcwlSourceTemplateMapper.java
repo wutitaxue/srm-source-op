@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.infra.mapper.SourceTemplateMapper;
 import org.srm.web.annotation.Tenant;
-import org.srm.web.dynamic.ExtendMapper;
+import io.choerodon.mybatis.helper.ExtendMapper;
 
 import java.util.List;
 
