@@ -4,7 +4,7 @@ import org.srm.source.rfx.api.dto.ItemDTO;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
 import org.srm.source.rfx.infra.mapper.RfxLineItemMapper;
 import org.srm.web.annotation.Tenant;
-import io.choerodon.mybatis.helper.ExtendMapper;
+
 
 import java.util.List;
 
