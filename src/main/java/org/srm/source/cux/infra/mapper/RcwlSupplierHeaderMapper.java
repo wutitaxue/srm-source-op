@@ -7,6 +7,7 @@ import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import io.choerodon.mybatis.common.BaseMapper;
 import org.srm.source.rfx.api.dto.CompanyDTO;
+import org.srm.web.annotation.Tenant;
 
 import java.util.List;
 
@@ -40,5 +41,8 @@ public interface RcwlSupplierHeaderMapper extends BaseMapper<RcwlSupplierHeader>
      * @return RcwlSupplierHeader
      */
     RcwlSupplierHeader selectRcwlSupplierHeaderById(@Param("supplierHeaderId") Long supplierHeaderId);
+
+
+    List<Long> selectSupplierCompanyIds(@Param("companyIds") List<Long> companyIds, @Param("size") int size, @Param("tenantId") Long tenantId);
 }
 
