@@ -436,6 +436,7 @@
         SELECT count(1)
         FROM scux_rcwl_supplier_header h
         WHERE h.shortlist_header_id = #{shortlistHeaderId}
+        and h.selected = 1
     </select>
     <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
