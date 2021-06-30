@@ -16,9 +16,11 @@ import org.srm.source.cux.rfx.domain.vo.RcwlSendBpmData;
 import org.srm.source.cux.rfx.infra.constant.RcwlMessageCode;
 import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
 import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
+import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.app.service.SourceTemplateService;
 import org.srm.source.share.domain.entity.PrequalHeader;
 import org.srm.source.share.domain.entity.SourceTemplate;
@@ -26,6 +28,7 @@ import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.web.annotation.Tenant;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 @Service
@@ -48,34 +51,45 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
     @Lazy
     private IPrequelDomainService prequelDomainService;
     @Autowired
-    private RfxHeaderService rfxHeaderService;
+    private RfxHeaderService rfxHeaderServiceV1;
+    @Autowired
+    private RfxHeaderServiceV2 rfxHeaderServiceV2;
+    @Autowired
+    private RfxEventUtil rfxEventUtil;
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
-        //原校验逻辑
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
         Assert.notNull(sourceTemplate, "source.template.not.found");
         rfxHeader.beforeReleaseCheck(rfxFullHeader, sourceTemplate);
         rfxHeader.initRfxReleaseInfo(sourceTemplate.getReleaseApproveType());
+        rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
-//        RfxFullHeader rtnFullHeader = rfxHeaderService.saveOrUpdateFullHeader(rfxFullHeader);
+        RfxFullHeader rtnFullHeader = rfxHeaderServiceV2.saveOrUpdateFullHeader(rfxFullHeader);
+        this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
-            rfxHeaderService.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
+            this.rfxHeaderServiceV1.checkExpertScore(sourceTemplate, rfxHeader, rfxFullHeader);
         }
-        rfxHeaderService.validateLadderInquiry(rfxFullHeader);
+        this.rfxHeaderServiceV1.validateLadderInquiry(rtnFullHeader);
         this.rfxHeaderDomainService.removeOrValidRfxItemSupAssign(rfxFullHeader);
         PrequalHeader prequalHeader = rfxFullHeader.getPrequalHeader();
         if (null != prequalHeader) {
             prequalHeader.preData(rfxHeader.getTenantId(), rfxHeader.getRfxHeaderId(), "RFX");
         }
+        if ("PRE".equals(sourceTemplate.getQualificationType()) || "PRE_POST".equals(sourceTemplate.getQualificationType())) {
+            Assert.notNull(rfxHeader.getQuotationStartDate(), "error.quotation_start_time_not_found");
+            prequalHeader.checkBeforeUpdate(Objects.isNull(rfxHeader.getQuotationStartDate()) ? rfxHeader.getEstimatedStartTime() : rfxHeader.getQuotationStartDate());
+        }
         this.prequelDomainService.checkPrequalHeader(sourceTemplate, rfxFullHeader.getPrequalHeader());
+        if (!"SELF".equals(sourceTemplate.getReleaseApproveType())) {
+            this.rfxEventUtil.eventSend("SSRC_RFX_RELEASE", "RELEASE", rfxHeader);
+        }
 
-
-
+        //获取系统配置
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
 
@@ -86,7 +100,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         //子账户账号
         rcwlGxBpmStartDataDTO.setUserId(DetailsHelper.getUserDetails().getUsername());
         //业务单据ID（业务类型）
-        rcwlGxBpmStartDataDTO.setBtid("RCWLSRMYSDSP");
+        rcwlGxBpmStartDataDTO.setBtid("RCWLSRMZBLX");
         //单据编号
         rcwlGxBpmStartDataDTO.setBoid(rfxFullHeader.getRfxHeader().getRfxNum());
         //流程id：默认0，如果是退回修改的流程，则需要将流程ID回传回来
@@ -95,6 +109,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         RcwlSendBpmData rcwlSendBpmData = rfxHeaderBpmMapper.prepareDate(organizationId, rfxHeader);
         //设置头URL_MX
         String URL = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SRM_URL");
+        String URL2 = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
         String RCWL_SRM_URL = URL + "app/ssrc/new-inquiry-hall/rfx-detail/"+ rfxFullHeader.getRfxHeader().getRfxHeaderId() +"?current=newInquiryHall";
         rcwlSendBpmData.setUrlMx(RCWL_SRM_URL);
         //设置行参数
@@ -114,6 +129,6 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
             throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
         }
 
-        return URL+"Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
+        return "http://"+URL2+"/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
     }
 }

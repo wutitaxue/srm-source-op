@@ -34,12 +34,12 @@ public class CalibrationApprovalDbdbjgDataForBPM {
         sb.append("\"SUPPLIERCOMPANYNUM\":\"").append(this.getSUPPLIERCOMPANYNUM()).append("\",");
         sb.append("\"IP\":\"").append(this.getIP()).append("\",");
         sb.append("\"APPENDREMARK\":\"").append(this.getAPPENDREMARK()).append("\",");
-        sb.append("\"TECHNICALSCORE\":\"").append(this.getTECHNICALSCORE()).append("\",");
-        sb.append("\"BUSINESSSCORE\":\"").append(this.getBUSINESSSCORE()).append("\",");
-        sb.append("\"COMPREHENSIVE\":\"").append(this.getCOMPREHENSIVE()).append("\",");
-        sb.append("\"COMPREHENSIVERANK\":\"").append(this.getCOMPREHENSIVERANK()).append("\",");
+        sb.append("\"TECHNICALSCORE\":\"").append(this.getTECHNICALSCORE() == null ? "":this.getTECHNICALSCORE()).append("\",");
+        sb.append("\"BUSINESSSCORE\":\"").append(this.getBUSINESSSCORE() == null ? "":this.getBUSINESSSCORE()).append("\",");
+        sb.append("\"COMPREHENSIVE\":\"").append(this.getCOMPREHENSIVE() == null ? "":this.getCOMPREHENSIVE()).append("\",");
+        sb.append("\"COMPREHENSIVERANK\":\"").append(this.getCOMPREHENSIVERANK() == null ? "":this.getCOMPREHENSIVERANK()).append("\",");
         sb.append("\"BIDPRICE\":\"").append(this.getBIDPRICE()).append("\",");
-        sb.append("\"FIXEDPRICE\":\"").append(this.getFIXEDPRICE()).append("\",");
+        sb.append("\"FIXEDPRICE\":\"").append(this.getFIXEDPRICE() == null ? "":this.getFIXEDPRICE()).append("\",");
         sb.append("\"REMARKS\":\"").append(this.getREMARKS()).append("\"}");
         return  sb.toString();
     }

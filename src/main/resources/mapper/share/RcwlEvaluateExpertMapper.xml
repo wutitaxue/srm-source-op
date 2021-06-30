@@ -1,0 +1,798 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.share.infra.mapper.RcwlEvaluateExpertMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.srm.source.share.domain.entity.EvaluateExpert">
+        <result column="evaluate_expert_id" property="evaluateExpertId" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="source_header_id" property="sourceHeaderId" jdbcType="DECIMAL"/>
+        <result column="source_from" property="sourceFrom" jdbcType="VARCHAR"/>
+        <result column="expert_id" property="expertId" jdbcType="DECIMAL"/>
+        <result column="leader_flag" property="leaderFlag" jdbcType="DECIMAL"/>
+        <result column="evaluate_leader_flag" property="evaluateLeaderFlag" jdbcType="DECIMAL"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="end_date" property="endDate" jdbcType="DATE"/>
+        <result column="team" property="team" jdbcType="VARCHAR"/>
+        <result column="sequence_num" property="sequenceNum" jdbcType="DECIMAL"/>
+        <result column="login_name" property="loginName" jdbcType="VARCHAR"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="listEvaluateExpert" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+        see.evaluate_expert_id,
+        see.tenant_id,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        see.object_version_number,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+        i.id as user_id,
+        i.login_name,
+        i.phone,
+        see.sequence_num,
+        i.email,
+        see.object_version_number
+        FROM
+        ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="team != null and team != ''">
+            AND see.team = #{team}
+        </if>
+        <if test="expertStatus != null and expertStatus != ''">
+            AND see.expert_status = #{expertStatus}
+        </if>
+        <if test="sequenceNum != null">
+            AND see.sequence_num = #{sequenceNum}
+        </if>
+    </select>
+    <select id="queryEvaluateExpert" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+        see.evaluate_expert_id,
+        see.tenant_id,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id,
+        see.expert_user_id,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        see.sequence_num,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        CASE WHEN see.expert_id IS NULL THEN i.real_name ELSE se.expert_name end expert_name,
+        CASE WHEN see.expert_id IS NULL THEN 'INTERNAL' ELSE se.expert_type end expert_type,
+        CASE WHEN see.expert_id IS NULL THEN 'SENIOR' ELSE se.expert_level end expert_level,
+        CASE WHEN see.expert_id IS NULL THEN 'BUSINESS_TECHNOLOGY' ELSE se.expert_category end expert_category,
+        see.object_version_number,
+        i.login_name,
+        i.phone,
+        i.email
+        FROM
+        ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="expertStatus != null and expertStatus != ''">
+            AND see.expert_status = #{expertStatus}
+        </if>
+    </select>
+    <select id="queryEvaluateExpertAll" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+        see.evaluate_expert_id,
+        see.tenant_id,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id,
+        see.expert_user_id,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        ea.sequence_num,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        CASE WHEN see.expert_id IS NULL THEN i.real_name ELSE se.expert_name end expert_name,
+        CASE WHEN see.expert_id IS NULL THEN 'INTERNAL' ELSE se.expert_type end expert_type,
+        CASE WHEN see.expert_id IS NULL THEN 'SENIOR' ELSE se.expert_level end expert_level,
+        CASE WHEN see.expert_id IS NULL THEN 'BUSINESS_TECHNOLOGY' ELSE se.expert_category end expert_category,
+        see.object_version_number,
+        i.login_name,
+        i.phone,
+        i.email
+        FROM
+        ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        join (
+            select  seia.source_header_id,evaluate_expert_id,sequence_num from
+            ssrc_evaluate_indic_assign seia
+            join ssrc_evaluate_indic sei on seia.evaluate_indic_id = sei.evaluate_indic_id
+            group by  seia.source_header_id,evaluate_expert_id,sequence_num
+        ) ea on ea.source_header_id = see.source_header_id and ea.evaluate_expert_id = see.evaluate_expert_id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="expertStatus != null and expertStatus != ''">
+            AND see.expert_status = #{expertStatus}
+        </if>
+    </select>
+    <select id="selectEvaluateExpert"  resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+        see.evaluate_expert_id,
+        see.expert_user_id,
+        see.tenant_id,
+        see.expert_user_id,
+        see.source_header_id,
+        see.source_from,
+        see.sequence_num,
+        see.expert_id,
+        see.leader_flag,
+        see.evaluate_leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        see.object_version_number,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level
+        FROM
+        ssrc_evaluate_expert see
+        JOIN iam_user i ON see.expert_user_id = i.id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.expert_user_id = #{expertUserId}
+        AND see.tenant_id = #{tenantId}
+        <if test="sequenceNum != null">
+            AND see.sequence_num = #{sequenceNum}
+        </if>
+    </select>
+    <select id="selectExpertEvaluateLeaderFlagCount" resultType="java.lang.Integer">
+        SELECT  COUNT(1)
+        FROM
+            ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        AND see.expert_status = 'SUBMITTED'
+        AND see.evaluate_leader_flag = 1
+    </select>
+    <select id="selectExpertScoreNumByExpertIdAndSourceHeaderId" resultType="java.lang.Integer">
+        <choose>
+            <when test="sourceFrom !='' and sourceFrom =='BID'">
+                SELECT count(evaluate_expert_id)
+                FROM ssrc_evaluate_expert see
+                JOIN ssrc_bid_header h ON see.source_header_id = h.bid_header_id and h.current_sequence_num = see.sequence_num
+                JOIN ssrc_bid_member sbm ON h.bid_header_id = sbm.bid_header_id AND sbm.bid_role = 'TENDER' AND h.tenant_id = sbm.tenant_id
+                where see.expert_user_id != #{expertUserId}
+                and see.scored_status != 'SCORED'
+                and see.tenant_id = #{tenantId}
+                and see.source_header_id = #{sourceHeaderId}
+                and see.source_from = #{sourceFrom}
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
+            </when>
+            <when test="sourceFrom !='' and sourceFrom =='RFX'">
+                SELECT count(evaluate_expert_id)
+                FROM ssrc_evaluate_expert see
+                JOIN ssrc_rfx_header srh ON see.source_header_id = srh.rfx_header_id and srh.current_sequence_num = see.sequence_num
+                where see.expert_user_id != #{expertUserId}
+                and see.scored_status != 'SCORED'
+                and see.tenant_id = #{tenantId}
+                and see.source_header_id = #{sourceHeaderId}
+                and see.source_from = #{sourceFrom}
+                /*只针对于技术评分*/
+                <if test="currentSequenceNum==1">
+                    and see.evaluate_leader_flag !=1
+                </if>
+            </when>
+        </choose>
+
+    </select>
+
+    <resultMap id="EvaluateScoreMoudle" type="org.srm.source.share.domain.entity.EvaluateExpert">
+        <id column="expert_id" property="expertId"/>
+        <result column="expert_name" property="expertName"/>
+        <result column="sub_account" property="subAccount"/>
+        <result column="sequence_num" property="sequenceNum"/>
+        <result column="expert_id" property="expertId"/>
+        <result column="evaluate_expert_id" property="evaluateExpertId"/>
+        <result column="expert_user_id" property="expertUserId"/>
+        <result column="source_from" property="sourceFrom"/>
+        <result column="source_header_id" property="sourceHeaderId"/>
+        <result column="scored_status" property="scoredStatus"/>
+        <result column="attachment_uuid" property="attachmentUuid"/>
+        <collection property="evaluateExpertList" select="getTeamList" column="{sequenceNum=sequence_num,sourceFrom=source_from,sourceHeaderId=source_header_id,expertId=expert_id}">
+
+        </collection>
+    </resultMap>
+
+    <select id = "getTeamList" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        select
+        see.team,
+        see.evaluate_expert_id
+        from
+        ssrc_evaluate_expert see
+        where
+        see.sequence_num = #{sequenceNum}
+        and see.source_from = #{sourceFrom}
+        and see.source_header_id = #{sourceHeaderId}
+        and see.scored_status in ('SCORED' , 'RESCORING')
+        <if test = "expertId != null">
+            and see.expert_id = #{expertId}
+        </if>
+    </select>
+
+
+    <select id="expertInfo" resultMap="EvaluateScoreMoudle">
+        select
+        case when see.expert_id is null then iu.real_name else se.expert_name end as expert_name,
+        iu.login_name as sub_account,
+        see.evaluate_expert_id,
+        se.expert_id,
+        see.expert_user_id,
+        see.sequence_num,
+        see.source_from,
+        see.source_header_id,
+        see.scored_status,
+        see.attachment_uuid
+        from
+        ssrc_evaluate_expert see
+        left join ssrc_expert se on see.expert_id = se.expert_id
+        left join iam_user iu on see.expert_user_id = iu.id
+        where
+        see.sequence_num = #{sequenceNum}
+        and see.source_from = #{sourceFrom}
+        and see.source_header_id = #{sourceHeaderId}
+        and see.scored_status in ('SCORED' , 'RESCORING')
+    </select>
+
+    <select id="listEvaluateExpertByIds" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+            see.evaluate_expert_id,
+            sbqh.supplier_company_name,
+            see.tenant_id,
+            see.source_header_id,
+            see.source_from,
+            see.expert_id,
+            see.leader_flag,
+            see.start_date,
+            see.end_date,
+            see.team,
+            see.expert_status,
+            see.scored_status,
+            see.review_scored_status,
+            see.review_attachment_uuid,
+            see.evaluate_leader_flag,
+            case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+            see.object_version_number,
+            case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+            case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+            i.id as user_id,
+            i.login_name,
+            i.phone,
+            i.email
+        FROM
+            ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        JOIN ssrc_evaluate_score ses ON ses.evaluate_expert_id = see.evaluate_expert_id and ses.sequence_num=see.sequence_num
+        <if test="sourceForm != null and sourceForm == 'BID'">
+            JOIN ssrc_bid_quotation_header sbqh ON sbqh.quotation_header_id = ses.quotation_header_id
+        </if>
+        <if test="sourceForm != null and sourceForm == 'RFX'">
+            JOIN ssrc_rfx_quotation_header sbqh ON sbqh.quotation_header_id = ses.quotation_header_id
+        </if>
+        WHERE 1 = 1 AND see.evaluate_expert_id IN
+        <foreach collection="evaluateExpertIds" item="evaluateExpertId" open="(" separator="," close=")">
+            #{evaluateExpertId}
+        </foreach>
+    </select>
+    <select id="selectEvaluateExpertByEvaluateScoreIds" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+            see.evaluate_expert_id,
+            see.tenant_id,
+            see.source_header_id,
+            see.source_from,
+            see.expert_id,
+            see.expert_status,
+            see.team,
+            see.review_scored_status,
+            see.review_attachment_uuid,
+            see.object_version_number,
+            i.id as user_id
+        FROM
+        ssrc_evaluate_score ses
+        JOIN ssrc_evaluate_expert see ON see.evaluate_expert_id = ses.evaluate_expert_id AND ses.score_status = 'SCORED'
+        LEFT JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        WHERE
+        see.tenant_id = #{tenantId}
+        AND see.expert_status = 'SUBMITTED'
+        AND ses.evaluate_score_id IN
+        <foreach collection="evaluateScoreIds" item="evaluateScoreId" open="(" separator="," close=")" >
+            #{evaluateScoreId}
+        </foreach>
+    </select>
+    <select id="selectEvaluateLeaderByBidHeader" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        select
+        see.evaluate_expert_id,
+        see.tenant_id,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        see.object_version_number,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+        i.id as user_id,
+        i.login_name,
+        i.phone,
+        i.email
+        FROM ssrc_evaluate_expert see
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="sequenceNum != null and sequenceNum != 0">
+            AND see.sequence_num = #{sequenceNum} AND see.leader_flag = 1
+        </if>
+        <if test="evaluateLeaderFlag != null and evaluateLeaderFlag != 0">
+            AND see.evaluate_leader_flag = 1
+        </if>
+
+    </select>
+    <select id="queryEvaluateLeaderReceiver" resultType="org.hzero.boot.message.entity.Receiver">
+        select
+        see.evaluate_expert_id,
+        see.tenant_id,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        see.object_version_number,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+        i.id as user_id,
+        i.login_name,
+        i.phone,
+        i.email
+        FROM ssrc_evaluate_expert see
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        AND see.evaluate_leader_flag = 1
+    </select>
+    <select id="selectLeaderFlagByUserId" resultType="integer">
+        select count(0) from ssrc_evaluate_expert see
+
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.expert_user_id = #{expertUserId}
+        AND see.tenant_id = #{tenantId}
+        <if test="team != null and team != '' ">
+            AND see.team = #{team}
+        </if>
+        <if test="sequenceNum != null and sequenceNum != 0">
+            AND see.sequence_num = #{sequenceNum}
+        </if>
+        <if test="leaderFlag != null and leaderFlag != 0">
+            AND see.leader_flag = #{leaderFlag}
+        </if>
+        <if test="evaluateLeaderFlag != null and evaluateLeaderFlag != 0">
+            AND see.evaluate_leader_flag = #{evaluateLeaderFlag}
+        </if>
+    </select>
+    <select id="listEvaluateExpertCombine" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT * FROM
+        (SELECT
+        see.evaluate_expert_id,
+        see.expert_id,
+        see.expert_user_id,
+        see.scored_status,
+        see.end_date,
+        see.review_scored_status,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+        i.login_name,
+        see.team
+        FROM
+        ssrc_evaluate_expert see
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        <if test="sequenceNum != null">
+            AND see.sequence_num = #{sequenceNum}
+        </if>
+        <if test="sequenceNum == null">
+            and exists(
+            select 1 from
+            ssrc_evaluate_indic_assign n
+            join ssrc_evaluate_indic sei on sei.evaluate_indic_id = n.evaluate_indic_id
+            where n.evaluate_expert_id = see.evaluate_expert_id
+            and n.source_from = see.source_from
+            and n.source_header_id = see.source_header_id
+            and n.assign_flag = 1
+            and sei.team ='INITIAL_REVIEW'
+            )
+        </if>
+        ) t
+    </select>
+    <select id="queryExpertReceiver" resultType="org.hzero.boot.message.entity.Receiver">
+        SELECT
+        see.evaluate_expert_id,
+        see.tenant_id target_user_tenantId,
+        see.source_header_id,
+        see.source_from,
+        see.expert_id ,
+        see.leader_flag,
+        see.start_date,
+        see.end_date,
+        see.team,
+        see.expert_status,
+        see.scored_status,
+        see.evaluate_leader_flag,
+        see.object_version_number,
+        see.review_scored_status,
+        see.review_attachment_uuid,
+        case when see.expert_id is null then i.real_name else se.expert_name end as expert_name,
+        case when see.expert_id is null then 'INTERNAL' else se.expert_type end as expert_type,
+        case when see.expert_id is null then 'SENIOR' else se.expert_level end as expert_level,
+        i.id as user_id,
+        i.login_name,
+        i.phone,
+        i.email
+        FROM
+        ssrc_evaluate_expert see
+        LEFT JOIN ssrc_expert se ON see.expert_id = se.expert_id
+        JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="currentSequenceNum != null and currentSequenceNum != '' ">
+            AND see.sequence_num=#{currentSequenceNum}
+        </if>
+        <if test="leaderFlag !=null and leaderFlag!='' ">
+            AND see.leader_flag=#{leaderFlag}
+        </if>
+        <if test="evaluateLeaderFlag !=null and evaluateLeaderFlag!='' ">
+            AND see.evaluate_leader_flag=#{evaluateLeaderFlag}
+        </if>
+        <if test="expertStatus != null and expertStatus != ''">
+            AND see.expert_status = #{expertStatus}
+        </if>
+    </select>
+
+    <select id="selectByEvaluateExpert" resultType="java.lang.String">
+        select he.employee_num
+        from iam_user iu
+        join ssrc_evaluate_expert see on see.expert_user_id = iu.id
+        JOIN hpfm_employee_user heu ON iu.id = heu.user_id
+        JOIN hpfm_employee he ON he.employee_id = heu.employee_id
+        where see.tenant_id = #{workflowAssign.tenantId}
+        and see.source_header_id = #{workflowAssign.sourceHeaderId}
+        <if test="workflowAssign.sourceFrom != null">
+            AND see.source_from = #{workflowAssign.sourceFrom}
+        </if>
+        <choose>
+            <when test="workflowAssign.leaderFlag != null">
+                AND see.evaluate_leader_flag = #{workflowAssign.leaderFlag}
+            </when>
+            <otherwise>
+                AND see.evaluate_leader_flag = 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="listEvaluateExpertLeader" resultType="java.lang.String">
+        SELECT hep.employee_num
+        FROM
+        hpfm_employee he
+        JOIN hpfm_employee_assign hea
+        ON hea.employee_id = he.employee_id AND hea.enabled_flag = 1 AND hea.primary_position_flag = 1 AND
+        hea.tenant_id = #{tenantId}
+        JOIN hpfm_position hp
+        ON hp.position_id = hea.position_id AND hp.enabled_flag = 1 AND hp.tenant_id = #{tenantId}
+        JOIN hpfm_employee_assign heap
+        ON heap.position_id = hp.parent_position_id AND heap.enabled_flag = 1 AND heap.tenant_id = #{tenantId}
+        JOIN hpfm_employee hep
+        ON hep.employee_id = heap.employee_id AND hep.enabled_flag = 1 AND hep.tenant_id = #{tenantId}
+        WHERE
+        he.enabled_flag = 1
+        AND he.employee_num in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND he.tenant_id = #{tenantId}
+    </select>
+    <select id="selectCurrentTeamBySourceHeader" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        select see.team,sst.bid_rule_type from ssrc_evaluate_expert see
+        join ssrc_rfx_header srh on srh.rfx_header_id = see.source_header_id and srh.tenant_id = see.tenant_id
+        join ssrc_source_template sst on sst.template_id = srh.template_id and sst.tenant_id = srh.tenant_id
+        where see.source_header_id = #{rfxHeaderId} and see.tenant_id =#{tenantId} and see.source_from = 'RFX'
+        and see.sequence_num = #{currentSequenceNum}
+    </select>
+    <select id="selectExpertScoreDetailForProgress" resultType="org.srm.source.rfx.api.dto.ExpertScoreDetailDTO">
+        SELECT
+        see.evaluate_expert_id,
+        case when see.team!='BUSINESS_TECHNOLOGY' or #{openBidOrder}='SYNC'
+        then see.team
+        when ses.sequence_num=1 and #{openBidOrder}='BUSINESS_FIRST'
+        then 'BUSINESS'
+        when ses.sequence_num=2 and #{openBidOrder}='BUSINESS_FIRST'
+        then 'TECHNOLOGY'
+        when ses.sequence_num=1 and #{openBidOrder}='TECH_FIRST'
+        then 'TECHNOLOGY'
+        when ses.sequence_num=2 and #{openBidOrder}='TECH_FIRST'
+        then 'BUSINESS'
+        else 'BUSINESS_TECHNOLOGY'
+        end team,
+        see.team as originalTeam,
+        se.user_id,
+        iu.real_name AS expert_name,
+        ses.score_status,
+        ses.quotation_header_id,
+        ses.sum_indic_score
+        FROM
+        ssrc_evaluate_expert see
+        JOIN ssrc_expert se ON se.expert_id = see.expert_id
+        JOIN iam_user iu ON iu.id = se.user_id
+        LEFT JOIN ssrc_evaluate_score ses ON ses.source_header_id = #{sourceHeaderId} and ses.source_from = #{sourceFrom} and ses.tenant_id = #{tenantId} and see.evaluate_expert_id = ses.evaluate_expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="sourceFrom == 'RFX'">
+            AND (ses.round_number is null or ses.round_number = (SELECT round_number FROM ssrc_rfx_header WHERE rfx_header_id = #{sourceHeaderId} AND tenant_id = #{tenantId}))
+        </if>
+        <if test="sourceFrom == 'BID'">
+            AND (ses.round_number is null or ses.round_number = 1)
+        </if>
+    </select>
+
+    <select id="selectBidExpertScoreDetailForProgress" resultType="org.srm.source.rfx.api.dto.ExpertScoreDetailDTO">
+        SELECT
+        see.evaluate_expert_id,
+        case when see.team!='BUSINESS_TECHNOLOGY' or #{openBidOrder}='SYNC'
+        then see.team
+        when ses.sequence_num=1 and #{openBidOrder}='BUSINESS_FIRST'
+        then 'BUSINESS'
+        when ses.sequence_num=2 and #{openBidOrder}='BUSINESS_FIRST'
+        then 'TECHNOLOGY'
+        when ses.sequence_num=1 and #{openBidOrder}='TECH_FIRST'
+        then 'TECHNOLOGY'
+        when ses.sequence_num=2 and #{openBidOrder}='TECH_FIRST'
+        then 'BUSINESS'
+        else 'BUSINESS_TECHNOLOGY'
+        end team,
+        see.team as originalTeam,
+        se.user_id,
+        iu.real_name AS expert_name,
+        ses.score_status,
+        ses.quotation_header_id,
+        ses.sum_indic_score
+        FROM
+        ssrc_evaluate_expert see
+        JOIN ssrc_expert se ON se.expert_id = see.expert_id
+        JOIN iam_user iu ON iu.id = se.user_id
+        LEFT JOIN ssrc_evaluate_score ses ON ses.source_header_id = #{sourceHeaderId} and ses.source_from = #{sourceFrom} and ses.tenant_id = #{tenantId} and see.evaluate_expert_id = ses.evaluate_expert_id
+        WHERE
+        see.source_header_id = #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id = #{tenantId}
+        <if test="sourceFrom == 'RFX'">
+            AND (ses.round_number is null or ses.round_number = (SELECT round_number FROM ssrc_rfx_header WHERE rfx_header_id = #{sourceHeaderId} AND tenant_id = #{tenantId}))
+        </if>
+        <if test="sourceFrom == 'BID'">
+            AND (ses.round_number is null or ses.round_number = 1)
+            <if test="sectionId != null and sectionId != ''">
+                AND ses.section_id = #{sectionId}
+            </if>
+        </if>
+    </select>
+
+    <resultMap id="supplyScoreMap" type="org.srm.source.share.api.dto.SupplierScoreDTO">
+        <result column="quotation_header_id" property="quotationHeaderId" jdbcType="DECIMAL"/>
+        <result column="supplier_company_name" property="supplierCompanyName" jdbcType="VARCHAR"/>
+        <collection property="expertScoreDetailDTOList" ofType="org.srm.source.rfx.api.dto.ExpertScoreDetailDTO">
+            <result column="quotation_header_id" property="quotationHeaderId" jdbcType="DECIMAL"/>
+            <result column="evaluate_expert_id" property="evaluateExpertId" jdbcType="DECIMAL"/>
+            <result column="user_id" property="userId" jdbcType="DECIMAL"/>
+            <result column="expert_name" property="expertName" jdbcType="VARCHAR"/>
+            <result column="team" property="team" jdbcType="VARCHAR"/>
+            <result column="sum_indic_score" property="sumIndicScore" jdbcType="DECIMAL"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectExpertScoreDetailForSupply" resultMap="supplyScoreMap">
+        SELECT
+        user_id,
+        expert_name,
+        supplier_company_id,
+        supplier_company_name,
+        team,
+        round(sum( score_weight ) ,2) sum_indic_score
+        FROM
+        (
+        SELECT
+        iu.id user_id,
+        iu.real_name AS expert_name,
+        ses.quotation_header_id,
+        ses.sum_indic_score,
+        rqh.supplier_company_id,
+        rqh.supplier_company_name,
+        sesl.indic_score,
+        sei.team,
+        sei.indicate_name,
+        sei.weight,
+        sesl.indic_score * sei.weight * 0.01 score_weight
+        FROM
+        ssrc_evaluate_expert see
+        LEFT JOIN iam_user iu ON iu.id = see.expert_user_id
+        JOIN ssrc_evaluate_score ses ON ses.source_header_id = #{sourceHeaderId}
+        AND ses.source_from = #{sourceFrom}
+        AND ses.tenant_id = #{tenantId}
+        AND see.evaluate_expert_id = ses.evaluate_expert_id
+        JOIN ssrc_evaluate_score_line sesl ON sesl.evaluate_score_id = ses.evaluate_score_id
+        LEFT JOIN ssrc_evaluate_indic sei ON sesl.evaluate_indic_id = sei.evaluate_indic_id
+        <if test="sourceFrom == 'RFX'">
+            LEFT JOIN ssrc_rfx_quotation_header rqh ON ses.quotation_header_id = rqh.quotation_header_id
+        </if>
+        <if test="sourceFrom == 'BID'">
+            LEFT JOIN ssrc_bid_quotation_header rqh on ses.quotation_header_id=rqh.quotation_header_id
+        </if>
+        WHERE
+        see.source_header_id =  #{sourceHeaderId}
+        AND see.source_from = #{sourceFrom}
+        AND see.tenant_id =  #{tenantId}
+        <if test="sourceFrom == 'RFX'">
+            AND (
+            ses.round_number IS NULL
+            OR ses.round_number = ( SELECT round_number FROM ssrc_rfx_header WHERE rfx_header_id =  #{sourceHeaderId} AND tenant_id = #{tenantId} ))
+        </if>
+        <if test="sourceFrom == 'BID'">
+            AND (ses.round_number is null or ses.round_number = 1)
+        </if>
+        ) t
+        GROUP BY
+        user_id,
+        expert_name,
+        supplier_company_id,
+        supplier_company_name,
+        team
+    </select>
+    <select id="reviewExpertInfo" resultMap="EvaluateScoreMoudle">
+        select
+        case when see.expert_id is null then iu.real_name else se.expert_name end as expert_name,
+        iu.login_name as sub_account,
+        see.evaluate_expert_id,
+        se.expert_id,
+        see.expert_user_id,
+        see.sequence_num,
+        see.source_from,
+        see.source_header_id,
+        see.review_scored_status scored_status,
+        see.attachment_uuid
+        from
+        ssrc_evaluate_expert see
+        left join ssrc_expert se on see.expert_id = se.expert_id
+        left join iam_user iu on see.expert_user_id = iu.id
+        where
+        see.sequence_num = #{sequenceNum}
+        and see.source_from = #{sourceFrom}
+        and see.source_header_id = #{sourceHeaderId}
+        and see.review_scored_status = 'SCORED'
+    </select>
+    <select id="selectReviewScoreExperts" resultType="java.lang.Integer">
+
+        select  count(0) from ssrc_evaluate_expert see
+        where see.tenant_id = #{tenantId}
+        and see.source_header_id = #{sourceHeaderId}
+        and see.source_from = #{sourceFrom}
+        and see.review_scored_status != 'SCORED'
+        and see.expert_user_id != #{expertUserId}
+        and exists(
+            select 1 from
+            ssrc_evaluate_indic_assign n
+            join ssrc_evaluate_indic sei on sei.evaluate_indic_id = n.evaluate_indic_id
+            where n.evaluate_expert_id = see.evaluate_expert_id
+            and n.source_from = see.source_from
+            and n.source_header_id = see.source_header_id
+            and n.assign_flag = 1
+            and sei.team ='INITIAL_REVIEW'
+            )
+    </select>
+    <select id="selectInitialReviewEvaluates" resultType="org.srm.source.share.domain.entity.EvaluateExpert">
+        SELECT
+            see.*,
+            case when see.expert_id is null then iu.real_name else se.expert_name end as expert_name
+        FROM
+                 ssrc_evaluate_expert see
+                     left join ssrc_expert se on see.expert_id = se.expert_id
+                     left join iam_user iu on see.expert_user_id = iu.id
+        WHERE
+            see.source_header_id = #{sourceHeaderId}
+          AND see.source_from = #{sourceFrom}
+          AND see.tenant_id = #{tenantId}
+          AND EXISTS (
+                SELECT
+                    1
+                FROM
+                    ssrc_evaluate_indic sei
+                        JOIN ssrc_evaluate_indic_assign seia ON seia.evaluate_indic_id = sei.evaluate_indic_id
+                WHERE
+                    seia.source_header_id = see.source_header_id
+                  AND seia.source_from = sei.source_from
+                  AND seia.assign_flag = 1
+                  AND sei.team = 'INITIAL_REVIEW'
+                  AND seia.evaluate_expert_id = see.evaluate_expert_id
+            )
+    </select>
+</mapper>

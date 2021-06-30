@@ -4,15 +4,15 @@
     <update id="updateClarifyData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
-            <if test="attribute_varchar4!=null and attribute_varchar4 != ''">attribute_varchar4=#{attribute_varchar4},</if>
-            <if test="attribute_varchar5!=null and attribute_varchar5 != ''">attribute_varchar5=#{attribute_varchar5},</if>
+            <if test="attributeVarchar4!=null and attributeVarchar4 != ''">attribute_varchar4=#{attributeVarchar4},</if>
+            <if test="attributeVarchar5!=null and attributeVarchar5 != ''">attribute_varchar5=#{attributeVarchar5},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
         AND tenant_id = #{tenantId}
     </update>
 
-    <select id="getAttachmentList" resultType="String">
-        SELECT concat_ws('|+|',file_name,file_size,file_url)
+    <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
+        SELECT file_name fileName,file_size fileSize,file_url fileUrl
         FROM    hfle_file
         WHERE   attachment_uuid = #{data}
     </select>
@@ -22,7 +22,8 @@
         FROM
             `ssrc_rfx_quotation_line` t
         WHERE
-                t.quotation_header_id IN (
+              t.suggested_flag = 1
+              AND t.quotation_header_id IN (
                 SELECT
                     y.quotation_header_id
                 FROM
@@ -38,21 +39,17 @@
             ssrc_round_header t
         where  t.source_header_id = #{rfxHeaderId}
     </select>
-    <select id="getDbdbjgList" resultType="String">
-        SELECT
-            CONCAT_WS( '|+|', quotation_header_id, supplier_company_name, company_num, supplier_company_ip, technology_score, business_score, score, score_rank, total_amount )
-        FROM
-            (
+    <select id="getDbdbjgList" resultType="org.srm.source.cux.domain.entity.RcwlDBGetDataFromDatabase">
                 SELECT
-                    t.quotation_header_id,
-                    t.supplier_company_name,
-                    y.company_num,
-                    t.supplier_company_ip,
-                    x.technology_score,
-                    x.business_score,
-                    x.score,
-                    x.score_rank,
-                    sum( z.total_amount ) total_amount
+                    t.quotation_header_id quotationHeaderId,
+                    t.supplier_company_name supplierCompanyName,
+                    y.company_num companyNum,
+                    t.supplier_company_ip supplierCompanyIp,
+                    x.technology_score technologyScore,
+                    x.business_score businessScore,
+                    x.score score,
+                    x.score_rank scoreRank,
+                    sum( z.total_amount ) totalAmount
                 FROM
                     ssrc_rfx_quotation_header t
                         LEFT JOIN sslm_supplier_basic y ON t.supplier_company_id = y.supplier_company_id
@@ -63,8 +60,7 @@
                 GROUP BY
                     t.quotation_header_id
                 ORDER BY
-                    x.score_rank
-            ) q
+                    totalAmount
     </select>
     <select id="getAppendRemark" resultType="Integer">
         SELECT
@@ -93,6 +89,7 @@
             `ssrc_rfx_header` t
         WHERE
             t.rfx_num = #{rfxNum}
+            AND t.tenant_id = #{tenantId}
     </select>
     <select id="getQuotationAmount" resultType="String">
         SELECT
@@ -126,8 +123,28 @@
         SELECT
             t.*
         FROM
-            `ssrc_rfx_quotation_line`
+            `ssrc_rfx_quotation_line`t
         WHERE
             t.quotation_header_id = #{id}
+    </select>
+    <select id="getRfxQuotationLineDataByQuotationHeaderIDs" resultType="org.srm.source.rfx.domain.entity.RfxQuotationLine">
+        SELECT suggested_flag,suggested_remark,allotted_quantity,allotted_ratio,change_percent
+        FROM    ssrc_rfx_quotation_line
+        WHERE   quotation_header_id = #{id}
+            limit 0,1
+    </select>
+    <select id="getRoundNumber" resultType="java.lang.Long">
+        select  Max(t.round_number)
+        from ssrc_rfx_quotation_header t
+        where t.rfx_header_id = #{rfxHeaderId}
+    </select>
+    <select id="getBIDPRICE" resultType="String">
+        SELECT
+            quotation_amount
+        FROM
+            ssrc_round_rank_header
+        WHERE
+            quotation_header_id = #{quotationHeaderId}
+          AND quotation_round_number = 1
     </select>
 </mapper>

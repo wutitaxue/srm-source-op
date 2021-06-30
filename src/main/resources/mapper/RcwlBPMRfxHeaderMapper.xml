@@ -4,8 +4,8 @@
     <update id="updateRfxHeaderData">
         UPDATE ssrc_rfx_header
         <trim prefix="set" suffixOverrides=",">
-            <if test="getAttributeVarchar6!=null and getAttributeVarchar6 != ''">attribute_varchar6=#{getAttributeVarchar6},</if>
-            <if test="getAttributeVarchar7!=null and getAttributeVarchar7 != ''">attribute_varchar7=#{getAttributeVarchar7},</if>
+            <if test="attributeVarchar6!=null and attributeVarchar6 != ''">attribute_varchar6=#{attributeVarchar6},</if>
+            <if test="attributeVarchar7!=null and attributeVarchar7 != ''">attribute_varchar7=#{attributeVarchar7},</if>
             <if test="status!=null and status != ''">attribute_varchar21=#{status},</if>
         </trim>
         WHERE rfx_num=#{rfxNum}
@@ -19,14 +19,55 @@
         </trim>
         WHERE rfx_header_id=#{id}
     </update>
-    <select id="getAttachmentList" resultType="String">
-        SELECT concat_ws('|+|',file_name,file_size,file_url)
+    <update id="updateSubmitBy">
+        UPDATE ssrc_clarify
+        <trim prefix="set" suffixOverrides=",">
+            <if test="l!=null and l!= ''">submitted_by=#{l},</if>
+        </trim>
+        WHERE clarify_id=#{rfxHeaderIds}
+    </update>
+    <update id="updateTerminatedBy">
+        UPDATE ssrc_rfx_header
+        SET terminated_by = 0
+        WHERE rfx_header_id=#{rfxHeaderIds}
+    </update>
+    <update id="updateCheckedBy">
+        UPDATE ssrc_rfx_header
+        SET checked_by = 0
+        WHERE rfx_header_id=#{rfxHeaderId}
+    </update>
+    <update id="updateActionBy">
+        UPDATE ssrc_rfx_action sra
+        SET sra.process_user_id = 0
+        WHERE
+            sra.rfx_action_id = #{id}
+    </update>
+    <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
+        SELECT file_name fileName,file_size fileSize,file_url fileUrl
         FROM    hfle_file
         WHERE   attachment_uuid = #{data}
     </select>
     <select id="getRfxHeaderIdByRfxNum" resultType="java.lang.Long">
         SELECT rfx_header_id
         FROM    ssrc_rfx_header
-        WHERE   rfx_num = #{rfxNumd}
+        WHERE   rfx_num = #{rfxNum}
+        AND     tenant_id = #{tenantId}
+    </select>
+    <select id="getRealNameById" resultType="String">
+        select t.real_name from  iam_user t
+        where t.id=#{id}
+    </select>
+    <select id="getClarifyToReleaseDTO" resultType="org.srm.source.cux.domain.entity.ClarifyToReleaseDTO">
+        SELECT y.rfx_num sourceNum,hc.company_name companyName FROM `ssrc_clarify` t
+        left join ssrc_rfx_header y on t.source_id = y.rfx_header_id
+        left join hpfm_company hc on t.company_id = hc.company_id
+        where t.clarify_id=#{clarifyId}
+    </select>
+    <select id="getIssueLineIdListByClarifyId" resultType="java.lang.Long">
+        SELECT t.issue_line_id FROM `ssrc_issue_line` t
+        where t.clarify_id = #{clarifyId}
+    </select>
+    <select id="getActionId" resultType="String">
+        select sra2.rfx_action_id from  ssrc_rfx_action sra2 WHERE sra2.rfx_header_id = #{rfxHeaderIds} ORDER BY sra2.rfx_action_id DESC LIMIT 0,1
     </select>
 </mapper>

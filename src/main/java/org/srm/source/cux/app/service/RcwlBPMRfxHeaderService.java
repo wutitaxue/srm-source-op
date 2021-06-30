@@ -1,14 +1,26 @@
 package org.srm.source.cux.app.service;
 
 
-import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
 
 public interface RcwlBPMRfxHeaderService {
 
     ResponseData newClose(Long tenantId, Long rfxHeaderId, String remark);
 
-    ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO);
+    ResponseData updateRfxHeaderData(RcwlUpdateRfxHeaderDataVO rcwlUpdateDataDTO);
 
-    Long getRfxHeaderIdByRfxNum(String rfxNum);
+    Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId);
+
+    void chooseRfxCloseApproveType(Long tenantId, Long rfxHeaderId, String remark);
+
+    void updateSubmitBy(long l, Long rfxHeaderIds);
+
+    void updateTerminatedBy(Long rfxHeaderIds);
+
+    void updateCheckedBy(Long rfxHeaderId);
+
+    void updateActionBy(String id);
+
+    String getActionId(Long rfxHeaderIds);
 }

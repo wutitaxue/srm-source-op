@@ -1,29 +1,27 @@
 package org.srm.source.cux.api.controller.v1;
 
-import io.choerodon.core.domain.Page;
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.hzero.boot.platform.lov.annotation.ProcessLovValue;
-import org.hzero.core.util.Results;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.srm.common.annotation.FilterSupplier;
+import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.cux.app.service.RcwlBPMRfxHeaderService;
 import org.srm.source.cux.domain.entity.RcwlGetDataCloseDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateCloseRfxDTO;
-import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataDTO;
+import org.srm.source.cux.domain.entity.RcwlUpdateCloseRfxVO;
+import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.entity.ResponseData;
-import org.srm.source.rfx.api.dto.RfxDTO;
 import org.srm.source.rfx.app.service.RfxHeaderService;
+import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api(
         tags = {"Rcwl Update Rfx Header"}
@@ -36,15 +34,23 @@ public class RcwlUpdateRfxHeaderController {
     private RcwlBPMRfxHeaderService rcwlRfxHeaderService;
     @Autowired
     private RfxHeaderService rfxHeaderService;
+    @Autowired
+    private RfxHeaderRepository rfxHeaderRepository;
+
 
     @ApiOperation("更新询价单头表数据字段")
     @Permission(
             permissionPublic = true
     )
     @PostMapping({"/update-rfxHeader"})
-    public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxDTO rcwlUpdateDTO) {
+    public ResponseData updateRfxHeaderData(@RequestBody RcwlUpdateCloseRfxVO rcwlUpdateDTO) {
         ResponseData responseData = new ResponseData();
-        RcwlUpdateRfxHeaderDataDTO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
+        RcwlUpdateRfxHeaderDataVO rcwlUpdateDataDTO = rcwlUpdateDTO.getRcwlUpdateDataDTO();
+        if(null ==  rcwlUpdateDTO || null == rcwlUpdateDataDTO){
+            responseData.setCode("201");
+            responseData.setMessage("参数为null，获取异常！");
+            return responseData;
+        }
         if((rcwlUpdateDataDTO.getRfxNum() == null || "".equals(rcwlUpdateDataDTO.getRfxNum()))&&
                 (rcwlUpdateDataDTO.getTenantId() == null || "".equals(rcwlUpdateDataDTO.getTenantId()))){
             responseData.setCode("201");
@@ -71,10 +77,24 @@ public class RcwlUpdateRfxHeaderController {
             targetField = {"body"}
     )
     public ResponseData controlClose(@RequestBody RcwlGetDataCloseDTO rcwlGetDataCloseDTO) {
+        DetailsHelper.setCustomUserDetails(rcwlGetDataCloseDTO.getTenantId(),"zh_CN");
+        if(rcwlGetDataCloseDTO.getRemark() == null){
+            rcwlGetDataCloseDTO.setRemark("备注");
+        }
         ResponseData responseData = new ResponseData();
-        List<Long> rfxHeaderIds = new ArrayList<>();
-        rfxHeaderIds.add(rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum()));
-        rfxHeaderService.close(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+        responseData.setCode("200");
+        responseData.setMessage("操作成功！");
+        Long rfxHeaderIds = rcwlRfxHeaderService.getRfxHeaderIdByRfxNum(rcwlGetDataCloseDTO.getRfxNum(),rcwlGetDataCloseDTO.getTenantId());
+        try{
+            rcwlRfxHeaderService.chooseRfxCloseApproveType(rcwlGetDataCloseDTO.getTenantId(), rfxHeaderIds, rcwlGetDataCloseDTO.getRemark());
+            rcwlRfxHeaderService.updateTerminatedBy(rfxHeaderIds);
+            //找到记录的actionid
+            String id = rcwlRfxHeaderService.getActionId(rfxHeaderIds);
+            rcwlRfxHeaderService.updateActionBy(id);
+        }catch (Exception e){
+            responseData.setCode("201");
+            responseData.setMessage("操作失败！");
+        }
         return responseData;
     }
 

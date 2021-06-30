@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.srm.source.cux.infra.mapper.RcwlClarifyMapper">
-    <update id="updateClarifyData" parameterType="org.srm.source.cux.domain.entity.RcwlUpdateDataDTO">
+    <update id="updateClarifyData" parameterType="org.srm.source.cux.domain.entity.RcwlUpdateDataVO">
         UPDATE ssrc_clarify
         <trim prefix="set" suffixOverrides=",">
             <if test="processInstanceId!=null and processInstanceId != ''">process_instance_id=#{processInstanceId},</if>
@@ -23,8 +23,8 @@
         WHERE   source_id = #{id}
         AND     refer_flag = #{referFlag}
     </select>
-    <select id="getAttachmentList" resultType="String">
-        SELECT concat_ws('|+|',file_name,file_size,file_url)
+    <select id="getAttachmentList" resultType="org.srm.source.cux.domain.entity.RcwlAttachmentListData">
+        SELECT file_name fileName,file_size fileSize,file_url fileUrl
         FROM    hfle_file
         WHERE   attachment_uuid = #{id}
     </select>
@@ -37,5 +37,19 @@
         SELECT clarify_id
         FROM    ssrc_clarify
         WHERE   clarify_num = #{clarifyNum}
+    </select>
+    <select id="getTenantIdByclarifyNum" resultType="String">
+        SELECT tenant_id
+        FROM    ssrc_clarify
+        WHERE   clarify_num = #{clarifyNum}
+    </select>
+    <select id="getMeaningByLovCodeAndValue" resultType="java.lang.String">
+        SELECT t.meaning FROM `hpfm_lov_value` t
+        where t.lov_code=#{lovCode}
+          and t.`value`=#{value}
+    </select>
+    <select id="getSourceReleasedBy" resultType="java.lang.Long">
+        SELECT t.released_by FROM `ssrc_rfx_header` t
+        where t.rfx_header_id=#{sourceId}
     </select>
 </mapper>
