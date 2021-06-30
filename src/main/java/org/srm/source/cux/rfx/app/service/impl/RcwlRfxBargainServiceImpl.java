@@ -35,7 +35,7 @@ public class RcwlRfxBargainServiceImpl extends RfxBargainServiceImpl {
             if (1 == rfxQuotationLine.getBargainSectionSelectedFlag() && 1 == rfxQuotationLine.getBargainSelectedFlag()){
                 rfxQuotationHeader.setQuotationHeaderId(rfxQuotationLine.getQuotationHeaderId());
                 rfxQuotationHeader.setObjectVersionNumber(rfxQuotationHeaderRepository.selectOne(rfxQuotationHeader).getObjectVersionNumber());
-                rfxQuotationHeader.setAttributeVarchar2(rfxQuotationLine.getAttributeVarchar2());
+                rfxQuotationHeader.setAttributeVarchar4(rfxQuotationLine.getAttributeVarchar2());
                 rfxQuotationHeader.setAttributeVarchar3(rfxQuotationLine.getAttributeVarchar3());
             }
         }
