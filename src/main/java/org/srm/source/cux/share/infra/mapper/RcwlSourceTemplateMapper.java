@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Tenant("SRM-RCWL")
 @Component
-@Primary
+//@Primary
 public interface RcwlSourceTemplateMapper extends SourceTemplateMapper,ExtendMapper<SourceTemplate>{
     /**
      * 融创RFQ拆分修改
