@@ -332,6 +332,7 @@
                          FROM
                          	(
                          	SELECT
+                                ifnull( ssb.company_num, hc.company_num ) AS supplier_company_num,
                          		ifnull( ssb.supplier_company_id, hc.company_id ) AS company_id
                          	FROM
                          		sslm_life_cycle slc
