@@ -196,10 +196,11 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             PageRequest pageRequest = new PageRequest();
             pageRequest.setPage(0);
             pageRequest.setSize(9000000);
-            Map <String,Long> rfxCheckSuppMap = this.listRfxCheckSuppliers(pageRequest,Long.valueOf(organizationId),rfxHeader.getRfxHeaderId());
+            LinkedHashMap <String,Long> rfxCheckSuppMap = this.listRfxCheckSuppliers(pageRequest,Long.valueOf(organizationId),rfxHeader.getRfxHeaderId());
             int i =1;
             DecimalFormat format = new DecimalFormat("0.00");
             for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
+                log.info("========================name"+i+"="+dbdbjgListData.getSupplierCompanyName()+"=====================");
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
                 rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
                 rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.getCompanyNum());
@@ -270,7 +271,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         return responseData;
     }
     //获取标准的排序字段
-    private Map <String,Long> listRfxCheckSuppliers(PageRequest pageRequest, Long tenantId, Long rfxHeaderId) {
+    private LinkedHashMap <String,Long> listRfxCheckSuppliers(PageRequest pageRequest, Long tenantId, Long rfxHeaderId) {
         RfxLineSupplier lineSupplier = new RfxLineSupplier(rfxHeaderId);
         RfxHeaderDTO rfxHeaderDTO = this.rfxHeaderRepository.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId, tenantId));
         SourceTemplate sourceTemplate = this.sourceTemplateRepository.selectBySourceTemplateId(rfxHeaderDTO.getTemplateId());
@@ -319,12 +320,15 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 lineSupplierDTO.setQuotationRank(rank + 1L);
             }
         }
-        Map <String,Long> map = new HashMap<>();
+        LinkedHashMap <String,Long> map = new LinkedHashMap<>();
         for(RfxLineSupplierDTO r : rfxLineSupplierDTOS.getContent()){
             String supplierCompanyName = r.getSupplierCompanyName();
             if(map.get(supplierCompanyName) == null ){
                 map.put(supplierCompanyName,r.getQuotationRank());
             }
+        }
+        for(String key : map.keySet()){
+            log.info("========================key="+key+"value="+map.get(key)+"=====================");
         }
         return map;
     }
