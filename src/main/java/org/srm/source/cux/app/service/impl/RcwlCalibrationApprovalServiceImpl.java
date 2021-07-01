@@ -6,7 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 import groovy.lang.Lazy;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
+import io.choerodon.core.domain.Page;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.boot.customize.service.CustomizeClient;
@@ -23,6 +25,7 @@ import org.springframework.cglib.core.Converter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.boot.pr.app.service.PrManageDomainService;
 import org.srm.boot.pr.domain.vo.PrChangeResultVO;
 import org.srm.boot.pr.domain.vo.PrChangeVO;
@@ -35,6 +38,7 @@ import org.srm.source.priceLib.domain.vo.PriceServiceParamsVO;
 import org.srm.source.priceLib.domain.vo.PriceServiceVO;
 import org.srm.source.rfx.api.dto.*;
 import org.srm.source.rfx.app.service.RfxLineItemService;
+import org.srm.source.rfx.app.service.RfxQuotationHeaderService;
 import org.srm.source.rfx.app.service.SourceResultService;
 import org.srm.source.rfx.app.service.UserConfigService;
 import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
@@ -143,6 +147,8 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
     private SourceResultService sourceResultService;
     @Autowired
     private RcwlClarifyRepository rcwlClarifyRepository;
+    @Autowired
+    private RfxQuotationHeaderService rfxQuotationHeaderService;
 
     @Override
     public ResponseCalibrationApprovalData connectBPM(String organizationId, Long rfxHeaderId) {
@@ -187,9 +193,14 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
         forBPMData.setURL_MX(sbUrl.toString());
             //组装供应商列表
         if(!CollectionUtils.isEmpty(listDbdbjgData)){
+            PageRequest pageRequest = new PageRequest();
+            pageRequest.setPage(0);
+            pageRequest.setSize(9000000);
+            LinkedHashMap <String,Long> rfxCheckSuppMap = this.listRfxCheckSuppliers(pageRequest,Long.valueOf(organizationId),rfxHeader.getRfxHeaderId());
             int i =1;
             DecimalFormat format = new DecimalFormat("0.00");
             for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
+                log.info("========================name"+i+"="+dbdbjgListData.getSupplierCompanyName()+"=====================");
                 CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
                 rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
                 rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.getCompanyNum());
@@ -198,7 +209,7 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                 rald.setTECHNICALSCORE(dbdbjgListData.getTechnologyScore());
                 rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
                 rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
-                rald.setCOMPREHENSIVERANK(String.valueOf(i));
+                rald.setCOMPREHENSIVERANK(String.valueOf(rfxCheckSuppMap.get(dbdbjgListData.getSupplierCompanyName())));
                 //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
                 String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
                 String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
@@ -258,6 +269,68 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             responseData.setCode("201");
         }
         return responseData;
+    }
+    //获取标准的排序字段
+    private LinkedHashMap <String,Long> listRfxCheckSuppliers(PageRequest pageRequest, Long tenantId, Long rfxHeaderId) {
+        RfxLineSupplier lineSupplier = new RfxLineSupplier(rfxHeaderId);
+        RfxHeaderDTO rfxHeaderDTO = this.rfxHeaderRepository.selectOneRfxHeader(new HeaderQueryDTO(rfxHeaderId, tenantId));
+        SourceTemplate sourceTemplate = this.sourceTemplateRepository.selectBySourceTemplateId(rfxHeaderDTO.getTemplateId());
+        lineSupplier.setTenantId(tenantId);
+        if ("ONLINE".equals(sourceTemplate.getExpertScoreType()) && "DOUBLE".equals(sourceTemplate.getSourceStage())) {
+            lineSupplier.setCandidateFlag(BaseConstants.Flag.YES);
+        }
+        Map<String, String> parameter = new HashMap(2);
+        parameter.put("company", rfxHeaderDTO.getCompanyId() == null ? null : rfxHeaderDTO.getCompanyId().toString());
+        parameter.put("sourceCategory", rfxHeaderDTO.getSourceCategory());
+        parameter.put("sourceTemplate", sourceTemplate.getTemplateNum());
+        String priceTypeCode = (String) CnfHelper.select(rfxHeaderDTO.getTenantId(), "SITE.SSRC.QUOTATION_SET", String.class).invokeWithParameter(parameter);
+        lineSupplier.setPriceTypeCode(StringUtils.isBlank(priceTypeCode) ? "TAX_INCLUDED_PRICE" : priceTypeCode);
+        lineSupplier.setAuctionDirection(rfxHeaderDTO.getAuctionDirection());
+        lineSupplier.setExpertScoreType(sourceTemplate.getExpertScoreType());
+        Page<RfxLineSupplierDTO> rfxLineSupplierDTOS = this.rfxLineSupplierRepository.listRfxCheckSuppliers(pageRequest, lineSupplier);
+        List<RfxLineSupplierDTO> rfxLineSupplierList = this.rfxLineSupplierRepository.listAllRfxCheckSuppliers(lineSupplier);
+        Iterator var11 = rfxLineSupplierDTOS.iterator();
+
+        while(var11.hasNext()) {
+            RfxLineSupplierDTO lineSupplierDTO = (RfxLineSupplierDTO)var11.next();
+            lineSupplierDTO.setPriceTypeCode(priceTypeCode);
+            lineSupplierDTO.setExpertScoreType(sourceTemplate.getExpertScoreType());
+            List<QuotationHeaderIpRateDTO> quotationHeaderIpRateAll = QuotationHeaderIpRateDTO.initByRfxLineSupplierList(rfxLineSupplierList);
+            List<QuotationHeaderIpRateDTO> quotationHeaderIpRateDTOList = this.rfxQuotationHeaderService.calculateSupplierIp(lineSupplierDTO.getRfxLineSupplierId(), lineSupplierDTO.getSupplierCompanyIp(), quotationHeaderIpRateAll);
+            long rank;
+            if ("ONLINE".equals(sourceTemplate.getExpertScoreType())) {
+                if (lineSupplierDTO.getScore() != null) {
+                    rank = rfxLineSupplierList.stream().filter((rfxLineSupplierDTO) -> {
+                        return rfxLineSupplierDTO.getScore() != null;
+                    }).filter((roundQuotationLineParam) -> {
+                        return lineSupplierDTO.getScore().compareTo(roundQuotationLineParam.getScore()) < 0;
+                    }).count();
+                    lineSupplierDTO.setQuotationRank(rank + 1L);
+                }
+            } else if (lineSupplierDTO.getSupplierTotalAmount() != null) {
+                rank = rfxLineSupplierList.stream().filter((rfxLineSupplierDTO) -> {
+                    return rfxLineSupplierDTO.getSupplierTotalAmount() != null;
+                }).filter((roundQuotationLineParam) -> {
+                    if ("FORWARD".equals(rfxHeaderDTO.getAuctionDirection())) {
+                        return lineSupplierDTO.getSupplierTotalAmount().compareTo(roundQuotationLineParam.getSupplierTotalAmount()) < 0;
+                    } else {
+                        return lineSupplierDTO.getSupplierTotalAmount().compareTo(roundQuotationLineParam.getSupplierTotalAmount()) > 0;
+                    }
+                }).count();
+                lineSupplierDTO.setQuotationRank(rank + 1L);
+            }
+        }
+        LinkedHashMap <String,Long> map = new LinkedHashMap<>();
+        for(RfxLineSupplierDTO r : rfxLineSupplierDTOS.getContent()){
+            String supplierCompanyName = r.getSupplierCompanyName();
+            if(map.get(supplierCompanyName) == null ){
+                map.put(supplierCompanyName,r.getQuotationRank());
+            }
+        }
+        for(String key : map.keySet()){
+            log.info("========================key="+key+"value="+map.get(key)+"=====================");
+        }
+        return map;
     }
 
     @Override
