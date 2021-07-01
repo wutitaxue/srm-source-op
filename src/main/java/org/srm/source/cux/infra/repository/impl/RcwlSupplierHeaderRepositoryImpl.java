@@ -185,6 +185,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Override
     public RcwlSupplierHeader submit(RcwlSupplierHeader rcwlSupplierHeader) {
+        rcwlSupplierHeader = createAndUpdateSupplierHeader(rcwlSupplierHeader);
         rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_SUBMITTED);
         this.self().updateOptional(rcwlSupplierHeader, "status");
         return rcwlSupplierHeader;
