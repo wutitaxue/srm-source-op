@@ -197,28 +197,30 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
             pageRequest.setPage(0);
             pageRequest.setSize(9000000);
             LinkedHashMap <String,Long> rfxCheckSuppMap = this.listRfxCheckSuppliers(pageRequest,Long.valueOf(organizationId),rfxHeader.getRfxHeaderId());
-            int i =1;
             DecimalFormat format = new DecimalFormat("0.00");
-            for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
-                log.info("========================name"+i+"="+dbdbjgListData.getSupplierCompanyName()+"=====================");
-                CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
-                rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
-                rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.getCompanyNum());
-                rald.setIP(dbdbjgListData.getSupplierCompanyIp());
-                rald.setAPPENDREMARK(this.getAppendRemark(dbdbjgListData.getQuotationHeaderId()) == 0 ? "0":"1");
-                rald.setTECHNICALSCORE(dbdbjgListData.getTechnologyScore());
-                rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
-                rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
-                rald.setCOMPREHENSIVERANK(String.valueOf(rfxCheckSuppMap.get(dbdbjgListData.getSupplierCompanyName())));
-                //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
-                String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
-                String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
-                rald.setBIDPRICE(BIDPRICE2);
-                //含税总价
-                rald.setFIXEDPRICE(dbdbjgListData.getTotalAmount());
-                rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
-                dbdbjgDataForBPMList.add(rald);
-                i++;
+            for(String key : rfxCheckSuppMap.keySet()){
+                for(RcwlDBGetDataFromDatabase dbdbjgListData : listDbdbjgData){
+                    if(key.equals(dbdbjgListData.getSupplierCompanyName())){
+                        log.info("========================name="+dbdbjgListData.getSupplierCompanyName()+"=====================");
+                        CalibrationApprovalDbdbjgDataForBPM rald = new CalibrationApprovalDbdbjgDataForBPM();
+                        rald.setSECTIONNAME(dbdbjgListData.getSupplierCompanyName());
+                        rald.setSUPPLIERCOMPANYNUM(dbdbjgListData.getCompanyNum());
+                        rald.setIP(dbdbjgListData.getSupplierCompanyIp());
+                        rald.setAPPENDREMARK(this.getAppendRemark(dbdbjgListData.getQuotationHeaderId()) == 0 ? "0":"1");
+                        rald.setTECHNICALSCORE(dbdbjgListData.getTechnologyScore());
+                        rald.setBUSINESSSCORE(dbdbjgListData.getBusinessScore());
+                        rald.setCOMPREHENSIVE(dbdbjgListData.getScore());
+                        rald.setCOMPREHENSIVERANK(String.valueOf(rfxCheckSuppMap.get(key)));
+                        //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
+                        String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
+                        String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
+                        rald.setBIDPRICE(BIDPRICE2);
+                        //含税总价
+                        rald.setFIXEDPRICE(dbdbjgListData.getTotalAmount());
+                        rald.setREMARKS(this.getRemark(dbdbjgListData.getQuotationHeaderId()));
+                        dbdbjgDataForBPMList.add(rald);
+                    }
+                }
             }
             forBPMData.setDBDBJGS(dbdbjgDataForBPMList);
         }
