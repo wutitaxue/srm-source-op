@@ -2,6 +2,7 @@ package org.srm.source.cux.infra.repository.impl;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -25,10 +26,12 @@ import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.infra.mapper.RcwlSupplierHeaderMapper;
 import org.srm.source.rfx.api.dto.CompanyDTO;
+import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
@@ -110,8 +113,21 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Override
     public Long checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         //校验重复 同一入围单下不可重复 新增时校验
         if (rcwlSupplierHeader.getSupplierHeaderId() == null) {
+            //校验是否是入围单  公司lov下的供应商
+            List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(rcwlSupplierHeader.getShortlistHeaderId());
+            List<Long> companyIds = prLineVOList.stream().map(PrLineVO::getCompanyId).filter(v->null!=v).distinct().collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(companyIds)) {
+                List<Long> supplierCompanyIds = this.rcwlSupplierHeaderMapper.selectSupplierCompanyIds(companyIds,companyIds.size(),userDetails.getTenantId());
+                if(CollectionUtils.isNotEmpty(supplierCompanyIds)) {
+                    List<Long> check = supplierCompanyIds.stream().filter(v -> rcwlSupplierHeader.getSupplierId().equals(v)).collect(Collectors.toList());
+                    if (CollectionUtils.isEmpty(check)) {
+                        throw new CommonException("合作公司不满足，请勿报名");
+                    }
+                }
+            }
             RcwlSupplierHeader rcwlSupplierHeaderSelect = new RcwlSupplierHeader();
             rcwlSupplierHeaderSelect.setSupplierId(rcwlSupplierHeader.getSupplierId());
             rcwlSupplierHeaderSelect.setShortlistHeaderId(rcwlSupplierHeader.getShortlistHeaderId());

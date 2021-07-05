@@ -40,5 +40,8 @@ public interface RcwlSupplierHeaderMapper extends BaseMapper<RcwlSupplierHeader>
      * @return RcwlSupplierHeader
      */
     RcwlSupplierHeader selectRcwlSupplierHeaderById(@Param("supplierHeaderId") Long supplierHeaderId);
+
+
+    List<Long> selectSupplierCompanyIds(@Param("companyIds") List<Long> companyIds, @Param("size") int size, @Param("tenantId") Long tenantId);
 }
 
