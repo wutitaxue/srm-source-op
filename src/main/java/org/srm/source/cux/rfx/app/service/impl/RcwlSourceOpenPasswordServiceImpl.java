@@ -102,21 +102,21 @@ public class RcwlSourceOpenPasswordServiceImpl extends SourceOpenPasswordService
          //查询有效供应商报价数量
       List<RfxQuotationHeader> quotationHeaderList =  this.rfxQuotationHeaderRepository.selectByCondition(Condition.builder(RfxQuotationHeader.class).andWhere(Sqls.custom().andEqualTo(RfxQuotationHeader.FIELD_RFX_HEADER_ID,rfxHeaderId)).build());
         Long quotedCount =Long.valueOf(quotationHeaderList.size());
-         Long count1 = rfxHeader.getAttributeBigint2()*2+1;
-         Long count2 = rfxHeader.getAttributeBigint2()*2;
+          if(rfxHeader.getAttributeBigint2()!=null) {
+              Long count1 = rfxHeader.getAttributeBigint2() * 2 + 1;
+              Long count2 = rfxHeader.getAttributeBigint2() * 2;
 
-         if("RFQ".equals(rfxHeader.getSourceCategory()))
-         {
-            if(quotedCount<count1){
-                throw new CommonException("有效投标供方数量不得小于2N+1，N为中标供应商数量");
-            }
-         }
-         if("RCZB".equals(rfxHeader.getSourceCategory())){
-             if(quotedCount<count2){
-                 throw new CommonException("有效投标供方数量不得小于2N，N为中标供应商数量");
-             }
-         }
-
+              if ("RFQ".equals(rfxHeader.getSourceCategory())) {
+                  if (quotedCount < count1) {
+                      throw new CommonException("有效投标供方数量不得小于2N+1，N为中标供应商数量");
+                  }
+              }
+              if ("RCZB".equals(rfxHeader.getSourceCategory())) {
+                  if (quotedCount < count2) {
+                      throw new CommonException("有效投标供方数量不得小于2N，N为中标供应商数量");
+                  }
+              }
+          }
         RfxMember query = new RfxMember();
         query.setRfxHeaderId(rfxHeaderId);
         query.setUserId(DetailsHelper.getUserDetails().getUserId());
