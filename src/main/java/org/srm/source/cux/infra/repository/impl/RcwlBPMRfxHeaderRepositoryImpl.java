@@ -1,6 +1,7 @@
 package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.domain.entity.ClarifyToReleaseDTO;
 import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
@@ -16,7 +17,7 @@ import java.util.List;
 @Component
 public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader> implements RcwlBPMRfxHeaderRepository {
 
-    @Resource
+    @Autowired
     RcwlBPMRfxHeaderMapper rcwlRfxHeaderMapper;
 
     @Override
