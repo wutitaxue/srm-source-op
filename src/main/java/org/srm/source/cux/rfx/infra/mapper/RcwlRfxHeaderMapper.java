@@ -16,5 +16,6 @@ import org.srm.web.annotation.Tenant;
 @Component
 @Tenant("SRM-RCWL")
 public interface RcwlRfxHeaderMapper extends RfxHeaderMapper, ExtendMapper<RfxHeader> {
+    @Override
     RfxHeaderDTO selectOneRfxHeader(HeaderQueryDTO rfxHeaderParam);
 }
