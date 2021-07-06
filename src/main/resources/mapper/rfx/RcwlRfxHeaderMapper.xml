@@ -987,7 +987,8 @@
         (select count(1) from ssrc_rfx_quotation_header srqh where srqh.rfx_header_id = h.rfx_header_id and
         srqh.tenant_id = h.tenant_id and srqh.quotation_status in ('QUOTED','FINISHED','ROUND_QUOTATION')) as
         quoted_supplier_quantity,
-        hut.unit_name
+        hut.unit_name,
+        h.attribute_bigint2
         from
         ssrc_rfx_header h
         join ssrc_source_template sst on sst.template_id = h.template_id
