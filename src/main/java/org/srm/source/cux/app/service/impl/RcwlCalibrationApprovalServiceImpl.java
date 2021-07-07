@@ -213,7 +213,10 @@ public class RcwlCalibrationApprovalServiceImpl implements RcwlCalibrationApprov
                         rald.setCOMPREHENSIVERANK(String.valueOf(rfxCheckSuppMap.get(key)));
                         //quotation_header_id去ssrc_round_rank_header表中quotation_header_id（多轮报价轮次）为1的对应quotation_amount为首轮报价金额
                         String BIDPRICE =rcwlCalibrationApprovalRepository.getBIDPRICE(dbdbjgListData.getQuotationHeaderId());
-                        String BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
+                        String BIDPRICE2 = "";
+                        if(BIDPRICE == null || "".equals(BIDPRICE)){
+                            BIDPRICE2 = format.format(new BigDecimal(BIDPRICE));
+                        }
                         rald.setBIDPRICE(BIDPRICE2);
                         //含税总价
                         rald.setFIXEDPRICE(dbdbjgListData.getTotalAmount());
