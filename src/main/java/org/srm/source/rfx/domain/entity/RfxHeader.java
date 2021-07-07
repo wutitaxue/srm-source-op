@@ -1333,6 +1333,7 @@ public class RfxHeader extends ExpandDomain {
     }
 
     public void beforeReleaseCheck(RfxFullHeader rfxFullHeader, SourceTemplate sourceTemplate) {
+        this.checkVendorNumber(rfxFullHeader, sourceTemplate);
     }
 
     public void sealedQuotationCheck() {
