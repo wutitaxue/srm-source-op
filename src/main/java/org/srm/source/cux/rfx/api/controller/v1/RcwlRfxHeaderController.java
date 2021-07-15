@@ -179,6 +179,7 @@ public class RcwlRfxHeaderController {
         CustomUserDetails customUserDetails = new CustomUserDetails("default", "default");
         customUserDetails.setUserId(userid);
         customUserDetails.setTenantId(organizationId);
+        customUserDetails.setOrganizationId(organizationId);
         customUserDetails.setLanguage("zh_CN");
         DetailsHelper.setCustomUserDetails(customUserDetails);
 //        DetailsHelper.setCustomUserDetails(userid,"zh_CN");
