@@ -110,7 +110,7 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
             RcwlShortlistHeader rcwlShortlistHeaderSelect = rcwlShortlistHeaderRepository.selectByPrimaryKey(shortlistHeaderId);
             rcwlShortlistHeaderSelect.setState(RW_STUTAS_DELETE);
             //更新入围单头信息
-            rcwlShortlistHeaderRepository.updateOptional(rcwlShortlistHeader, RcwlShortlistHeader.FIELD_STATE);
+            rcwlShortlistHeaderRepository.updateOptional(rcwlShortlistHeaderSelect, RcwlShortlistHeader.FIELD_STATE);
 //            //查询附件模版信息
 //            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
 //            rcwlShortlistAttachment.setShortlistId(rcwlShortlistHeader.getShortlistHeaderId());
