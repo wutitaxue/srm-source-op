@@ -1,6 +1,7 @@
 package org.srm.source.cux.rfx.api.controller.v1;
 
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.Api;
@@ -175,7 +176,12 @@ public class RcwlRfxHeaderController {
         rfxHeadertemp.setTenantId(organizationId);
         rfxHeadertemp.setRfxNum(rfxNum);
         Long userid = rcwlRfxHeaderBpmMapper.selectUserId();
-        DetailsHelper.setCustomUserDetails(userid,"zh_CN");
+        CustomUserDetails customUserDetails = new CustomUserDetails("default", "default");
+        customUserDetails.setUserId(userid);
+        customUserDetails.setTenantId(organizationId);
+        customUserDetails.setLanguage("zh_CN");
+        DetailsHelper.setCustomUserDetails(customUserDetails);
+//        DetailsHelper.setCustomUserDetails(userid,"zh_CN");
         RfxHeader rfxHeader = rfxHeaderRepository.selectOne(rfxHeadertemp);
         this.rfxHeaderService.rfxApproval(organizationId, rfxHeader.getRfxHeaderId(), 0);
         return Results.success();
