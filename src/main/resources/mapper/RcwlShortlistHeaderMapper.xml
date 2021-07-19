@@ -370,6 +370,7 @@
         <where>
             1=1
             and srsh.state != 'delete'
+            AND NOT EXISTS ( SELECT 1 FROM sprm_pr_line spl WHERE spl.attribute_bigint1 = srsh.shortlist_header_id AND ( spl.closed_flag = 1 OR spl.cancelled_flag = 1 ) )
             <if test="shortlistNum != null and shortlistNum != '' ">
                 and srsh.shortlist_num = #{shortlistNum}
             </if>
