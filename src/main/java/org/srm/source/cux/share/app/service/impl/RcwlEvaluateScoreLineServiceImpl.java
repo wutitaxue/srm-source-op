@@ -2,17 +2,23 @@ package org.srm.source.cux.share.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.srm.boot.platform.configcenter.CnfHelper;
 import org.srm.source.bid.domain.entity.BidHeader;
 import org.srm.source.bid.domain.repository.BidHeaderRepository;
+import org.srm.source.bid.infra.constant.BidConstants;
 import org.srm.source.cux.rfx.domain.repository.IRcwlRfxQuotationLineRepository;
 import org.srm.source.cux.rfx.domain.strategy.RcwlAutoScoreStrategyService;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
+import org.srm.source.cux.share.infra.constant.Constant;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
 import org.srm.source.rfx.domain.repository.CommonQueryRepository;
@@ -27,20 +33,21 @@ import org.srm.source.share.app.service.EvaluateScoreService;
 import org.srm.source.share.app.service.impl.EvaluateScoreLineServiceImpl;
 import org.srm.source.share.domain.entity.EvaluateExpert;
 import org.srm.source.share.domain.entity.EvaluateIndicDetail;
+import org.srm.source.share.domain.entity.EvaluateSummary;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.repository.EvaluateExpertRepository;
+import org.srm.source.share.domain.repository.EvaluateSummaryRepository;
 import org.srm.source.share.domain.repository.SourceTemplateRepository;
-import org.srm.source.share.domain.strategy.AutoScoreStrategyService;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -49,7 +56,7 @@ import java.util.stream.Collectors;
  * @date 2021-05-21 17:52
  */
 @Service
-@Tenant("SRM-RCWL")
+@Tenant(Constant.TENANT_NUM)
 public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceImpl implements IRcwlEvaluateScoreLineService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateScoreLineServiceImpl.class);
@@ -69,8 +76,8 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private EvaluateExpertRepository evaluateExpertRepository;
     @Autowired
     private EvaluateScoreService evaluateScoreService;
-    @Autowired
-    private AutoScoreStrategyService autoScoreStrategyService;
+//    @Autowired
+//    private AutoScoreStrategyService autoScoreStrategyService;
     /**
      * 新写的
      */
@@ -80,7 +87,6 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
     private RcwlAutoScoreStrategyService rcwlAutoScoreStrategyService;
 
     public RcwlEvaluateScoreLineServiceImpl() {
-        super();
     }
 
     @Override
@@ -98,7 +104,7 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("auto evaluate score started, params => [sourceFrom : {},sourceHeaderId:{},tenantId:{}]", sourceFrom, sourceHeaderId, tenantId);
         }
-
+        LOGGER.info("invalidQuotationHeaderIdList : {}",invalidQuotationHeaderIdList);
         Map<String, String> parameter = new HashMap(1);
         String priceTypeCode = "";
         Map<Long, BigDecimal> quotationLineMaps;
@@ -132,12 +138,17 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             quotationLineMaps = this.getBidQuotationLineMaps(autoScoreDTO, priceTypeCode);
         }
 
-        Map<Long, BigDecimal> validQuotationLineMaps = (Map)quotationLineMaps.entrySet().stream().filter((map) -> {
-            return CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(map.getKey());
-        }).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-        if (!CollectionUtils.isEmpty(validQuotationLineMaps.values())) {
-            this.simulateExpertDoScore(autoScoreDTO, subjectMatterRule, quotationLineMaps, priceTypeCode);
+        // 筛选出有效的报价行(评分确认及汇总的时候，要重新评分，被勾选无效的供应商要过滤掉)
+        Map<Long,BigDecimal> validQuotationLineMaps = quotationLineMaps
+                .entrySet()
+                .stream()
+                .filter(map -> CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(map.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+        if(CollectionUtils.isEmpty(validQuotationLineMaps.values())){
+            // 在评分确认及汇总的时候，如果所有供应商都被勾选无效了，那就不需要重新评分了
+            return ;
         }
+        simulateExpertDoScore(autoScoreDTO,subjectMatterRule,quotationLineMaps,priceTypeCode);
     }
 
     @Override
@@ -145,91 +156,102 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         Long tenantId = autoScoreDTO.getTenantId();
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         String sourceFrom = autoScoreDTO.getSourceFrom();
-        List<EvaluateExpert> evaluateExperts = this.evaluateExpertRepository.queryEvaluateExpertAll(tenantId, sourceHeaderId, sourceFrom, (String)null, (String)null);
+        // 专家评分汇总
+        List<EvaluateSummary> evaluateSummaryList = new ArrayList<>();
+
+        // 先查专家
+        List<EvaluateExpert> evaluateExperts = this.evaluateExpertRepository.queryEvaluateExpertAll(tenantId, sourceHeaderId, sourceFrom, null, null);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("evaluate experts : {}", evaluateExperts);
         }
 
-        Iterator var9 = evaluateExperts.iterator();
-
-        while(true) {
-            EvaluateExpert evaluateExpert;
-            do {
-                if (!var9.hasNext()) {
-                    return;
-                }
-
-                evaluateExpert = (EvaluateExpert)var9.next();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("evaluateExpert : {}", evaluateExpert.getEvaluateExpertId());
-                }
-            } while("TECHNOLOGY".equals(evaluateExpert.getTeam()));
-
+        // 循环专家查询寻源单下的评分(要素维度)
+        for (EvaluateExpert evaluateExpert : evaluateExperts) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("evaluateExpert : {}", evaluateExpert.getEvaluateExpertId());
+            }
+            if ("TECHNOLOGY".equals(evaluateExpert.getTeam())){
+                // 技术没有自动评分，直接跳过
+                continue;
+            }
             EvaluateScoreQueryDTO evaluateScoreQueryDTO = new EvaluateScoreQueryDTO(sourceHeaderId, tenantId, evaluateExpert.getExpertId(), evaluateExpert.getExpertUserId(), sourceFrom);
             evaluateScoreQueryDTO.setEvaluateExpertId(evaluateExpert.getEvaluateExpertId());
             evaluateScoreQueryDTO.setExpertSequenceNum(evaluateExpert.getSequenceNum());
             evaluateScoreQueryDTO.setSubjectMatterRule(subjectMatterRule);
-            EvaluateExpertFullDTO evaluateExpertFullDTO = this.evaluateScoreService.selectAllEvaluateScore(evaluateScoreQueryDTO);
+            EvaluateExpertFullDTO evaluateExpertFullDTO = evaluateScoreService.selectAllEvaluateScore(evaluateScoreQueryDTO);
             evaluateExpertFullDTO.setExpertUserId(evaluateExpert.getExpertUserId());
             evaluateExpertFullDTO.setEvaluateExpertId(evaluateExpert.getEvaluateExpertId());
-            if ("NONE".equals(subjectMatterRule)) {
+            if (BidConstants.BidHeader.SubjectMatterRule.NONE.equals(subjectMatterRule)){
+                // 拿到一级要素
                 List<EvaluateScoreLineDTO> evaluateScoreLineDTOS = evaluateExpertFullDTO.getEvaluateScoreLineDTOS();
-                Iterator var14 = evaluateScoreLineDTOS.iterator();
 
-                label72:
-                while(true) {
-                    EvaluateScoreLineDTO evaluateScoreLineDTO;
-                    EvaluateIndicDetail evaluateIndicDetail;
-                    BigDecimal benchmarkPrice;
-                    BigDecimal benchmarkPrice1;
-                    List evaluateScoreDTOS;
-                    do {
-                        do {
-                            do {
-                                if (!var14.hasNext()) {
-                                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
-                                    this.self().saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO, sourceFrom, sourceHeaderId, tenantId);
-                                    break label72;
-                                }
-
-                                evaluateScoreLineDTO = (EvaluateScoreLineDTO)var14.next();
-                            } while(!"AUTO".equals(evaluateScoreLineDTO.getCalculateType()));
-
-                            evaluateIndicDetail = evaluateScoreLineDTO.getEvaluateIndicDetail();
-                        } while(Objects.isNull(evaluateIndicDetail));
-
-                        if (!"PRICE".equals(evaluateScoreLineDTO.getScoreType())) {
-                            throw new CommonException("only support price!", new Object[0]);
-                        }
-
-                        benchmarkPrice = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                        benchmarkPrice1 = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
-                        LOGGER.info("24769  benchmarkPrice RCWL : {} , benchmarkPrice : {}", benchmarkPrice1,benchmarkPrice);
-                        evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
-                    } while(CollectionUtils.isEmpty(evaluateScoreDTOS));
-
-                    Iterator var19 = evaluateScoreDTOS.iterator();
-
-                    while(var19.hasNext()) {
-                        EvaluateScoreDTO evaluateScoreDTO = (EvaluateScoreDTO)var19.next();
+                // 循环要素,如果是自动计算的类型则填上分数
+                for (EvaluateScoreLineDTO evaluateScoreLineDTO : evaluateScoreLineDTOS) {
+                    if (!"AUTO".equals(evaluateScoreLineDTO.getCalculateType())) {
+                        continue;
+                    }
+                    // 如果是自动评分的要素，自动计算评分
+                    // 拿到要素评分细则
+                    EvaluateIndicDetail evaluateIndicDetail = evaluateScoreLineDTO.getEvaluateIndicDetail();
+                    if (Objects.isNull(evaluateIndicDetail)) {
+                        continue;
+                    }
+                    if(!"PRICE".equals(evaluateScoreLineDTO.getScoreType())){
+                        throw new CommonException("only support price!");
+                    }
+                    // RCWL 计算基准价
+                    BigDecimal benchmarkPrice = this.rcwlAutoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+//                    BigDecimal benchmarkPrice1 = this.autoScoreStrategyService.calcBenchmarkPrice(evaluateIndicDetail.getBenchmarkPriceMethod(), priceTypeCode, autoScoreDTO, evaluateIndicDetail);
+                    LOGGER.info("24769  benchmarkPrice RCWL : {} ", benchmarkPrice);
+                    //每一个供应商
+                    List<EvaluateScoreDTO> evaluateScoreDTOS = evaluateScoreLineDTO.getEvaluateScoreDTOS();
+                    if (CollectionUtils.isEmpty(evaluateScoreDTOS)) {
+                        continue;
+                    }
+                    for (EvaluateScoreDTO evaluateScoreDTO : evaluateScoreDTOS) {
                         evaluateIndicDetail.setMaxScore(evaluateScoreDTO.getMaxScore());
                         // RCWL 计算评分
-                        BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), (BigDecimal)quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), (BigDecimal)quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
-                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
-                        List<BigDecimal> scores = new ArrayList();
+                        BigDecimal score = this.rcwlAutoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+//                        BigDecimal score1 = this.autoScoreStrategyService.calcScore(evaluateIndicDetail.getFormula(), quotationLineMaps.get(evaluateScoreDTO.getQuotationHeaderId()), evaluateScoreLineDTO, evaluateIndicDetail, benchmarkPrice);
+//                        LOGGER.info("24769  scoreRcwl : {} , score : {}", score,score1);
+                        LOGGER.info("24769  scoreRcwl : {} ", score);
+                        //取最大分数
+                        List<BigDecimal> scores = new ArrayList<>();
                         scores.add(evaluateScoreLineDTO.getMaxScore().compareTo(score) > 0 ? score : evaluateScoreLineDTO.getMaxScore());
                         scores.add(evaluateScoreLineDTO.getMinScore());
-                        score = (BigDecimal) Collections.max(scores);
+                        score = Collections.max(scores);
                         evaluateScoreDTO.setIndicScore(score);
+
+                        // 多轮报价
+                        if (Constant.MULTIPLE_ROUNDS.equals(priceTypeCode)) {
+                            EvaluateSummary evaluateSummary = new EvaluateSummary();
+                            evaluateSummary.setBusinessScore(score);
+                            evaluateSummary.setTenantId(tenantId);
+                            evaluateSummary.setSourceHeaderId(sourceHeaderId);
+                            evaluateSummary.setQuotationHeaderId(evaluateScoreDTO.getQuotationHeaderId());
+                            evaluateSummaryList.add(evaluateSummary);
+                        }
                     }
                 }
-            }
+                // 保存
+                if (Constant.MULTIPLE_ROUNDS.equals(priceTypeCode)) {
+                    // 多轮报价 -> 确认终轮报价结束
+                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
+                    // 跟新专家评分汇总表信息
+                    ((IRcwlEvaluateScoreLineService)this.self()).updateEvaluateSummary(evaluateSummaryList,sourceFrom,sourceHeaderId,tenantId);
+                } else {
+                    evaluateExpertFullDTO.setCurrentSequenceNum(evaluateExpert.getSequenceNum());
+                    this.self().saveOrUpdateAllEvaluateScoreNew(evaluateExpertFullDTO,sourceFrom,sourceHeaderId,tenantId);
+                }
 
-            if ("PACK".equals(subjectMatterRule)) {
-                this.bidAutoScorePACK(autoScoreDTO, priceTypeCode, evaluateExpert, evaluateExpertFullDTO);
-                EvaluateExpertFullDTO evaluateExpertFullDTONew = this.rebuildEvaluateExpertFullDTO(evaluateExpertFullDTO);
-                this.saveOrUpdateAllEvaluateScore(evaluateExpertFullDTONew, autoScoreDTO.getSourceFrom(), autoScoreDTO.getSourceHeaderId(), autoScoreDTO.getTenantId());
+            }
+            if (BidConstants.BidHeader.SubjectMatterRule.PACK.equals(subjectMatterRule)) {
+                // 执行填分操作
+                bidAutoScorePACK(autoScoreDTO, priceTypeCode, evaluateExpert, evaluateExpertFullDTO);
+                EvaluateExpertFullDTO evaluateExpertFullDTONew = rebuildEvaluateExpertFullDTO(evaluateExpertFullDTO);
+                // 调用保存
+                this.saveOrUpdateAllEvaluateScore(evaluateExpertFullDTONew,autoScoreDTO.getSourceFrom(),autoScoreDTO.getSourceHeaderId(),autoScoreDTO.getTenantId());
+
             }
         }
     }
@@ -258,12 +280,14 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
         }
         Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
         Long tenantId = autoScoreDTO.getTenantId();
+        // 有效报价头表id
+        List<Long> invalidQuotationHeaderIdList = autoScoreDTO.getInvalidQuotationHeaderIdList();
         RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
         if (Objects.isNull(rfxHeader)) {
             throw new CommonException("rfx header not exists!");
         } else {
-            // RCWL 获取有效报价行数据
-            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId);
+            // RCWL 获取报价行数据
+            List<RfxQuotationLine> rfxQuotationLines = this.rcwlRfxQuotationLineRepository.querySumQuotationByRfxHeaderId(sourceHeaderId,tenantId);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rfx quotation lines : {}", rfxQuotationLines);
             }
@@ -271,14 +295,139 @@ public class RcwlEvaluateScoreLineServiceImpl extends EvaluateScoreLineServiceIm
             if (CollectionUtils.isEmpty(rfxQuotationLines)) {
                 throw new CommonException("rfx quotation line not exists!");
             } else {
-                Map<Long, BigDecimal> quotationLineMaps = (Map)rfxQuotationLines.stream().collect(Collectors.toMap(RfxQuotationLine::getQuotationHeaderId, (quotationLine) -> {
-                    // 获取租户编码
-                    String tenantNum = (String)this.commonQueryRepository.selectTenantExists(tenantId).get(0);
-                    // ssrc_rfx_header 头表 attribute_varchar16 值为 Y 含税金额, N为不含税金额。
-                    return "Y".equals(rfxHeader.getAttributeVarchar16()) && "SRM-RCWL".equals(tenantNum) ? quotationLine.getTotalAmount() : quotationLine.getNetAmount();
-                }));
+                // key供应商 value供应商投标总价,（含税/不含税）之和，过滤勾选无效报价供应商
+                Map<Long, BigDecimal> quotationLineMaps = rfxQuotationLines
+                        .stream()
+                        .filter(item -> CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(item.getQuotationHeaderId()))
+                        .collect(Collectors.toMap(RfxQuotationLine::getQuotationHeaderId, (quotationLine) -> {
+                            // 获取租户编码
+                            String tenantNum = this.commonQueryRepository.selectTenantExists(tenantId).get(0);
+                            // ssrc_rfx_header 头表 attribute_varchar16 值为 Y 含税金额, N为不含税金额。
+                            return "Y".equals(rfxHeader.getAttributeVarchar16()) && "SRM-RCWL".equals(tenantNum) ? quotationLine.getTotalAmount() : quotationLine.getNetAmount();
+                        }));
                 return quotationLineMaps;
             }
         }
+    }
+
+    @Override
+    public List<Long> getInvalidQuotationHeaderIdList(RfxHeader rfxHeader) {
+        // 获取专家评分汇总信息
+        List<EvaluateSummary> evaluateSummary = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(rfxHeader.getTenantId(),rfxHeader.getRfxHeaderId(),"RFX",rfxHeader.getRoundNumber()));
+
+        // 获取无效报价头 ID
+        return evaluateSummary
+                .stream()
+                .filter(item -> BaseConstants.Flag.YES.equals(item.getInvalidFlag()))
+                .map(EvaluateSummary::getQuotationHeaderId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void multipleRoundAutoEvaluateScore(AutoScoreDTO autoScoreDTO) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("24769---RCWL multipleRoundAutoEvaluateScore auto evaluate score started");
+        }
+
+        AUTO_FLAG.set(true);
+        String sourceFrom = autoScoreDTO.getSourceFrom();
+        Long sourceHeaderId = autoScoreDTO.getSourceHeaderId();
+        Long tenantId = autoScoreDTO.getTenantId();
+        List<Long> invalidQuotationHeaderIdList = autoScoreDTO.getInvalidQuotationHeaderIdList();
+        String subjectMatterRule = "NONE";
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("auto evaluate score started, params => [sourceFrom : {},sourceHeaderId:{},tenantId:{}]", sourceFrom, sourceHeaderId, tenantId);
+        }
+        LOGGER.info("invalidQuotationHeaderIdList : {}",invalidQuotationHeaderIdList);
+        Map<String, String> parameter = new HashMap(1);
+        // 多轮
+        String priceTypeCode = Constant.MULTIPLE_ROUNDS;
+        Map<Long, BigDecimal> quotationLineMaps;
+//        if ("RFX".equals(sourceFrom)) {
+
+        // 获取报价头id，与报价行价格；
+        quotationLineMaps = this.getRfxQuotationLineMaps(autoScoreDTO, priceTypeCode);
+//        }
+
+        // 筛选出有效的报价行(评分确认及汇总的时候，要重新评分，被勾选无效的供应商要过滤掉)
+        Map<Long,BigDecimal> validQuotationLineMaps = quotationLineMaps
+                .entrySet()
+                .stream()
+                .filter(map -> CollectionUtils.isEmpty(invalidQuotationHeaderIdList) || !invalidQuotationHeaderIdList.contains(map.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+        if(CollectionUtils.isEmpty(validQuotationLineMaps.values())){
+            // 在评分确认及汇总的时候，如果所有供应商都被勾选无效了，那就不需要重新评分了
+            return ;
+        }
+        this.simulateExpertDoScore(autoScoreDTO,subjectMatterRule,quotationLineMaps,priceTypeCode);
+    }
+
+    @Autowired
+    private EvaluateSummaryRepository evaluateSummaryRepository;
+
+    @Override
+    @Transactional(
+            rollbackFor = {Exception.class}
+    )
+    public List<EvaluateSummary> updateEvaluateSummary(List<EvaluateSummary> evaluateSummaryList, String sourceFrom, Long sourceHeaderId, Long tenantId) {
+        LOGGER.info("24769  updateEvaluateSummary Start evaluateSummaryList : {}", evaluateSummaryList);
+        Long roundNumber = 0L;
+        BigDecimal businessWeight = BigDecimal.ONE;
+        BigDecimal technologyWeight  = BigDecimal.ONE;
+        if ("RFX".equals(sourceFrom)) {
+            RfxHeader rfxHeader = this.rfxHeaderRepository.selectByPrimaryKey(sourceHeaderId);
+            Assert.notNull(rfxHeader, "error.data_not_exists");
+            roundNumber = rfxHeader.getRoundNumber();
+            businessWeight = null == rfxHeader.getBusinessWeight() ? BigDecimal.ONE : rfxHeader.getBusinessWeight().divide(BigDecimal.valueOf(100));
+            technologyWeight = null ==  rfxHeader.getTechnologyWeight() ? BigDecimal.ONE : rfxHeader.getTechnologyWeight().divide(BigDecimal.valueOf(100));
+        }
+
+        ArrayList<EvaluateSummary> allEvaluateSummary = new ArrayList();
+
+        // 获取专家评分汇总信息
+        List<EvaluateSummary> evaluateSummarys = this.rcwlRfxQuotationLineRepository.queryEvaluateSummary(new EvaluateSummary(tenantId,sourceHeaderId,"RFX",roundNumber));
+
+        // 新计算的商务分
+        Iterator var3 = evaluateSummarys.iterator();
+
+        while(var3.hasNext()) {
+            EvaluateSummary obj = (EvaluateSummary)var3.next();
+            // 拷贝一个新对象
+            EvaluateSummary newEvaluateSummary = new EvaluateSummary();
+            BeanUtils.copyProperties(obj ,newEvaluateSummary);
+            if (Integer.valueOf(1).equals(obj.getInvalidFlag())) {
+                newEvaluateSummary.setBusinessScore(BigDecimal.ZERO);
+                newEvaluateSummary.setScore(BigDecimal.ZERO);
+//                    evaluateSummary.setScoreRank(99L);
+            } else {
+                for (EvaluateSummary evaluateSummary : evaluateSummaryList) {
+                    // 无效投标，清空商务分，总分，排名
+                    if (obj.getQuotationHeaderId().equals(evaluateSummary.getQuotationHeaderId())) {
+                        // 设置新的商务分
+                        newEvaluateSummary.setBusinessScore(evaluateSummary.getBusinessScore());
+                    }
+                }
+            }
+            BigDecimal businessScore = null == newEvaluateSummary.getBusinessScore() ? BigDecimal.ZERO : newEvaluateSummary.getBusinessScore();
+            BigDecimal technologyScore = null == newEvaluateSummary.getTechnologyScore() ? BigDecimal.ZERO : newEvaluateSummary.getTechnologyScore();
+            newEvaluateSummary.setScore(businessScore.multiply(businessWeight).add(technologyScore.multiply(technologyWeight)));
+            allEvaluateSummary.add(newEvaluateSummary);
+        }
+
+        // 根据分数设置，总分排名
+        List<EvaluateSummary> updateEvaluateSummary = allEvaluateSummary
+                .stream()
+                .sorted(Comparator.comparing(EvaluateSummary::getScore))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < updateEvaluateSummary.size(); i++) {
+            updateEvaluateSummary.get(i).setScoreRank(i + 1L);
+        }
+        LOGGER.info("24769  updateEvaluateSummary : {}", updateEvaluateSummary);
+        if (!CollectionUtils.isEmpty(updateEvaluateSummary)) {
+            this.evaluateSummaryRepository.batchUpdateOptional(updateEvaluateSummary,"businessScore","score","scoreRank");
+        }
+
+        return evaluateSummaryList;
     }
 }

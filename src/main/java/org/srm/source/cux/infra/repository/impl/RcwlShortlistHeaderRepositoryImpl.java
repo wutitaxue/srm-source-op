@@ -1,6 +1,5 @@
 package org.srm.source.cux.infra.repository.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
@@ -33,6 +32,7 @@ import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,20 +88,26 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             String str2 = "";
             String str3 = "";
             String str4 = "";
+            logger.info("-------------rcwlSupplierHeader.getCapital():" + rcwlSupplierHeader.getCapital());
             if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
+                logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
                 if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
                     str1 = "注册资本不符合";
                 }
+                logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
                 if (rcwlSupplierHeader.getYears() < rcwlShortlistHeader.getYears()) {
                     str2 = "成立年限不符合";
                 }
+                logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
                 if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
-                    str2 = "一年营收不符合";
+                    str3 = "一年营收不符合";
                 }
+                logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
                 if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
-                    str2 = "两年营收不符合";
+                    str4 = "两年营收不符合";
                 }
-                if (str1 != null && str2 != null && str3 != null && str4 != null) {
+                logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
+                if (org.springframework.util.ObjectUtils.isEmpty(str1) && org.springframework.util.ObjectUtils.isEmpty(str2) && org.springframework.util.ObjectUtils.isEmpty(str3) && org.springframework.util.ObjectUtils.isEmpty(str4)) {
                     rcwlSupplierHeader.setQualificationInfo("全部符合");
                     rcwlSupplierHeader.setQualification(1);
                 } else {
@@ -111,6 +117,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             }
 
         }
+//        logger.info("-------------page:" + page.toString());
         return page;
     }
 
@@ -201,6 +208,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
     @Override
     public RcwlShortlistHeader submit(RcwlShortlistHeader rcwlShortlistHeader) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ObjectMapper mapper = new ObjectMapper();
         //公开征集时，报名时间截止后才可提交
         String shortlistCategory = rcwlShortlistHeader.getShortlistCategory();
@@ -208,6 +216,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         Long supplierCount = rcwlShortlistHeaderMapper.supplierCount(rcwlShortlistHeader.getShortlistHeaderId());
         if (SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategory)) {
             Date finishDate = rcwlShortlistHeader.getFinishDate();
+            logger.info("-------------finishDate:" + finishDate);
+            logger.info("-------------finishDate.compareTo:" + finishDate.compareTo(new Date()));
             if (finishDate.compareTo(new Date()) <= 0) {
                 throw new CommonException("未到报名截止时间，无法发布！");
             }
@@ -220,8 +230,14 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             bidNumber = 0L;
         }
         logger.info("标段数：" + rcwlShortlistHeader.getAttributeBigint2() + "---供应商数量：" + supplierCount);
-        if (supplierCount < bidNumber * 2 + 2) {
-            throw new CommonException("入围供应商数量不满足，请重新维护！");
+        if (ObjectUtils.allNotNull(rcwlShortlistHeader.getSourceCategory()) && "Attract".equals(rcwlShortlistHeader.getSourceCategory())) {
+            if (supplierCount < bidNumber * 2 + 2) {
+                throw new CommonException("入围供应商数量不满足，请重新维护！");
+            }
+        } else {
+            if (supplierCount < bidNumber * 2) {
+                throw new CommonException("入围供应商数量不满足，请重新维护！");
+            }
         }
         //将状态修改为审批中
 //        rcwlShortlistHeader.setState(RW_STUTAS_APPROVING);
@@ -231,12 +247,12 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
 
         //---------------------设置bpm字段并且提交审批---------------------
         String ip = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
-        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMYSDSP&BOID=" + rcwlShortlistHeader.getShortlistNum());
+        rcwlShortlistHeader.setUrl("http://" + ip + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMRWD2&BOID=" + rcwlShortlistHeader.getShortlistNum());
         RcwlShortlistHeader bpmHeaderData = rcwlShortlistHeaderMapper.selectShortlistHeaderById(DetailsHelper.getUserDetails().getTenantId(), rcwlShortlistHeader.getShortlistHeaderId());
 
         String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
         String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
-        String prUrl = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_PR_TO_BPM_URL");
+        String prUrl = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SHORT_LIST_BPM_URL");
         String userName = DetailsHelper.getUserDetails().getUsername();
 
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
@@ -256,12 +272,12 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                 fileNumber++;
             }
         }
-        if (null != rcwlBpmShortListPrDTOList && rcwlBpmShortListPrDTOList.size() > 0) {
-            for (RcwlBpmShortListPrDTO e : rcwlBpmShortListPrDTOList
-            ) {
-                e.setUrlMx(prUrl + e.getUrlMx());
-            }
-        }
+//        if (null != rcwlBpmShortListPrDTOList && rcwlBpmShortListPrDTOList.size() > 0) {
+//            for (RcwlBpmShortListPrDTO e : rcwlBpmShortListPrDTOList
+//            ) {
+//                e.setUrlMx(prUrl + e.getUrlMx());
+//            }
+//        }
         //设置传输值
         rcwlGxBpmStartDataDTO.setReSrcSys(reSrcSys);
         rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
@@ -279,14 +295,16 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setShortListNum(bpmHeaderData.getShortlistNum());
         rcwlBpmShortListHeaderDTO.setProjectname(bpmHeaderData.getProjectName());
         rcwlBpmShortListHeaderDTO.setBusinessentity(bpmHeaderData.getOuName());
-        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getShortlistCategory());
-        rcwlBpmShortListHeaderDTO.setStartdate(bpmHeaderData.getStartDate());
-        rcwlBpmShortListHeaderDTO.setFinishdate(bpmHeaderData.getFinishDate());
+        rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getSourceCategoryMeaning());
+        rcwlBpmShortListHeaderDTO.setStartdate(simpleDateFormat.format(bpmHeaderData.getStartDate()));
+        rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
         rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
         rcwlBpmShortListHeaderDTO.setYears(Long.toString(bpmHeaderData.getYears()));
         rcwlBpmShortListHeaderDTO.setOneprofit(Long.toString(bpmHeaderData.getOneProfit()));
         rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
+        rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
+        rcwlBpmShortListHeaderDTO.setUrlMx(prUrl + bpmHeaderData.getShortlistHeaderId());
 
 
         rcwlBpmShortListHeaderDTO.setRcwlBpmShortListFilesDtoList(rcwlBpmShortListFilesDtoList);

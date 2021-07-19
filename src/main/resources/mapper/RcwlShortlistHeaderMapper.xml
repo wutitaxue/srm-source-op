@@ -215,7 +215,8 @@
     </update>
     <update id="updateRfxSourceMethod">
         UPDATE ssrc_rfx_header h
-        set h.source_method = #{sourceMethod}, h.attribute_varchar23=#{shotListNum}
+        set h.source_method      = #{sourceMethod},
+            h.attribute_varchar23=#{shotListNum}
         where h.rfx_header_id = #{rfxHeaderId}
     </update>
 
@@ -230,42 +231,53 @@
     </select>
 
     <select id="selectShortlistHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlShortlistHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
         select srsh.shortlist_header_id,
-               srsh.tenant_id,
-               srsh.company_id,
-               srsh.sample_id,
-               srsh.shortlist_num,
-               srsh.project_name,
-               srsh.business_company_id,
-               srsh.source_category,
-               srsh.shortlist_category,
-               srsh.start_date,
-               srsh.finish_date,
-               srsh.capital,
-               srsh.years,
-               srsh.one_profit,
-               srsh.two_profit,
-               srsh.state,
-               srsh.examine,
-               srsh.publish,
-               srsh.sample,
-               srsh.request_content,
-               srsh.enabled_flag,
-               srsh.object_version_number,
-               srsh.created_by,
-               srsh.creation_date,
-               hc.company_num,
-               hc.company_name,
-               iu.real_name created_name,
-               hou.ou_code,
-               srsh.attribute_bigint2,
-               hou.ou_name
+        srsh.tenant_id,
+        srsh.company_id,
+        srsh.sample_id,
+        srsh.shortlist_num,
+        srsh.project_name,
+        srsh.business_company_id,
+        srsh.source_category,
+        srsh.shortlist_category,
+        srsh.start_date,
+        srsh.finish_date,
+        srsh.capital,
+        srsh.years,
+        (SELECT
+        tl.meaning
+        FROM
+        hpfm_lov_value l,
+        hpfm_lov_value_tl tl
+        WHERE
+        tl.lang = 'zh_CN'
+        AND tl.lov_value_id = l.lov_value_id
+        AND l.value= srsh.source_category
+        AND l.lov_code = 'SCUX_RCWL_SOURCE_CATEGORY') source_category_meaning,
+        srsh.one_profit,
+        srsh.two_profit,
+        srsh.state,
+        srsh.examine,
+        srsh.publish,
+        srsh.sample,
+        srsh.request_content,
+        srsh.enabled_flag,
+        srsh.object_version_number,
+        srsh.created_by,
+        srsh.creation_date,
+        hc.company_num,
+        hc.company_name,
+        iu.real_name created_name,
+        hou.ou_code,
+        srsh.attribute_bigint2,
+        hou.ou_name
         from scux_rcwl_shortlist_header srsh
-                 left join iam_user iu on iu.id = srsh.created_by
-                 left join hpfm_company hc on hc.company_id = srsh.company_id
-                 left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
+        left join iam_user iu on iu.id = srsh.created_by
+        left join hpfm_company hc on hc.company_id = srsh.company_id
+        left join hpfm_operation_unit hou on hou.ou_id = srsh.business_company_id
         where srsh.tenant_id = #{organizationId}
-          and srsh.shortlist_header_id = #{shortlistHeaderId}
+        and srsh.shortlist_header_id = #{shortlistHeaderId}
     </select>
 
     <select id="selectSupplierByShortlistHeaderId"
@@ -274,6 +286,8 @@
         select
         srsh2.supplier_header_id,
         srsh2.supplier_id,
+        srsh2.tenant_id,
+        srsh2.company_id,
         srsh.sample_id,
         ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
         ifnull(ssb.company_num,hc.company_num) AS supplier_num,
@@ -287,12 +301,22 @@
         srsh2.enroll_date,
         srsh2.status,
         srsh2.created_by,
+        srsh2.capital,
+        srsh2.years,
+        srsh2.attribute_bigint1,
+        srsh2.attribute_bigint2,
+        srsh2.attribute_bigint3,
+        srsh2.attribute_bigint4,
+        srsh2.attribute_bigint5,
+        srsh2.one_profit,
+        srsh2.two_profit,
         srsh2.creation_date
         from scux_rcwl_supplier_header srsh2
         left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
         left join iam_user iu on iu.id = srsh2.created_by
         left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
-        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id and slc.company_id =
+        srsh.company_id
         LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
         AND slc.supplier_company_id = hc.company_id
         LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
@@ -402,7 +426,7 @@
         LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
         LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
         WHERE
-        iu.id = #{userId}
+        iu.id = #{userId} limit 1
     </select>
     <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
         SELECT scc.name        contact,
@@ -415,6 +439,7 @@
         SELECT count(1)
         FROM scux_rcwl_supplier_header h
         WHERE h.shortlist_header_id = #{shortlistHeaderId}
+        and h.selected = 1
     </select>
     <select id="rcwlSelectToRfxSuppier" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
         <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
@@ -433,15 +458,22 @@
         srsh2.enroll_date,
         srsh2.STATUS,
         srsh2.created_by,
-        srsh2.creation_date
+        srsh2.creation_date,
+        ssb.supplier_tenant_id,
+        ssc.supplier_contact_id,
+        ssc.mail AS contact_mail
         FROM
         scux_rcwl_supplier_header srsh2
         LEFT JOIN scux_rcwl_shortlist_header srsh ON srsh2.shortlist_header_id = srsh.shortlist_header_id
         LEFT JOIN iam_user iu ON iu.id = srsh2.created_by
-        where
+        LEFT JOIN sslm_supplier_basic ssb ON srsh2.supplier_id = ssb.supplier_company_id
+        AND srsh2.tenant_id = ssb.tenant_id
+        LEFT JOIN sslm_supplier_contact ssc ON ssb.supplier_basic_id = ssc.supplier_basic_id
+        AND ssc.default_flag = 1
+        WHERE
         srsh2.tenant_id = #{organizationId}
-        and srsh2.shortlist_header_id = #{shortlistHeaderId}
-        and srsh2.selected = 1
+        AND srsh2.shortlist_header_id = #{shortlistHeaderId}
+        AND srsh2.selected = 1
     </select>
     <select id="queryPrLine" resultType="java.lang.Long">
         select l.pr_line_id
@@ -618,8 +650,22 @@
         ehu.unit_code AS exp_bear_dep_code,
         (CASE WHEN sph.pr_source_platform = 'SRM' THEN sc.financial_precision ELSE NULL END) AS financial_precision,
         (CASE WHEN sph.pr_source_platform = 'SRM' THEN sc.default_precision ELSE NULL END) AS default_precision,
-
-
+        case when spre.rfx_status is null then 'NOT_STARTED' else spre.rfx_status end rfx_status,
+        case when spre.rfx_quantity is null then 0 else spre.rfx_quantity end rfx_quantity,
+        case when spre.bid_status is null then 'NOT_STARTED' else spre.bid_status end bid_status,
+        case when spre.bid_quantity is null then 0 else spre.bid_quantity end bid_quantity,
+        case when spre.project_status is null then 'NOT_STARTED' else spre.project_status end project_status,
+        case when spre.project_quantity is null then 0 else spre.project_quantity end project_quantity,
+        case when spre.contract_status is null then 'NOT_STARTED' else spre.contract_status end contract_status,
+        case when spre.contract_quantity is null then 0 else spre.contract_quantity end contract_quantity,
+        case when spre.order_status is null then 'NOT_STARTED' else spre.order_status end order_status,
+        case when spre.order_quantity is null then 0 else spre.order_quantity end order_quantity,
+        case when spre.delivery_status is null then 'NOT_STARTED' else spre.delivery_status end delivery_status,
+        case when spre.delivery_quantity is null then 0 else spre.delivery_quantity end delivery_quantity,
+        case when spre.receipt_status is null then 'NOT_STARTED' else spre.receipt_status end receipt_status,
+        case when spre.receipt_quantity is null then 0 else spre.receipt_quantity end receipt_quantity,
+        case when spre.bill_status is null then 'NOT_STARTED' else spre.bill_status end bill_status,
+        case when spre.bill_quantity is null then 0 else spre.bill_quantity end bill_quantity,
         spl.receive_contact_name,
         spl.receive_address,
         spl.receive_tel_num,
@@ -676,6 +722,8 @@
         LEFT JOIN hpfm_unit ehu ON ehu.unit_id = spl.exp_bear_dep_id
         LEFT JOIN hpfm_unit_tl ehut ON ehut.unit_id = ehu.unit_id AND ehut.lang = #{lang}
         LEFT JOIN smdm_currency sc ON sph.original_currency = sc.currency_code AND sph.tenant_id = sc.tenant_id
+        LEFT JOIN sprm_pr_relation spre ON spre.pr_line_id = spl.pr_line_id
+
     </select>
     <select id="rcwlSelectBpmSuppier"
             resultType="org.srm.source.cux.api.controller.v1.dto.RcwlBpmShortListSuppierDTO">
@@ -719,9 +767,11 @@
                h.attachment_url  url_mx,
                h.attachment_name description,
                NULL AS           file_size
-        FROM scux_rcwl_shortlist_attachment h
-        WHERE h.tenant_id = #{organizationId}
-          AND h.shortlist_id = #{shortlistHeaderId}
+        FROM scux_rcwl_shortlist_attachment hh,
+             scux_rcwl_supplier_attachment h
+        WHERE h.rcwl_shortlist_attachment_id = hh.rcwl_shortlist_attachment_id
+          AND hh.tenant_id = #{organizationId}
+          AND hh.shortlist_id = #{shortlistHeaderId}
     </select>
     <select id="rcwlSelectShortListHeaderIdByCode" resultType="java.lang.Long">
         SELECT h.shortlist_header_id

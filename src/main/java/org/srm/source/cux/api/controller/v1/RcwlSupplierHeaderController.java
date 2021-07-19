@@ -40,7 +40,7 @@ public class RcwlSupplierHeaderController extends BaseController {
     @ApiOperation(value = "入围单供应商头信息列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
-    public ResponseEntity<Page<RcwlShortlistHeader>> list(RcwlShortlistQueryDTO rcwlShortlistQueryDTO, @ApiIgnore @SortDefault(value = RcwlSupplierHeader.FIELD_SUPPLIER_ID,
+    public ResponseEntity<Page<RcwlShortlistHeader>> list(RcwlShortlistQueryDTO rcwlShortlistQueryDTO, @ApiIgnore @SortDefault(value = RcwlSupplierHeader.FIELD_SHORTLIST_HEADER_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
         Page<RcwlShortlistHeader> list = rcwlSupplierHeaderRepository.pageAndSortRcwlSupplierHeader(pageRequest, rcwlShortlistQueryDTO);
         return Results.success(list);

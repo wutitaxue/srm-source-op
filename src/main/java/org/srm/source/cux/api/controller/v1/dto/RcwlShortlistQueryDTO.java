@@ -42,6 +42,17 @@ public class RcwlShortlistQueryDTO {
         this.sourceFrom = sourceFrom;
     }
 
+    @ApiModelProperty("供应商id")
+    private Long suppilerId;
+
+    public Long getSuppilerId() {
+        return suppilerId;
+    }
+
+    public void setSuppilerId(Long suppilerId) {
+        this.suppilerId = suppilerId;
+    }
+
     public Long getTenantId() {
         return tenantId;
     }

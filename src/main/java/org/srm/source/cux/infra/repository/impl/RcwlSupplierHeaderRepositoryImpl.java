@@ -2,13 +2,19 @@ package org.srm.source.cux.infra.repository.impl;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import javassist.Loader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hzero.core.base.AopProxy;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
@@ -20,10 +26,12 @@ import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
 import org.springframework.stereotype.Component;
 import org.srm.source.cux.infra.mapper.RcwlSupplierHeaderMapper;
 import org.srm.source.rfx.api.dto.CompanyDTO;
+import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
@@ -44,9 +52,12 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Autowired
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(Loader.class);
+
 
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlSupplierHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
+        rcwlShortlistQueryDTO.setSuppilerId(DetailsHelper.getUserDetails().getOrganizationId());
         Page<RcwlShortlistHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlSupplierHeaderMapper.selectRcwlSupplierHeader(rcwlShortlistQueryDTO));
         for (RcwlShortlistHeader rcwlShortlistHeader : page) {
             this.updateStatus(rcwlShortlistHeader);
@@ -79,50 +90,71 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
     @Override
     @Transactional(rollbackOn = Exception.class)
     public RcwlSupplierHeader createAndUpdateSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
-        this.checkRcwlSupplierHeader(rcwlSupplierHeader);
+
+        Long CheckSupplierHeaderId = this.checkRcwlSupplierHeader(rcwlSupplierHeader);
 
         Long supplierHeaderId = rcwlSupplierHeader.getSupplierHeaderId();
         if (supplierHeaderId == null) {
             rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_NOTSUBMITTED);
             //入围方式"邀请" 默认已报名
             RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectByPrimaryKey(rcwlSupplierHeader.getShortlistHeaderId());
-            if(SHORTLIST_CATEGEORY_INVITATION.equals(rcwlShortlistHeader.getShortlistCategory())){
+            if (SHORTLIST_CATEGEORY_INVITATION.equals(rcwlShortlistHeader.getShortlistCategory())) {
                 rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_PARTICIPATED);
             }
             this.self().insertSelective(rcwlSupplierHeader);
         } else {
+            if (ObjectUtils.allNotNull(rcwlSupplierHeader.getObjectVersionNumber())) {
+
+            }
             this.self().updateByPrimaryKeySelective(rcwlSupplierHeader);
         }
         return rcwlSupplierHeaderMapper.selectRcwlSupplierHeaderById(rcwlSupplierHeader.getShortlistHeaderId());
     }
 
     @Override
-    public void checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
+    public Long checkRcwlSupplierHeader(RcwlSupplierHeader rcwlSupplierHeader) {
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         //校验重复 同一入围单下不可重复 新增时校验
-        if(rcwlSupplierHeader.getSupplierHeaderId() == null){
+        if (rcwlSupplierHeader.getSupplierHeaderId() == null) {
+            //校验是否是入围单  公司lov下的供应商
+            List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(rcwlSupplierHeader.getShortlistHeaderId());
+            List<Long> companyIds = prLineVOList.stream().map(PrLineVO::getCompanyId).filter(v->null!=v).distinct().collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(companyIds)) {
+                List<Long> supplierCompanyIds = this.rcwlSupplierHeaderMapper.selectSupplierCompanyIds(companyIds,companyIds.size(),userDetails.getTenantId());
+                if(CollectionUtils.isNotEmpty(supplierCompanyIds)) {
+                    List<Long> check = supplierCompanyIds.stream().filter(v -> rcwlSupplierHeader.getSupplierId().equals(v)).collect(Collectors.toList());
+                    if (CollectionUtils.isEmpty(check)) {
+                        throw new CommonException("合作公司不满足，请勿报名");
+                    }
+                }
+            }
             RcwlSupplierHeader rcwlSupplierHeaderSelect = new RcwlSupplierHeader();
             rcwlSupplierHeaderSelect.setSupplierId(rcwlSupplierHeader.getSupplierId());
             rcwlSupplierHeaderSelect.setShortlistHeaderId(rcwlSupplierHeader.getShortlistHeaderId());
             int i = rcwlSupplierHeaderMapper.selectCount(rcwlSupplierHeaderSelect);
-            if(i > 0){
-                throw new CommonException("供应商："+ rcwlSupplierHeader.getSupplierNum() +"已存在：");
+            //...无语代码，不知如何处理，傻狗代码
+            if (i > 0) {
+                throw new CommonException("供应商：" + rcwlSupplierHeader.getSupplierNum() + "已存在：");
+            } else {
+//                return rcwlSupplierHeaderMapper.selectOne(rcwlSupplierHeaderSelect).getSupplierHeaderId();
             }
         }
+        return null;
     }
 
     @Override
     public void updateStatus(RcwlShortlistHeader rcwlShortlistHeader) {
         Date startDate = rcwlShortlistHeader.getStartDate();
         Date finishDate = rcwlShortlistHeader.getFinishDate();
-        if(rcwlShortlistHeader.getShortlistHeaderId() == null){
+        if (rcwlShortlistHeader.getShortlistHeaderId() == null) {
             //已取消
             rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
         } else {
-            if(StringUtils.isEmpty(rcwlShortlistHeader.getSupplierStatus())){
-                if(startDate.compareTo(new Date()) > 0){
+            if (StringUtils.isEmpty(rcwlShortlistHeader.getSupplierStatus())) {
+                if (startDate.compareTo(new Date()) > 0) {
                     //未开始
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_UNSTART);
-                } else if((startDate.compareTo(new Date()) <= 0) && (finishDate.compareTo(new Date()) > 0)) {
+                } else if ((startDate.compareTo(new Date()) <= 0) && (finishDate.compareTo(new Date()) > 0)) {
                     //未报名
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_UNPARTICIPATED);
                 } else {
@@ -130,18 +162,18 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_ABANDONED);
                 }
             } else {
-                if(RCWL_RWENROLL_STUTAS_NOTSUBMITTED.equals(rcwlShortlistHeader.getSupplierStatus()) && (finishDate.compareTo(new Date()) < 0)){
+                if (RCWL_RWENROLL_STUTAS_NOTSUBMITTED.equals(rcwlShortlistHeader.getSupplierStatus()) && (finishDate.compareTo(new Date()) < 0)) {
                     //已放弃
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_ABANDONED);
-                } else if(RW_STUTAS_APPROVED.equals(rcwlShortlistHeader.getState())){
-                    if(rcwlShortlistHeader.getSelected() == 1){
+                } else if (RW_STUTAS_APPROVED.equals(rcwlShortlistHeader.getState())) {
+                    if (rcwlShortlistHeader.getSelected() == 1) {
                         //已入围
                         rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_SHORTLISTED);
                     } else {
                         //未入围
                         rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
                     }
-                } else if(RW_STUTAS_REJECTED.equals(rcwlShortlistHeader.getState())){
+                } else if (RW_STUTAS_REJECTED.equals(rcwlShortlistHeader.getState())) {
                     //已取消
                     rcwlShortlistHeader.setSupplierStatus(RCWL_RWENROLL_STUTAS_PREREFUSED);
                 }
@@ -153,6 +185,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Override
     public RcwlSupplierHeader submit(RcwlSupplierHeader rcwlSupplierHeader) {
+        rcwlSupplierHeader = createAndUpdateSupplierHeader(rcwlSupplierHeader);
         rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_SUBMITTED);
         this.self().updateOptional(rcwlSupplierHeader, "status");
         return rcwlSupplierHeader;

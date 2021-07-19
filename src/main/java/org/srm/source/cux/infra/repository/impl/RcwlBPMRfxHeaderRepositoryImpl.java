@@ -1,7 +1,10 @@
 package org.srm.source.cux.infra.repository.impl;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.srm.source.cux.domain.entity.ClarifyToReleaseDTO;
+import org.srm.source.cux.domain.entity.RcwlAttachmentListData;
 import org.srm.source.cux.domain.entity.RcwlUpdateRfxHeaderDataVO;
 import org.srm.source.cux.domain.repository.RcwlBPMRfxHeaderRepository;
 import org.srm.source.cux.infra.mapper.RcwlBPMRfxHeaderMapper;
@@ -14,13 +17,13 @@ import java.util.List;
 @Component
 public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader> implements RcwlBPMRfxHeaderRepository {
 
-    @Resource
+    @Autowired
     RcwlBPMRfxHeaderMapper rcwlRfxHeaderMapper;
 
     @Override
-    public List<String> getAttachmentList(String data) {
-        List<String> list = new ArrayList<>();
-        rcwlRfxHeaderMapper.getAttachmentList(data);
+    public List<RcwlAttachmentListData> getAttachmentList(String data) {
+        List<RcwlAttachmentListData> list = new ArrayList<RcwlAttachmentListData>();
+        list = rcwlRfxHeaderMapper.getAttachmentList(data);
         return list;
     }
 
@@ -35,7 +38,49 @@ public class RcwlBPMRfxHeaderRepositoryImpl extends BaseRepositoryImpl<RfxHeader
     }
 
     @Override
-    public Long getRfxHeaderIdByRfxNum(String rfxNum) {
-        return rcwlRfxHeaderMapper.getRfxHeaderIdByRfxNum(rfxNum);
+    public Long getRfxHeaderIdByRfxNum(String rfxNum,Long tenantId) {
+        return rcwlRfxHeaderMapper.getRfxHeaderIdByRfxNum(rfxNum,tenantId);
+    }
+
+    @Override
+    public String getRealNameById(Long tenantId) {
+        return  rcwlRfxHeaderMapper.getRealNameById(tenantId);
+    }
+
+    @Override
+    public ClarifyToReleaseDTO getClarifyToReleaseDTO(Long clarifyId) {
+        return rcwlRfxHeaderMapper.getClarifyToReleaseDTO(clarifyId);
+    }
+
+    @Override
+    public List<Long> getIssueLineIdListByClarifyId(Long clarifyId) {
+        List<Long> list = new ArrayList<Long>();
+        list = rcwlRfxHeaderMapper.getIssueLineIdListByClarifyId(clarifyId);
+        return list;
+    }
+
+    @Override
+    public void updateSubmitBy(long l, Long rfxHeaderIds) {
+        rcwlRfxHeaderMapper.updateSubmitBy(l,rfxHeaderIds);
+    }
+
+    @Override
+    public void updateTerminatedBy(Long rfxHeaderIds) {
+        rcwlRfxHeaderMapper.updateTerminatedBy(rfxHeaderIds);
+    }
+
+    @Override
+    public void updateCheckedBy(Long rfxHeaderId) {
+        rcwlRfxHeaderMapper.updateCheckedBy(rfxHeaderId);
+    }
+
+    @Override
+    public void updateActionBy(String id) {
+        rcwlRfxHeaderMapper.updateActionBy(id);
+    }
+
+    @Override
+    public String getActionId(Long rfxHeaderIds) {
+        return  rcwlRfxHeaderMapper.getActionId(rfxHeaderIds);
     }
 }

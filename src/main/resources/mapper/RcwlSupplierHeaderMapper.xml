@@ -243,6 +243,11 @@
             srsh.years,
             srsh.one_profit,
             srsh.two_profit,
+            srsh2.attribute_bigint1,
+            srsh2.attribute_bigint2,
+            srsh2.attribute_bigint3,
+            srsh2.attribute_bigint4,
+            srsh2.attribute_bigint5,
             srsh.state,
             srsh.examine,
             srsh.publish,
@@ -263,7 +268,9 @@
             <include refid="selectRcwlSupplierHeaderResult"></include>
         from scux_rcwl_shortlist_header srsh
         left join hpfm_company hc on hc.company_id = srsh.company_id
-        left join scux_rcwl_supplier_header srsh2 on srsh2.shortlist_header_id = srsh.shortlist_header_id AND srsh2.created_by = #{userId}
+        left join scux_rcwl_supplier_header srsh2 on srsh2.shortlist_header_id = srsh.shortlist_header_id AND
+        (srsh2.created_by = #{userId} or srsh2.supplier_id =(select hc.company_id from hpfm_company hc where
+        hc.tenant_id = #{suppilerId}))
         left join iam_user iu on iu.id = srsh.created_by
         <include refid="selectRcwlSupplierHeaderWhere"/>
 
@@ -271,9 +278,10 @@
     <select id="selectCompanyById" resultType="org.srm.source.rfx.api.dto.CompanyDTO">
         select
             hc.company_num,
-            hc.company_name
+            hc.company_name,
+            hc.tenant_id
         from hpfm_company hc
-        where hc.hc.company_id = #{companyId}
+        where hc.company_id = #{companyId}
 
     </select>
     <select id="selectRcwlSupplierHeaderById" resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
@@ -305,6 +313,11 @@
             srsh.creation_date,
             hc.company_num,
             hc.company_name,
+            srsh2.attribute_bigint1,
+            srsh2.attribute_bigint2,
+            srsh2.attribute_bigint3,
+            srsh2.attribute_bigint4,
+            srsh2.attribute_bigint5,
             iu.real_name created_name,
             srsh2.status supplier_status
         from scux_rcwl_shortlist_header srsh
@@ -312,5 +325,57 @@
                  left join scux_rcwl_supplier_header srsh2 on srsh2.shortlist_header_id = srsh.shortlist_header_id
                  left join iam_user iu on iu.id = srsh2.created_by
         where srsh2.supplier_header_id = #{supplierHeaderId}
+    </select>
+    <select id="selectSupplierCompanyIds" resultType="java.lang.Long">
+                         SELECT
+                         	tab.company_id
+                         FROM
+                         	(
+                         	SELECT
+                                ifnull( ssb.company_num, hc.company_num ) AS supplier_company_num,
+                         		ifnull( ssb.supplier_company_id, hc.company_id ) AS company_id
+                         	FROM
+                         		sslm_life_cycle slc
+                         		LEFT JOIN ( SELECT max( requisition_id ) requisition_id, to_stage_id, tenant_id, supplier_company_id FROM sslm_life_cycle_reqs WHERE process_status = 'APPROVED' GROUP BY to_stage_id, tenant_id, supplier_company_id ) slcr_max ON slcr_max.to_stage_id = slc.stage_id
+                         		AND slcr_max.tenant_id = slc.tenant_id
+                         		AND slcr_max.supplier_company_id = slc.supplier_company_id
+                         		LEFT JOIN sslm_life_cycle_reqs slcr ON slcr_max.requisition_id = slcr.requisition_id
+                         		AND slcr_max.to_stage_id = slc.stage_id
+                         		AND slcr_max.tenant_id = slc.tenant_id
+                         		AND slcr_max.supplier_company_id = slc.supplier_company_id
+                         		LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+                         		LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id
+                         		AND slcst.lang = 'zh_CN'
+                         		LEFT JOIN hpfm_company hc2 ON slc.tenant_id = hc2.tenant_id
+                         		AND slc.company_id = hc2.company_id
+                         		LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+                         		AND slc.supplier_company_id = hc.company_id
+                         		LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+                         		AND slc.company_id = sp.company_id
+                         		AND slc.supplier_tenant_id = sp.partner_tenant_id
+                         		AND slc.supplier_company_id = sp.partner_company_id
+                         		LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+                         		LEFT JOIN sslm_supplier_basic_tl ssbt ON ssbt.supplier_basic_id = ssb.supplier_basic_id
+                         		AND ssbt.lang = 'zh_CN'
+                         		LEFT JOIN sslm_supplier_business scb ON scb.supplier_basic_id = ssb.supplier_basic_id
+                         		LEFT JOIN sslm_supply_ability ssa ON ssa.supplier_company_id = slc.supplier_company_id
+                         		AND ( ssa.company_id = slc.company_id OR ssa.company_id IS NULL )
+                         		LEFT JOIN ( SELECT MAX( version_number ) version_number, company_id FROM spfm_company_basic WHERE process_status = 'COMPLETE' GROUP BY company_id ) scba_maxp ON scba_maxp.company_id = hc2.source_key
+                         		LEFT JOIN spfm_company_basic scbp ON scbp.company_id = scba_maxp.company_id
+                         		AND scba_maxp.version_number = scbp.version_number
+                         		LEFT JOIN spfm_company_basic_tl scblp ON scbp.company_basic_id = scblp.company_basic_id
+                         		AND scblp.lang = 'zh_CN'
+                         		LEFT JOIN iam_user iamu ON iamu.id = ssb.purchase_agent_id
+                         	WHERE
+                         		slc.tenant_id = #{tenantId}
+                         	AND slc.company_id IN
+                         	 <foreach collection="companyIds" item="item" index="index" separator="," open="(" close=")">
+                                  #{item}
+                              </foreach>
+                         	) tab
+                         GROUP BY
+                         	tab.supplier_company_num
+                         HAVING
+                         	COUNT(*) = #{size}
     </select>
 </mapper>

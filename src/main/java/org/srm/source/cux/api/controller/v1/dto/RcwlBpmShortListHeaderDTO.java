@@ -39,11 +39,11 @@ public class RcwlBpmShortListHeaderDTO {
 
     @ApiModelProperty("开始时间")
     @JsonProperty("STARTDATE")
-    private Date startdate;
+    private String startdate;
 
     @ApiModelProperty("结束时间")
     @JsonProperty("FINISHDATE")
-    private Date finishdate;
+    private String finishdate;
 
     @ApiModelProperty("注册资金（万元）")
     @JsonProperty("CAPITAL")
@@ -64,6 +64,10 @@ public class RcwlBpmShortListHeaderDTO {
     @ApiModelProperty("要求内容")
     @JsonProperty("REQUIREMENTS")
     private String requirements;
+
+    @ApiModelProperty("甄云链接")
+    @JsonProperty("URL_MX")
+    private String urlMx;
 
     @JsonProperty("RWGYS")
     private List<RcwlBpmShortListSuppierDTO> rcwlBpmShortListSuppierDTOList;
@@ -146,19 +150,19 @@ public class RcwlBpmShortListHeaderDTO {
         this.shortlistcategory = shortlistcategory;
     }
 
-    public Date getStartdate() {
+    public String getStartdate() {
         return startdate;
     }
 
-    public void setStartdate(Date startdate) {
+    public void setStartdate(String startdate) {
         this.startdate = startdate;
     }
 
-    public Date getFinishdate() {
+    public String getFinishdate() {
         return finishdate;
     }
 
-    public void setFinishdate(Date finishdate) {
+    public void setFinishdate(String finishdate) {
         this.finishdate = finishdate;
     }
 
@@ -200,5 +204,13 @@ public class RcwlBpmShortListHeaderDTO {
 
     public void setRequirements(String requirements) {
         this.requirements = requirements;
+    }
+
+    public String getUrlMx() {
+        return urlMx;
+    }
+
+    public void setUrlMx(String urlMx) {
+        this.urlMx = urlMx;
     }
 }
