@@ -32,6 +32,16 @@ public class RcwlShortlistQueryDTO {
     @ApiModelProperty(value = "结束时间至")
     private Date finishDateTo;
 
+    private String sourceFrom;
+
+    public String getSourceFrom() {
+        return sourceFrom;
+    }
+
+    public void setSourceFrom(String sourceFrom) {
+        this.sourceFrom = sourceFrom;
+    }
+
     @ApiModelProperty("供应商id")
     private Long suppilerId;
 
