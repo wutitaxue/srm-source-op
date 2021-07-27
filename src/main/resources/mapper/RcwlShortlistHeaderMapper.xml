@@ -624,7 +624,7 @@
         saat.account_assign_type_code,
         spl.surface_treat_flag,
         spl.item_properties,
-        spl.occupied_quantity,
+        spl.quantity occupied_quantity,
         spl.unit_price_batch,
         spl.project_category,
         spl.assets,
