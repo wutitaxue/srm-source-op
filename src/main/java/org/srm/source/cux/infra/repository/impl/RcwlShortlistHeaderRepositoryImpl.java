@@ -81,11 +81,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId) {
         Page<RcwlSupplierHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectSupplierByShortlistHeaderId(organizationId, shortlistHeaderId));
         RcwlShortlistHeader rcwlShortlistHeader;
-        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        String ip = httpServletRequest.getHeader("X-Real-IP");
-        logger.info("ip1:{}", httpServletRequest.getHeader("X-Forwarded-For"));
-        logger.info("ip2:{}", httpServletRequest.getHeader("X-Real-IP"));
-        logger.info("ip3:{}", httpServletRequest.getRemoteAddr());
+
         for (RcwlSupplierHeader rcwlSupplierHeader : page) {
             rcwlShortlistHeader = this.selectByPrimaryKey(shortlistHeaderId);
 
