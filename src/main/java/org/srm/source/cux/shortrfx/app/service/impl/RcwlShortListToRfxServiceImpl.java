@@ -77,7 +77,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
 //        logger.info("ids:" + ids.toString());
 
         PreFullSourceHeaderDTO preFullSourceHeaderDTO = new PreFullSourceHeaderDTO();
-        logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
+        //logger.info("prLineDTO：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(prLineDTO));
         logger.info("---------------------查询采购申请开始：-------------------organizationId：" + organizationId);
         List<PrLineVO> prLineVOList = this.rcwlShortlistHeaderRepository.pageAssignList(shortlistHeaderId);
         RcwlShortlistHeader rcwlShortlistHeader = rcwlShortlistHeaderRepository.selectShortlistHeaderById(organizationId,shortlistHeaderId);
@@ -85,7 +85,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         preFullSourceHeaderDTO.setSourceFrom("RW");
         preFullSourceHeaderDTO.setTemplateId(templateId);
         preFullSourceHeaderDTO.setPrLineList(prLineVOList);
-        logger.debug("preFullSourceHeaderDTO:[{}]" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
+        //logger.debug("preFullSourceHeaderDTO:[{}]" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(preFullSourceHeaderDTO));
 
         //入围单供应商查询
         List<RcwlSupplierHeader> list = rcwlShortlistHeaderRepository.rcwlSelectToRfxSuppier(organizationId, shortlistHeaderId);
@@ -98,7 +98,7 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         if (null != list && list.size() > 0) {
             for (RcwlSupplierHeader supplier : list
             ) {
-                logger.info("供应商信息：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(supplier));
+                //logger.info("供应商信息：" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(supplier));
                 RfxLineSupplier rfxLineSupplier = new RfxLineSupplier();
                 //供应商复制
                 rfxLineSupplier.initSupContact(supplier.getCompanyName());
