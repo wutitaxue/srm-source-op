@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
@@ -31,7 +29,6 @@ import org.srm.source.share.app.service.PrLineService;
 import org.srm.source.share.domain.vo.PrLineVO;
 import org.srm.web.annotation.Tenant;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,11 +69,6 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
     @Transactional(rollbackOn = Exception.class)
     public PreSourceHeaderDTO rcwlShortListToRfx(Long organizationId, Long shortlistHeaderId, Long templateId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        String ip = httpServletRequest.getHeader("X-Real-IP");
-        logger.info("ip1:{}", httpServletRequest.getHeader("X-Forwarded-For"));
-        logger.info("ip2:{}", httpServletRequest.getHeader("X-Real-IP"));
-        logger.info("ip3:{}", httpServletRequest.getRemoteAddr());
 
         PrLineDTO prLineDTO = new PrLineDTO();
         prLineDTO.setNewPriceLibSearch(1);
