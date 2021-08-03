@@ -176,7 +176,12 @@ public class RcwlRfxHeaderController {
         rfxHeadertemp.setTenantId(organizationId);
         rfxHeadertemp.setRfxNum(rfxNum);
         Long userid = rcwlRfxHeaderBpmMapper.selectUserId();
-        DetailsHelper.setCustomUserDetails(userid,"zh_CN");
+        CustomUserDetails customUserDetails = new CustomUserDetails("default", "default");
+        customUserDetails.setUserId(userid);
+        customUserDetails.setTenantId(organizationId);
+        customUserDetails.setOrganizationId(organizationId);
+        customUserDetails.setLanguage("zh_CN");
+        DetailsHelper.setCustomUserDetails(customUserDetails);
         RfxHeader rfxHeader = rfxHeaderRepository.selectOne(rfxHeadertemp);
         this.rfxHeaderService.rfxApproval(organizationId, rfxHeader.getRfxHeaderId(), 0);
         return Results.success();
