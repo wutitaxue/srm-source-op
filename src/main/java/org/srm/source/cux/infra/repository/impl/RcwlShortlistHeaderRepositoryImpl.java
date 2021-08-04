@@ -18,6 +18,8 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.srm.source.cux.api.controller.v1.dto.*;
 import org.srm.source.cux.app.service.RcwlSupplierHeaderService;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
@@ -30,13 +32,11 @@ import org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper;
 import org.srm.source.share.api.dto.User;
 import org.srm.source.share.domain.vo.PrLineVO;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
 
@@ -130,6 +130,11 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String ip = httpServletRequest.getHeader("X-Real-IP");
+        logger.info("ip1:{}", httpServletRequest.getHeader("X-Forwarded-For"));
+        logger.info("ip2:{}", httpServletRequest.getHeader("X-Real-IP"));
+        logger.info("ip3:{}", httpServletRequest.getRemoteAddr());
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectRcwlShortlistHeader(rcwlShortlistQueryDTO));
     }
 
