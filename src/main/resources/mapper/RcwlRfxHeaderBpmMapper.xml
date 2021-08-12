@@ -249,7 +249,7 @@
             srli.specs UomId,
             ( SELECT sic.category_name FROM smdm_item_category sic WHERE sic.category_id = srli.item_category_id ) ItemCategoryName,
             srli.rfx_quantity rfxQuanttity,
-            ( SELECT uom_name FROM hpfm_uom hu WHERE hu.uom_id = srli.uom_id ) UomId1
+            ( SELECT uom_name FROM smdm_uom hu WHERE hu.uom_id = srli.uom_id ) UomId1
         FROM
             ssrc_rfx_line_item srli
             LEFT JOIN smdm_item si ON si.item_id = srli.item_id
