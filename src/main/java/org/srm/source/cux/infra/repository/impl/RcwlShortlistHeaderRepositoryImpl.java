@@ -131,6 +131,11 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public Page<RcwlShortlistHeader> pageAndSortRcwlShortlistHeader(PageRequest pageRequest, RcwlShortlistQueryDTO rcwlShortlistQueryDTO) {
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        HttpServletRequest httpServletRequest = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String ip = httpServletRequest.getHeader("X-Real-IP");
+        logger.info("ip1:{}", httpServletRequest.getHeader("X-Forwarded-For"));
+        logger.info("ip2:{}", httpServletRequest.getHeader("X-Real-IP"));
+        logger.info("ip3:{}", httpServletRequest.getRemoteAddr());
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectRcwlShortlistHeader(rcwlShortlistQueryDTO));
     }
 

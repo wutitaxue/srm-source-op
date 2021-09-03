@@ -166,55 +166,55 @@
         sph.prequal_user_id
     </sql>
 
-        <select id="selectOneRfxHeader" parameterType="org.srm.source.rfx.api.dto.HeaderQueryDTO"
-                resultType="org.srm.source.rfx.api.dto.RfxHeaderDTO">
-            <bind name="now" value="@org.apache.commons.lang3.time.DateUtils@truncate(new java.util.Date(), @java.util.Calendar@SECOND)"/>
-            <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
-            select
-            <include refid="Base_Column_List"/>,
-            <include refid="Template_Column_List"/>,
-            <include refid="Prequal_Column_List"/>,
-            iu.real_name,
-            ssrh.quotation_round_number,
-            hpo.organization_name as pur_organization_name,
-            --(SELECT sum(ql.allotted_quantity * ql.valid_quotation_price * qh.exchange_rate / CASE WHEN srli.batch_price IS NULL OR srli.batch_price = 0 THEN 1 ELSE srli.batch_price END ) FROM ssrc_rfx_quotation_header qh JOIN ssrc_rfx_quotation_line ql ON ql.quotation_header_id = qh.quotation_header_id AND ql.round_number = qh.round_number JOIN ssrc_rfx_line_item srli ON ql.rfx_line_item_id = srli.rfx_line_item_id WHERE qh.rfx_header_id = h.rfx_header_id AND qh.round_number = h.round_number) AS total_price,
-            pt.type_name as payment_type_name,
-            spt.term_name as payment_term_name,
-            ssrh.round_quotation_end_date,
-            ssrh.round_header_status,
-            ssrh.round_quotation_rule,
-            ssrh.starting_reason,
-            sct.currency_name currency_code_meaning,
-            sst.tax_included_flag as template_tax_included_flag,
-            sst.tax_id as template_tax_id,
-            sst.expert_source,
-            st.tax_rate as template_tax_rate,
-            sst.freight_included_flag as template_freight_included_flag,
-            case WHEN h.sealed_quotation_flag = '1' THEN (select count(1) from ssrc_rfx_member rmb where rmb.rfx_header_id = h.rfx_header_id and rmb.rfx_role = 'OPENED_BY' and rmb.opened_flag = '0')  ELSE 0 end as unopened_number,
-            (select count(1) from ssrc_rfx_quotation_header srqh where srqh.rfx_header_id = h.rfx_header_id and srqh.tenant_id = h.tenant_id and srqh.quotation_status in ('QUOTED','FINISHED','ROUND_QUOTATION')) as quoted_supplier_quantity,
-            hut.unit_name,
-            h.attribute_bigint2
-            from
-            ssrc_rfx_header h
-            join ssrc_source_template sst on sst.template_id = h.template_id
-            left join smdm_tax st on st.tax_id = sst.tax_id
-            left join hpfm_purchase_organization hpo on hpo.purchase_org_id = h.pur_organization_id
-            left join smdm_payment_type pt on pt.type_id = h.payment_type_id
-            left join smdm_payment_term spt on spt.term_id = h.payment_term_id
-            left join ssrc_prequal_header sph on sph.rfx_header_id = h.rfx_header_id and sph.tenant_id = h.tenant_id and sph.prequal_category = 'RFX'
-            left join iam_user iu on sph.prequal_user_id = iu.id
-            left join hpfm_unit_tl hut on hut.unit_id = h.unit_id and hut.lang = #{lang}
-            left join ssrc_round_header ssrh on ssrh.tenant_id = h.tenant_id and ssrh.source_header_id = h.rfx_header_id and ssrh.source_from = 'RFX'
-            left join smdm_currency sc on sc.currency_code = h.currency_code and sc.tenant_id = h.tenant_id
-            left join smdm_currency_tl sct on sc.currency_id = sct.currency_id and sct.lang = #{lang}
-            <where>
-                <if test="rfxHeaderId != null">
-                    and h.rfx_header_id = #{rfxHeaderId}
-                </if>
-                <if test="tenantId != null">
-                    and h.tenant_id = #{tenantId}
-                </if>
-            </where>
-        </select>
+    <select id="selectOneRfxHeader" parameterType="org.srm.source.rfx.api.dto.HeaderQueryDTO"
+            resultType="org.srm.source.rfx.api.dto.RfxHeaderDTO">
+        <bind name="now" value="@org.apache.commons.lang3.time.DateUtils@truncate(new java.util.Date(), @java.util.Calendar@SECOND)"/>
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        <include refid="Base_Column_List"/>,
+        <include refid="Template_Column_List"/>,
+        <include refid="Prequal_Column_List"/>,
+        iu.real_name,
+        ssrh.quotation_round_number,
+        hpo.organization_name as pur_organization_name,
+        --(SELECT sum(ql.allotted_quantity * ql.valid_quotation_price * qh.exchange_rate / CASE WHEN srli.batch_price IS NULL OR srli.batch_price = 0 THEN 1 ELSE srli.batch_price END ) FROM ssrc_rfx_quotation_header qh JOIN ssrc_rfx_quotation_line ql ON ql.quotation_header_id = qh.quotation_header_id AND ql.round_number = qh.round_number JOIN ssrc_rfx_line_item srli ON ql.rfx_line_item_id = srli.rfx_line_item_id WHERE qh.rfx_header_id = h.rfx_header_id AND qh.round_number = h.round_number) AS total_price,
+        pt.type_name as payment_type_name,
+        spt.term_name as payment_term_name,
+        ssrh.round_quotation_end_date,
+        ssrh.round_header_status,
+        ssrh.round_quotation_rule,
+        ssrh.starting_reason,
+        sct.currency_name currency_code_meaning,
+        sst.tax_included_flag as template_tax_included_flag,
+        sst.tax_id as template_tax_id,
+        sst.expert_source,
+        st.tax_rate as template_tax_rate,
+        sst.freight_included_flag as template_freight_included_flag,
+        case WHEN h.sealed_quotation_flag = '1' THEN (select count(1) from ssrc_rfx_member rmb where rmb.rfx_header_id = h.rfx_header_id and rmb.rfx_role = 'OPENED_BY' and rmb.opened_flag = '0')  ELSE 0 end as unopened_number,
+        (select count(1) from ssrc_rfx_quotation_header srqh where srqh.rfx_header_id = h.rfx_header_id and srqh.tenant_id = h.tenant_id and srqh.quotation_status in ('QUOTED','FINISHED','ROUND_QUOTATION')) as quoted_supplier_quantity,
+        hut.unit_name,
+        h.attribute_bigint2
+        from
+        ssrc_rfx_header h
+        join ssrc_source_template sst on sst.template_id = h.template_id
+        left join smdm_tax st on st.tax_id = sst.tax_id
+        left join hpfm_purchase_organization hpo on hpo.purchase_org_id = h.pur_organization_id
+        left join smdm_payment_type pt on pt.type_id = h.payment_type_id
+        left join smdm_payment_term spt on spt.term_id = h.payment_term_id
+        left join ssrc_prequal_header sph on sph.rfx_header_id = h.rfx_header_id and sph.tenant_id = h.tenant_id and sph.prequal_category = 'RFX'
+        left join iam_user iu on sph.prequal_user_id = iu.id
+        left join hpfm_unit_tl hut on hut.unit_id = h.unit_id and hut.lang = #{lang}
+        left join ssrc_round_header ssrh on ssrh.tenant_id = h.tenant_id and ssrh.source_header_id = h.rfx_header_id and ssrh.source_from = 'RFX'
+        left join smdm_currency sc on sc.currency_code = h.currency_code and sc.tenant_id = h.tenant_id
+        left join smdm_currency_tl sct on sc.currency_id = sct.currency_id and sct.lang = #{lang}
+        <where>
+            <if test="rfxHeaderId != null">
+                and h.rfx_header_id = #{rfxHeaderId}
+            </if>
+            <if test="tenantId != null">
+                and h.tenant_id = #{tenantId}
+            </if>
+        </where>
+    </select>
 
 </mapper>
