@@ -41,6 +41,7 @@ public class RcwlRfxBargainServiceImpl extends RfxBargainServiceImpl {
             rfxQuotationHeader.setAttributeVarchar4(rfxQuotationLine.getAttributeVarchar2());
             rfxQuotationHeader.setAttributeVarchar3(rfxQuotationLine.getAttributeVarchar3());
         }
+
         //更新头表字段
         rfxQuotationHeaderRepository.updateByPrimaryKeySelective(rfxQuotationHeader);
         return (RfxHeader) this.rfxHeaderRepository.selectByPrimaryKey(rfxHeaderId);
