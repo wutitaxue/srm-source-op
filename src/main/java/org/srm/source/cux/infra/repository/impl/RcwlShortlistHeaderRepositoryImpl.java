@@ -81,6 +81,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     public Page<RcwlSupplierHeader> selectSupplierByShortlistHeaderId(PageRequest pageRequest, Long organizationId, Long shortlistHeaderId) {
         Page<RcwlSupplierHeader> page = PageHelper.doPageAndSort(pageRequest, () -> rcwlShortlistHeaderMapper.selectSupplierByShortlistHeaderId(organizationId, shortlistHeaderId));
         RcwlShortlistHeader rcwlShortlistHeader;
+
         for (RcwlSupplierHeader rcwlSupplierHeader : page) {
             rcwlShortlistHeader = this.selectByPrimaryKey(shortlistHeaderId);
 
