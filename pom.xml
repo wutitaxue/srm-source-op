@@ -15,6 +15,12 @@
             <groupId>org.srm-op</groupId>
             <artifactId>srm-source-rcwl-hotfix</artifactId>
             <version>1.13.1.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eweb4j</groupId>
+                    <artifactId>fel</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
