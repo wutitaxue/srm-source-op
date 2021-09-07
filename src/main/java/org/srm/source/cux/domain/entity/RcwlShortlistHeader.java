@@ -161,12 +161,23 @@ public class RcwlShortlistHeader extends ExpandDomain {
 
     private String url;
 
+    @ApiModelProperty("采购申请编号")
+    @Transient
 
+    private String prNum;
 
     //
     // getter/setter
     // ------------------------------------------------------------------------------
 
+
+    public String getPrNum() {
+        return prNum;
+    }
+
+    public void setPrNum(String prNum) {
+        this.prNum = prNum;
+    }
 
     public String getSourceCategoryMeaning() {
         return sourceCategoryMeaning;
