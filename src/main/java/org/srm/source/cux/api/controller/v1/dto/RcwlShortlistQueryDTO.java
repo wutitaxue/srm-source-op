@@ -3,6 +3,7 @@ package org.srm.source.cux.api.controller.v1.dto;
 import io.swagger.annotations.ApiModelProperty;
 
 
+import javax.persistence.Transient;
 import java.util.Date;
 
 /**
@@ -33,6 +34,18 @@ public class RcwlShortlistQueryDTO {
     private Date finishDateTo;
 
     private String sourceFrom;
+    @ApiModelProperty("采购申请编号")
+    @Transient
+
+    private String prNum;
+
+    public String getPrNum() {
+        return prNum;
+    }
+
+    public void setPrNum(String prNum) {
+        this.prNum = prNum;
+    }
 
     public String getSourceFrom() {
         return sourceFrom;
