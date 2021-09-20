@@ -784,5 +784,19 @@
         where h.tenant_id = #{organizationId}
           and h.shortlist_num = #{shotListNum}
     </select>
+    <select id="getPurchaseAgentByExpertInfo" resultType="org.srm.source.share.api.dto.UserDefaultDTO">
+        SELECT
+            iu.id,
+            iu.login_name,
+            iu.email,
+            iu.real_name,
+            iu.phone
+        FROM
+            iam_user iu JOIN hpfm_purchase_agent hpa ON hpa.purchase_agent_code = iu.login_name
+        WHERE iu.organization_id = #{organizationId}
+          and iu.is_enabled = 1
+          and iu.is_locked = 0
+          AND hpa.purchase_agent_id = #{purchaserId}
+    </select>
 
 </mapper>

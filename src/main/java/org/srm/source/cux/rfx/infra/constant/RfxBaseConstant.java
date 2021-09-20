@@ -20,6 +20,10 @@ public interface RfxBaseConstant {
     interface SourceFrom{
         String RFX = "RFX";
         String BID = "BID";
+        /**
+         * 自动生成专家（评分负责人）
+         */
+        String AUTO = "AUTO";
     }
 
     interface RfxRole{
@@ -27,6 +31,7 @@ public interface RfxBaseConstant {
     }
     interface ScoreStatus{
         String SUBMITTED = "SUBMITTED";
+        String NEW = "NEW";
     }
 
     interface ProcessAction{

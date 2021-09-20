@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import javassist.Loader;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
+import org.srm.source.cux.rfx.infra.constant.RfxBaseConstant;
 import org.srm.source.cux.shortrfx.app.service.RcwlShortListToRfxService;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.RfxLineSupplierService;
@@ -27,7 +29,11 @@ import org.srm.source.rfx.domain.repository.RfxLineSupplierRepository;
 import org.srm.source.share.api.dto.PrLineDTO;
 import org.srm.source.share.api.dto.PreFullSourceHeaderDTO;
 import org.srm.source.share.api.dto.PreSourceHeaderDTO;
+import org.srm.source.share.api.dto.UserDefaultDTO;
 import org.srm.source.share.app.service.PrLineService;
+import org.srm.source.share.domain.entity.EvaluateExpert;
+import org.srm.source.share.domain.repository.EvaluateExpertRepository;
+import org.srm.source.share.domain.repository.ExpertRepository;
 import org.srm.source.share.domain.vo.PrLineVO;
 import org.srm.web.annotation.Tenant;
 
@@ -60,6 +66,9 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
     @Autowired
     private RfxLineSupplierRepository rfxLineSupplierRepository;
     private static final Logger logger = LoggerFactory.getLogger(Loader.class);
+
+    @Autowired
+    private EvaluateExpertRepository evaluateExpertRepository;
 
 
     /**
@@ -147,6 +156,31 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         RfxHeader rfxHeader = preSourceHeaderDTO.getRfxHeader();
         rfxHeader.setSourceMethod("INVITE");
         preSourceHeaderDTO.setRfxHeader(rfxHeader);
+
+        // 根据头采购员，自动创建专家(评分负责人)
+        if (null != rfxHeader.getPurchaserId()) {
+            // 获取采购员对应的专家
+            UserDefaultDTO expertBy = this.rcwlShortlistHeaderRepository.getPurchaseAgentByExpertInfo(organizationId, rfxHeader.getPurchaserId());
+            if (null != expertBy) {
+                Long userId = DetailsHelper.getUserDetails().getUserId();
+                EvaluateExpert evaluateExpert = new EvaluateExpert();
+                evaluateExpert.setTenantId(organizationId);
+                evaluateExpert.setSourceHeaderId(rfxHeader.getRfxHeaderId());
+                evaluateExpert.setCreatedBy(userId);
+                evaluateExpert.setLastUpdatedBy(userId);
+                evaluateExpert.setSourceFrom(RfxBaseConstant.SourceFrom.RFX);
+                evaluateExpert.setExpertStatus(RfxBaseConstant.ScoreStatus.SUBMITTED);
+                evaluateExpert.setScoredStatus(RfxBaseConstant.ScoreStatus.NEW);
+                evaluateExpert.setTeam("BUSINESS_TECHNOLOGY");
+                evaluateExpert.setSequenceNum(1);
+                evaluateExpert.setEvaluateLeaderFlag(1);
+                evaluateExpert.setEndDateChangedFlag(0);
+                evaluateExpert.setExpertUserId(expertBy.getId());
+                evaluateExpert.setReviewScoredStatus(RfxBaseConstant.ScoreStatus.NEW);
+                evaluateExpert.setAttributeVarchar1(RfxBaseConstant.SourceFrom.AUTO);
+                this.evaluateExpertRepository.insert(evaluateExpert);
+            }
+        }
         return preSourceHeaderDTO;
     }
 }
