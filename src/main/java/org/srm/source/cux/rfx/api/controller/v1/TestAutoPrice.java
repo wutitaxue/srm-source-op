@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.srm.source.cux.rfx.infra.handle.RcwlEvaluateIndicHandler;
 import org.srm.source.cux.share.app.service.IRcwlEvaluateScoreLineService;
 import org.srm.source.share.api.dto.AutoScoreDTO;
+import org.srm.source.share.domain.entity.EvaluateSummary;
+import org.srm.source.share.domain.entity.ScoreIndic;
 import org.srm.web.annotation.Tenant;
 
 /**
@@ -55,7 +57,8 @@ public class TestAutoPrice {
             targetField = {"body"}
     )
      public ResponseEntity<ReturnT> test(@PathVariable Long organizationId) {
-        this.rcwlEvaluateScoreLineService.multipleRoundAutoEvaluateScore(new AutoScoreDTO(organizationId, "RFX", 281L, null));
+//        this.rcwlEvaluateScoreLineService.multipleRoundAutoEvaluateScore(new AutoScoreDTO(organizationId, "RFX", 281L, null));
+        this.rcwlEvaluateScoreLineService.updateEvaluateSummary(null, "RFX", 233L, 51L);
         return Results.success(ReturnT.SUCCESS);
     }
    /* public ResponseEntity<ReturnT> test(@PathVariable Long organizationId) {
