@@ -32,8 +32,10 @@ import org.srm.source.share.api.dto.PreSourceHeaderDTO;
 import org.srm.source.share.api.dto.UserDefaultDTO;
 import org.srm.source.share.app.service.PrLineService;
 import org.srm.source.share.domain.entity.EvaluateExpert;
+import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.repository.EvaluateExpertRepository;
 import org.srm.source.share.domain.repository.ExpertRepository;
+import org.srm.source.share.domain.repository.SourceTemplateRepository;
 import org.srm.source.share.domain.vo.PrLineVO;
 import org.srm.web.annotation.Tenant;
 
@@ -69,6 +71,8 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
 
     @Autowired
     private EvaluateExpertRepository evaluateExpertRepository;
+    @Autowired
+    private SourceTemplateRepository sourceTemplateRepository;
 
 
     /**
@@ -158,7 +162,10 @@ public class RcwlShortListToRfxServiceImpl implements RcwlShortListToRfxService 
         preSourceHeaderDTO.setRfxHeader(rfxHeader);
 
         // 根据头采购员，自动创建专家(评分负责人)
-        if (null != rfxHeader.getPurchaserId()) {
+        // 获取评分模板
+        SourceTemplate sourceTemplate = this.sourceTemplateRepository.selectByPrimaryKey(rfxHeader.getTemplateId());
+        // 线上专家评分 && 采购员存在，则自动生成专家评分负责人
+        if (RfxBaseConstant.SourceFrom.ONLINE.equalsIgnoreCase(sourceTemplate.getExpertScoreType()) && null != rfxHeader.getPurchaserId()) {
             // 获取采购员对应的专家
             UserDefaultDTO expertBy = this.rcwlShortlistHeaderRepository.getPurchaseAgentByExpertInfo(organizationId, rfxHeader.getPurchaserId());
             if (null != expertBy) {
