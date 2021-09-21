@@ -23,7 +23,11 @@ public interface RfxBaseConstant {
         /**
          * 自动生成专家（评分负责人）
          */
-        String AUTO = "AUTO";
+        String AUTO = "AUTO";/**
+         /**
+         * 线上专家评分
+         */
+        String ONLINE = "ONLINE";
     }
 
     interface RfxRole{
