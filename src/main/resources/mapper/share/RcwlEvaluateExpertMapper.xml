@@ -90,7 +90,8 @@
         see.object_version_number,
         i.login_name,
         i.phone,
-        i.email
+        i.email,
+        see.attribute_varchar1
         FROM
         ssrc_evaluate_expert see
         JOIN iam_user i ON i.organization_id = see.tenant_id AND i.id = see.expert_user_id
