@@ -94,16 +94,16 @@ public class RcwlSupplierHeader extends ExpandDomain {
     private String qualificationInfo;
     @ApiModelProperty(value = "注册资本")
     @NotNull
-    private Long capital;
+    private BigDecimal capital;
     @ApiModelProperty(value = "成立年限")
     @NotNull
     private Long years;
     @ApiModelProperty(value = "近1年营业额（万元）")
     @NotNull
-    private Long oneProfit;
+    private BigDecimal oneProfit;
     @ApiModelProperty(value = "近2年营业额（万元）")
     @NotNull
-    private Long twoProfit;
+    private BigDecimal twoProfit;
     @ApiModelProperty(value = "启用标识", required = true)
     @NotNull
     private Integer enabledFlag;
@@ -309,11 +309,11 @@ public class RcwlSupplierHeader extends ExpandDomain {
     /**
      * @return 注册资本
      */
-    public Long getCapital() {
+    public BigDecimal getCapital() {
         return capital;
     }
 
-    public void setCapital(Long capital) {
+    public void setCapital(BigDecimal capital) {
         this.capital = capital;
     }
 
@@ -331,22 +331,22 @@ public class RcwlSupplierHeader extends ExpandDomain {
     /**
      * @return 近1年营业额（万元）
      */
-    public Long getOneProfit() {
+    public BigDecimal getOneProfit() {
         return oneProfit;
     }
 
-    public void setOneProfit(Long oneProfit) {
+    public void setOneProfit(BigDecimal oneProfit) {
         this.oneProfit = oneProfit;
     }
 
     /**
      * @return 近2年营业额（万元）
      */
-    public Long getTwoProfit() {
+    public BigDecimal getTwoProfit() {
         return twoProfit;
     }
 
-    public void setTwoProfit(Long twoProfit) {
+    public void setTwoProfit(BigDecimal twoProfit) {
         this.twoProfit = twoProfit;
     }
 

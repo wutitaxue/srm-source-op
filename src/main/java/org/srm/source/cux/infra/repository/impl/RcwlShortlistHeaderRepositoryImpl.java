@@ -92,7 +92,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             logger.info("-------------rcwlSupplierHeader.getCapital():" + rcwlSupplierHeader.getCapital());
             if (ObjectUtils.allNotNull(rcwlSupplierHeader.getCapital())) {
                 logger.info("-------------供应商getCapital():{0},入围单getCapital()：{1}", rcwlSupplierHeader.getCapital(), rcwlShortlistHeader.getCapital());
-                if (rcwlSupplierHeader.getCapital() < rcwlShortlistHeader.getCapital()) {
+                if (rcwlSupplierHeader.getCapital().compareTo(rcwlShortlistHeader.getCapital()) == -1){
                     str1 = "注册资本不符合";
                 }
                 logger.info("-------------getYears():{0},getYears()：{1}", rcwlSupplierHeader.getYears(), rcwlShortlistHeader.getYears());
@@ -100,11 +100,11 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                     str2 = "成立年限不符合";
                 }
                 logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
-                if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
+                if (rcwlSupplierHeader.getOneProfit().compareTo(rcwlShortlistHeader.getOneProfit()) == -1){
                     str3 = "一年营收不符合";
                 }
                 logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
-                if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
+                if (rcwlSupplierHeader.getTwoProfit().compareTo(rcwlShortlistHeader.getTwoProfit()) == -1){
                     str4 = "两年营收不符合";
                 }
                 logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
@@ -304,10 +304,10 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setShortlistcategory(bpmHeaderData.getSourceCategoryMeaning());
         rcwlBpmShortListHeaderDTO.setStartdate(simpleDateFormat.format(bpmHeaderData.getStartDate()));
         rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
-        rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
+        rcwlBpmShortListHeaderDTO.setCapital(bpmHeaderData.getCapital() != null ? bpmHeaderData.getCapital().toString() : "");
         rcwlBpmShortListHeaderDTO.setYears(Long.toString(bpmHeaderData.getYears()));
-        rcwlBpmShortListHeaderDTO.setOneprofit(Long.toString(bpmHeaderData.getOneProfit()));
-        rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
+        rcwlBpmShortListHeaderDTO.setOneprofit(bpmHeaderData.getOneProfit() != null ? bpmHeaderData.getOneProfit().toString() : "");
+        rcwlBpmShortListHeaderDTO.setTwoprofit(bpmHeaderData.getTwoProfit() != null ? bpmHeaderData.getTwoProfit().toString() : "");
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
         rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
         rcwlBpmShortListHeaderDTO.setUrlMx(prUrl + bpmHeaderData.getShortlistHeaderId());

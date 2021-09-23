@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -85,13 +86,13 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @ApiModelProperty(value = "结束时间")
     private Date finishDate;
     @ApiModelProperty(value = "注册资本")
-    private Long capital;
+    private BigDecimal capital;
     @ApiModelProperty(value = "成立年限")
     private Long years;
     @ApiModelProperty(value = "近1年营业额（万元）")
-    private Long oneProfit;
+    private BigDecimal oneProfit;
     @ApiModelProperty(value = "近2年营业额（万元）")
-    private Long twoProfit;
+    private BigDecimal twoProfit;
     @ApiModelProperty(value = "状态")
     private String state;
     @ApiModelProperty(value = "是否审核")
@@ -319,11 +320,11 @@ public class RcwlShortlistHeader extends ExpandDomain {
     /**
      * @return 注册资本
      */
-    public Long getCapital() {
+    public BigDecimal getCapital() {
         return capital;
     }
 
-    public void setCapital(Long capital) {
+    public void setCapital(BigDecimal capital) {
         this.capital = capital;
     }
 
@@ -341,22 +342,22 @@ public class RcwlShortlistHeader extends ExpandDomain {
     /**
      * @return 近1年营业额（万元）
      */
-    public Long getOneProfit() {
+    public BigDecimal getOneProfit() {
         return oneProfit;
     }
 
-    public void setOneProfit(Long oneProfit) {
+    public void setOneProfit(BigDecimal oneProfit) {
         this.oneProfit = oneProfit;
     }
 
     /**
      * @return 近2年营业额（万元）
      */
-    public Long getTwoProfit() {
+    public BigDecimal getTwoProfit() {
         return twoProfit;
     }
 
-    public void setTwoProfit(Long twoProfit) {
+    public void setTwoProfit(BigDecimal twoProfit) {
         this.twoProfit = twoProfit;
     }
 
