@@ -86,7 +86,7 @@ public class RcwlShortlistHeader extends ExpandDomain {
     @ApiModelProperty(value = "结束时间")
     private Date finishDate;
     @ApiModelProperty(value = "注册资本")
-    private Long capital;
+    private BigDecimal capital;
     @ApiModelProperty(value = "成立年限")
     private Long years;
     @ApiModelProperty(value = "近1年营业额（万元）")
@@ -320,11 +320,11 @@ public class RcwlShortlistHeader extends ExpandDomain {
     /**
      * @return 注册资本
      */
-    public Long getCapital() {
+    public BigDecimal getCapital() {
         return capital;
     }
 
-    public void setCapital(Long capital) {
+    public void setCapital(BigDecimal capital) {
         this.capital = capital;
     }
 
