@@ -10,6 +10,7 @@ import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.vo.SupplierVO;
 import org.srm.source.share.api.dto.User;
+import org.srm.source.share.api.dto.UserDefaultDTO;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import java.io.IOException;
@@ -156,4 +157,12 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @return
      */
     Long rcwlSelectShortListHeaderIdByCode(Long organizationId, String shotListNum);
+
+    /**
+     * 根据采购员获取专家子账户
+     * @param organizationId 租户id
+     * @param purchaserId rfx头采购员id
+     * @return
+     */
+    UserDefaultDTO getPurchaseAgentByExpertInfo(Long organizationId, Long purchaserId);
 }

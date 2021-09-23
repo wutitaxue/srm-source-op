@@ -30,6 +30,7 @@ import org.srm.source.cux.domain.vo.CompanyContactVO;
 import org.srm.source.cux.domain.vo.SupplierVO;
 import org.srm.source.cux.infra.mapper.RcwlShortlistHeaderMapper;
 import org.srm.source.share.api.dto.User;
+import org.srm.source.share.api.dto.UserDefaultDTO;
 import org.srm.source.share.domain.vo.PrLineVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -379,5 +380,10 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public Long rcwlSelectShortListHeaderIdByCode(Long organizationId, String shotListNum) {
         return rcwlShortlistHeaderMapper.rcwlSelectShortListHeaderIdByCode(organizationId, shotListNum);
+    }
+
+    @Override
+    public UserDefaultDTO getPurchaseAgentByExpertInfo(Long organizationId, Long purchaserId) {
+        return this.rcwlShortlistHeaderMapper.getPurchaseAgentByExpertInfo(organizationId, purchaserId);
     }
 }
