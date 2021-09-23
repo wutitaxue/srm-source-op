@@ -94,7 +94,7 @@ public class RcwlSupplierHeader extends ExpandDomain {
     private String qualificationInfo;
     @ApiModelProperty(value = "注册资本")
     @NotNull
-    private Long capital;
+    private BigDecimal capital;
     @ApiModelProperty(value = "成立年限")
     @NotNull
     private Long years;
@@ -310,11 +310,11 @@ public class RcwlSupplierHeader extends ExpandDomain {
     /**
      * @return 注册资本
      */
-    public Long getCapital() {
+    public BigDecimal getCapital() {
         return capital;
     }
 
-    public void setCapital(Long capital) {
+    public void setCapital(BigDecimal capital) {
         this.capital = capital;
     }
 
