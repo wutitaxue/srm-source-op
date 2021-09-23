@@ -99,11 +99,11 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
                     str2 = "成立年限不符合";
                 }
                 logger.info("-------------getOneProfit():{0},getOneProfit()：{1}", rcwlSupplierHeader.getOneProfit(), rcwlShortlistHeader.getOneProfit());
-                if (rcwlSupplierHeader.getOneProfit() < rcwlShortlistHeader.getOneProfit()) {
+                if (rcwlSupplierHeader.getOneProfit().compareTo(rcwlShortlistHeader.getOneProfit()) == -1){
                     str3 = "一年营收不符合";
                 }
                 logger.info("-------------getTwoProfit():{0},getTwoProfit()：{1}", rcwlSupplierHeader.getTwoProfit(), rcwlShortlistHeader.getTwoProfit());
-                if (rcwlSupplierHeader.getTwoProfit() < rcwlShortlistHeader.getTwoProfit()) {
+                if (rcwlSupplierHeader.getTwoProfit().compareTo(rcwlShortlistHeader.getTwoProfit()) == -1){
                     str4 = "两年营收不符合";
                 }
                 logger.info("-------------str1:{0},str2:{1},str3:{3},str4:{4}", str1, str2, str3, str4);
@@ -305,8 +305,8 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
         rcwlBpmShortListHeaderDTO.setFinishdate(simpleDateFormat.format(bpmHeaderData.getFinishDate()));
         rcwlBpmShortListHeaderDTO.setCapital(Long.toString(bpmHeaderData.getCapital()));
         rcwlBpmShortListHeaderDTO.setYears(Long.toString(bpmHeaderData.getYears()));
-        rcwlBpmShortListHeaderDTO.setOneprofit(Long.toString(bpmHeaderData.getOneProfit()));
-        rcwlBpmShortListHeaderDTO.setTwoprofit(Long.toString(bpmHeaderData.getTwoProfit()));
+        rcwlBpmShortListHeaderDTO.setOneprofit(bpmHeaderData.getOneProfit() != null ? bpmHeaderData.getOneProfit().toString() : "");
+        rcwlBpmShortListHeaderDTO.setTwoprofit(bpmHeaderData.getTwoProfit() != null ? bpmHeaderData.getTwoProfit().toString() : "");
         rcwlBpmShortListHeaderDTO.setRequirements(bpmHeaderData.getRequestContent());
         rcwlBpmShortListHeaderDTO.setCompany(bpmHeaderData.getCompanyName());
         rcwlBpmShortListHeaderDTO.setUrlMx(prUrl + bpmHeaderData.getShortlistHeaderId());
