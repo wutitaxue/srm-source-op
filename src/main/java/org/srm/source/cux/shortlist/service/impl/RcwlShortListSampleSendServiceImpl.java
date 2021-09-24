@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javassist.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.srm.source.cux.shortlist.api.dto.RcwlSampleSendReqDTO;
 import org.srm.source.cux.shortlist.service.RcwlShortListSampleSendService;
 
@@ -14,6 +15,7 @@ import org.srm.source.cux.shortlist.service.RcwlShortListSampleSendService;
  * @date 2021/5/28 15:15
  * @version:1.0
  */
+@Component
 public class RcwlShortListSampleSendServiceImpl implements RcwlShortListSampleSendService {
     private static final Logger logger = LoggerFactory.getLogger(Loader.class);
 
