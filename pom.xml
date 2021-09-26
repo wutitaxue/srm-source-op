@@ -45,16 +45,6 @@
             <artifactId>amkt-hzero-client</artifactId>
             <version>1.14.1.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>org.hzero.boot</groupId>
-            <artifactId>hzero-boot-interface</artifactId>
-            <version>1.6.4.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hzero.plugin</groupId>
-            <artifactId>interface-authorization</artifactId>
-            <version>1.6.4.RELEASE</version>
-        </dependency>
     </dependencies>
 
     <repositories>
