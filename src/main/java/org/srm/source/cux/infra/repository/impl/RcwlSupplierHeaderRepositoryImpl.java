@@ -101,6 +101,8 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
             if (SHORTLIST_CATEGEORY_INVITATION.equals(rcwlShortlistHeader.getShortlistCategory())) {
                 rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_PARTICIPATED);
             }
+            //设置报名时间
+            rcwlSupplierHeader.setEnrollDate(new Date());
             this.self().insertSelective(rcwlSupplierHeader);
         } else {
             if (ObjectUtils.allNotNull(rcwlSupplierHeader.getObjectVersionNumber())) {
