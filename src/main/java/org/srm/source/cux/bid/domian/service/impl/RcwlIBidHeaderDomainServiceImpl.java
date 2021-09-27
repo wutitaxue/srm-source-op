@@ -36,7 +36,6 @@ import org.srm.web.annotation.Tenant;
  * @author xiubing.wang@hand-china.com 2021/09/27 16:44
  */
 @Service
-@Tenant("SRM-RCWL")
 public class RcwlIBidHeaderDomainServiceImpl extends IBidHeaderDomainServiceImpl {
     @Autowired
     private BidHeaderRepository bidHeaderRepository;
