@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.srm.source.cux.bid.infra.mapper.RcwlIBidHeaderMapper">
+
+    <select id="selectRfxInfo" resultType="org.srm.source.cux.bid.api.dto.RfxHeaderInfoDTO">
+        <bind name="now" value="@org.apache.commons.lang3.time.DateUtils@truncate(new java.util.Date(), @java.util.Calendar@SECOND)"/>
+        SELECT
+        sr.tenant_id,
+        sr.rfx_header_id,
+        sr.rfx_num,
+        sr.rfx_title,
+        sr.quotation_end_date,
+        sst.password_flag
+        FROM
+        ssrc_rfx_header sr
+        LEFT join ssrc_source_template sst on sst.template_id = sr.template_id
+        WHERE
+        (sr.rfx_status = 'IN_QUOTATION' AND (sr.latest_quotation_end_date &lt; #{now} and sst.opener_flag = '1' and sr.sealed_quotation_flag = '1'))
+        AND ( #{tenMinuteBefore} &lt;= sr.quotation_end_date  and #{now} &gt;= sr.quotation_end_date)
+        AND sr.attribute_varchar1 is null
+    </select>
+
+
+    <select id="selectRfxOpeners" resultType="org.srm.source.cux.bid.api.dto.RfxHeaderInfoDTO">
+        SELECT
+            srm.user_id,
+            iu.phone,
+            iu.email
+        FROM
+            ssrc_rfx_member srm
+            LEFT JOIN hiam_user_info hui ON srm.user_id = hui.user_id
+            LEFT JOIN iam_user iu ON hui.user_id = iu.id
+        WHERE
+            srm.rfx_role = 'OPENED_BY'
+            AND srm.rfx_header_id = #{rfxHeaderId}
+            AND srm.tenant_id = #{tenantId}
+    </select>
+
+    <update id="updateSendFlag">
+        update ssrc_rfx_header
+        set attribute_varchar1 = '1'
+        where rfx_header_id = #{rfxHeaderId}
+        and tenant_id = #{tenantId}
+    </update>
+
+</mapper>
