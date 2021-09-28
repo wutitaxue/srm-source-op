@@ -15,8 +15,8 @@
         ssrc_rfx_header sr
         LEFT join ssrc_source_template sst on sst.template_id = sr.template_id
         WHERE
-        (sr.rfx_status = 'IN_QUOTATION' AND (sr.latest_quotation_end_date &lt; #{now} and sst.opener_flag = '1' and sr.sealed_quotation_flag = '1'))
-        AND ( #{tenMinuteBefore} &lt;= sr.quotation_end_date  and #{now} &gt;= sr.quotation_end_date)
+        (sr.rfx_status = 'IN_QUOTATION' AND (sr.latest_quotation_end_date &lt; #{tenMinuteBefore} and sst.opener_flag = '1' and sr.sealed_quotation_flag = '1'))
+        AND ( #{tenMinuteBefore} &gt; sr.quotation_end_date  and #{now} &lt;= sr.quotation_end_date)
         AND sr.attribute_varchar1 is null
     </select>
 
