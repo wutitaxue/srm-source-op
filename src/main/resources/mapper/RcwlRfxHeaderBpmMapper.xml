@@ -228,18 +228,21 @@
         and tenant_id =  #{organizationId}
     </select>
     <select id="prepareSupplierData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlSupplierData">
-        SELECT
-            hc.company_num SupplierCompanyNum,
-            hc.company_name SupplierCompanyName,
-            ( SELECT scb.registered_capital FROM spfm_company_basic scb WHERE scb.company_id = hc.source_key ORDER BY scb.object_version_number LIMIT 1 ) RegisteredCapital,
-            ( SELECT t.real_name FROM iam_user t WHERE t.id = srls.supplier_contact_id ) ContactName,
-            ( SELECT t.phone FROM iam_user t WHERE t.id = srls.supplier_contact_id ) ContactMobilePhone
-        FROM
-            ssrc_rfx_line_supplier srls
-            LEFT JOIN hpfm_company hc ON hc.company_id = srls.supplier_company_id
-            AND hc.tenant_id = srls.supplier_tenant_id
-        where srls.tenant_id = #{organizationId}
-        and srls.rfx_header_id = #{rfxHeader.rfxHeaderId}
+SELECT
+	srls.supplier_company_id,
+	hc.company_num SupplierCompanyNum,
+	hc.company_name SupplierCompanyName,
+	srls.supplier_contact_id,
+	( SELECT scb.registered_capital FROM spfm_company_basic scb WHERE scb.company_id = hc.source_key ORDER BY scb.object_version_number LIMIT 1 ) RegisteredCapital,
+	( SELECT t.name FROM sslm_supplier_contact t WHERE t.supplier_contact_id = srls.supplier_contact_id ) ContactName,
+	( SELECT t.mobilephone FROM sslm_supplier_contact t WHERE t.supplier_contact_id = srls.supplier_contact_id ) ContactMobilePhone
+FROM
+	ssrc_rfx_line_supplier srls
+	LEFT JOIN hpfm_company hc ON hc.company_id = srls.supplier_company_id
+	AND hc.tenant_id = srls.supplier_tenant_id
+WHERE
+	srls.tenant_id = #{organizationId}
+	AND srls.rfx_header_id = #{rfxHeader.rfxHeaderId}
     </select>
     <select id="prepareDetailData" resultType="org.srm.source.cux.rfx.domain.vo.RcwlDetailData">
         SELECT
