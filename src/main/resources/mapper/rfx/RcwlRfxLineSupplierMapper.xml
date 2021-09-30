@@ -289,14 +289,14 @@
         summary.business_score,
         summary.technology_score,
         ( SELECT
-        sum( round(
+        round(sum(
         <if test='priceTypeCode != null and priceTypeCode == "TAX_INCLUDED_PRICE"'>
               srql.valid_quotation_price *
           </if>
         <if test='priceTypeCode != null and priceTypeCode == "NET_PRICE"'>
             srql.valid_net_price *
         </if>
-             srql.valid_quotation_quantity,2)  )
+             srql.valid_quotation_quantity  ),2)
         FROM
         ssrc_rfx_quotation_line srql
         JOIN ssrc_rfx_quotation_header srqh ON srql.quotation_header_id = srqh.quotation_header_id
