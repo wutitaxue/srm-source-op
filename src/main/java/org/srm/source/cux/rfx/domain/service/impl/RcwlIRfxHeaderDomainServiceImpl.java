@@ -1,4 +1,4 @@
-package org.srm.source.cux.rfx.infra.repository.impl;
+package org.srm.source.cux.rfx.domain.service.impl;
 
 import java.util.Date;
 import java.util.List;

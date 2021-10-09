@@ -1,4 +1,4 @@
-package org.srm.source.cux.share.infra.repository.impl;
+package org.srm.source.cux.share.domain.service.impl;
 
 import java.util.List;
 
