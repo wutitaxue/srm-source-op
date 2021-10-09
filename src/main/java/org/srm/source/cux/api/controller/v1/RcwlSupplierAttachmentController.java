@@ -2,6 +2,7 @@ package org.srm.source.cux.api.controller.v1;
 
 import io.choerodon.core.oauth.DetailsHelper;
 import io.swagger.annotations.Api;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.srm.source.cux.app.service.RcwlSupplierAttachmentService;
@@ -22,6 +23,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,6 +49,12 @@ public class RcwlSupplierAttachmentController extends BaseController {
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
         rcwlSupplierAttachment.setShortListId(shortlistId);
         Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSortByRcwlSupplierAttachment(pageRequest, rcwlSupplierAttachment);
+        //若采购方未上传附件，添加默认数据，使供应商可上传附加
+        if(CollectionUtils.isEmpty(list.getContent())){
+            List<RcwlSupplierAttachment> attachmentList = new ArrayList<>();
+            attachmentList.add(new RcwlSupplierAttachment());
+            list.setContent(attachmentList);
+        }
         return Results.success(list);
     }
 
