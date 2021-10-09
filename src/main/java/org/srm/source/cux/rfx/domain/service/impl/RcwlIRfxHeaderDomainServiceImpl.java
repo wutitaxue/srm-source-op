@@ -24,7 +24,7 @@ import org.srm.web.annotation.Tenant;
  * @date: 2021/10/9 10:19
  */
 @Service
-@Tenant(RcwlSourceConstant.TENANT_CODE)
+@Tenant("SRM-RCWL")
 public class RcwlIRfxHeaderDomainServiceImpl extends IRfxHeaderDomainServiceImpl {
     @Autowired
     private RfxHeaderRepository rfxHeaderRepository;
