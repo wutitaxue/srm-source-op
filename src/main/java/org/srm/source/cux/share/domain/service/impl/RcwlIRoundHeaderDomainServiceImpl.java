@@ -7,6 +7,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.srm.source.cux.rfx.infra.constant.RcwlSourceConstant;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -23,7 +25,7 @@ import org.srm.web.annotation.Tenant;
  * @author: lmr
  * @date: 2021/10/9 10:20
  */
-@Component
+@Service
 @Tenant(RcwlSourceConstant.TENANT_CODE)
 public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainServiceImpl {
     @Autowired
@@ -35,9 +37,11 @@ public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainService
     @Autowired
     private RfxHeaderService rfxHeaderService;
 
+    @Transactional(
+            rollbackFor = {Exception.class}
+    )
     @Override
     public void updateRoundQuotationEndDate(RfxHeader realRfxHeader, String roundQuotationRule) {
-        Log.info("-----------updateRoundQuotationEndDate------------------->>>>");
         if (roundQuotationRule != null && !"NONE".equals(roundQuotationRule) && !"AUTO".equals(roundQuotationRule)) {
             RoundHeader roundHeaderDb = (RoundHeader)this.roundHeaderRepository.selectOne(new RoundHeader(realRfxHeader.getTenantId(), realRfxHeader.getRfxHeaderId(), "RFX"));
             SourceTemplate sourceTemplate = (SourceTemplate)this.sourceTemplateRepository.selectByPrimaryKey(realRfxHeader.getTemplateId());
