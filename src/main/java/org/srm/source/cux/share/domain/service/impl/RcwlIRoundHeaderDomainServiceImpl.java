@@ -2,6 +2,7 @@ package org.srm.source.cux.share.domain.service.impl;
 
 import java.util.List;
 
+import com.esotericsoftware.minlog.Log;
 import org.apache.commons.collections.CollectionUtils;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainService
 
     @Override
     public void updateRoundQuotationEndDate(RfxHeader realRfxHeader, String roundQuotationRule) {
+        Log.info("-----------updateRoundQuotationEndDate------------------->>>>");
         if (roundQuotationRule != null && !"NONE".equals(roundQuotationRule) && !"AUTO".equals(roundQuotationRule)) {
             RoundHeader roundHeaderDb = (RoundHeader)this.roundHeaderRepository.selectOne(new RoundHeader(realRfxHeader.getTenantId(), realRfxHeader.getRfxHeaderId(), "RFX"));
             SourceTemplate sourceTemplate = (SourceTemplate)this.sourceTemplateRepository.selectByPrimaryKey(realRfxHeader.getTemplateId());

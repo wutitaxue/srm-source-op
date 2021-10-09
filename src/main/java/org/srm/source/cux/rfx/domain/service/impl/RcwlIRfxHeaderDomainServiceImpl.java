@@ -3,6 +3,7 @@ package org.srm.source.cux.rfx.domain.service.impl;
 import java.util.Date;
 import java.util.List;
 
+import com.esotericsoftware.minlog.Log;
 import org.hzero.boot.customize.util.CustomizeHelper;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class RcwlIRfxHeaderDomainServiceImpl extends IRfxHeaderDomainServiceImpl
     @Override
     public void updateBargainEndDate(RfxHeader realRfxHeader) {
         if ("BARGAINING_ONLINE".equals(realRfxHeader.getBargainStatus())) {
+            Log.info("-----------updateBargainEndDate------------------->>>>");
             Assert.isTrue((new Date()).compareTo(realRfxHeader.getBargainEndDate()) < 0, "error.round_quotation_end_date");
             RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(realRfxHeader.getRfxHeaderId());
             rfxHeader.setBargainEndDate(realRfxHeader.getBargainEndDate());
