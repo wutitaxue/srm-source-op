@@ -26,7 +26,7 @@ import org.srm.web.annotation.Tenant;
  * @date: 2021/10/9 10:20
  */
 @Service
-@Tenant(RcwlSourceConstant.TENANT_CODE)
+@Tenant("SRM-RCWL")
 public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainServiceImpl {
     @Autowired
     private RoundHeaderRepository roundHeaderRepository;
