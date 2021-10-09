@@ -1,15 +1,14 @@
 package org.srm.source.cux.share.domain.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
-import com.esotericsoftware.minlog.Log;
+import com.netflix.discovery.converters.Auto;
 import org.apache.commons.collections.CollectionUtils;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.srm.source.cux.rfx.infra.constant.RcwlSourceConstant;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.share.domain.entity.RoundHeader;
@@ -23,6 +22,7 @@ import org.srm.web.annotation.Tenant;
 
 /**
  * @author: lmr
+<<<<<<< HEAD
  * @date: 2021/10/9 10:20
  */
 @Service
@@ -37,9 +37,7 @@ public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainService
     @Autowired
     private RfxHeaderService rfxHeaderService;
 
-    @Transactional(
-            rollbackFor = {Exception.class}
-    )
+    @Transactional(rollbackFor = {Exception.class})
     @Override
     public void updateRoundQuotationEndDate(RfxHeader realRfxHeader, String roundQuotationRule) {
         if (roundQuotationRule != null && !"NONE".equals(roundQuotationRule) && !"AUTO".equals(roundQuotationRule)) {
@@ -64,6 +62,4 @@ public class RcwlIRoundHeaderDomainServiceImpl extends IRoundHeaderDomainService
 
         }
     }
-
-
 }
