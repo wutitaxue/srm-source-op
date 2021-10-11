@@ -192,6 +192,19 @@
         FROM scux_rcwl_shortlist_attachment
         WHERE rcwl_shortlist_attachment_id = #{rcwlShortlistAttachmentId}
     </delete>
+
+    <select id="rcwlSupplierAttachmentCount" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM scux_rcwl_shortlist_attachment srsa
+        LEFT JOIN scux_rcwl_supplier_attachment srsa2
+        ON srsa.rcwl_shortlist_attachment_id = srsa2.rcwl_shortlist_attachment_id
+        <if test="rcwlSupplierHeaderId!=null and rcwlSupplierHeaderId!=''">
+            and srsa2.rcwl_supplier_header_id = #{rcwlSupplierHeaderId}
+        </if>
+        LEFT JOIN iam_user iu ON iu.id = srsa.upload_user_id
+        where srsa.shortlist_id = #{shortListId}
+    </select>
+
     <select id="selectByRcwlSupplierAttachment"
             resultType="org.srm.source.cux.domain.entity.RcwlSupplierAttachment">
         SELECT srsa2.rcwl_supplier_attachment_id,

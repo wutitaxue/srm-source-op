@@ -13,6 +13,14 @@ import org.srm.source.cux.domain.entity.RcwlSupplierAttachment;
 public interface RcwlSupplierAttachmentRepository extends BaseRepository<RcwlSupplierAttachment> {
 
     /**
+     * 查询供应商附件信息条数
+     *
+     * @param rcwlSupplierAttachment 查询条件
+     * @return Long
+     */
+    Long rcwlSupplierAttachmentCount(RcwlSupplierAttachment rcwlSupplierAttachment);
+
+    /**
      * 查询供应商附件信息
      *
      * @param pageRequest            分页
