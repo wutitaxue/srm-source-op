@@ -12,6 +12,7 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import org.srm.common.mybatis.domain.ExpandDomain;
 
 /**
@@ -22,6 +23,7 @@ import org.srm.common.mybatis.domain.ExpandDomain;
 @ApiModel("入围单附件模版")
 @VersionAudit
 @ModifyAudit
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Table(name = "scux_rcwl_shortlist_attachment")
 public class RcwlShortlistAttachment extends ExpandDomain {

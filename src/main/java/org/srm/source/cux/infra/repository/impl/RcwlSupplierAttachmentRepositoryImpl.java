@@ -22,6 +22,11 @@ public class RcwlSupplierAttachmentRepositoryImpl extends BaseRepositoryImpl<Rcw
     private RcwlSupplierAttachmentMapper rcwlSupplierAttachmentMapper;
 
     @Override
+    public Long rcwlSupplierAttachmentCount(RcwlSupplierAttachment rcwlSupplierAttachment) {
+        return rcwlSupplierAttachmentMapper.rcwlSupplierAttachmentCount(rcwlSupplierAttachment);
+    }
+
+    @Override
     public Page<RcwlSupplierAttachment> pageAndSortByRcwlSupplierAttachment(PageRequest pageRequest, RcwlSupplierAttachment rcwlSupplierAttachment) {
         return PageHelper.doPageAndSort(pageRequest, () -> rcwlSupplierAttachmentMapper.selectByRcwlSupplierAttachment(rcwlSupplierAttachment));
     }
