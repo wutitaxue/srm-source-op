@@ -5,14 +5,14 @@ import org.hzero.boot.customize.util.CustomizeHelper;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.srm.source.cux.infra.constant.RcwlShareConstants;
 import org.srm.source.rfx.domain.entity.RfxHeader;
 import org.srm.source.rfx.domain.entity.RfxLineItem;
+import org.srm.source.rfx.domain.entity.RfxQuotationHeader;
 import org.srm.source.rfx.domain.entity.RfxQuotationLine;
-import org.srm.source.rfx.domain.repository.RfxHeaderRepository;
-import org.srm.source.rfx.domain.repository.RfxLineItemRepository;
-import org.srm.source.rfx.domain.repository.RfxMemberRepository;
-import org.srm.source.rfx.domain.repository.RfxQuotationLineRepository;
+import org.srm.source.rfx.domain.repository.*;
 import org.srm.source.rfx.domain.service.impl.IRfxHeaderDomainServiceImpl;
 import org.srm.source.rfx.infra.constant.SourceConstants;
 import org.srm.source.share.infra.constant.ShareConstants;
@@ -38,6 +38,8 @@ public class RcwlIRfxHeaderDomainServiceImpl extends IRfxHeaderDomainServiceImpl
     private RfxQuotationLineRepository rfxQuotationLineRepository;
     @Autowired
     RfxMemberRepository rfxMemberRepository;
+    @Autowired
+    private RfxQuotationHeaderRepository rfxQuotationHeaderRepository;
 
     @Override
     public void initItemStartAndEndDate(RfxHeader header, List<RfxLineItem> itemList) {
@@ -277,6 +279,26 @@ public class RcwlIRfxHeaderDomainServiceImpl extends IRfxHeaderDomainServiceImpl
 
                 return;
             }
+        }
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
+    public void updateBargainEndDate(RfxHeader realRfxHeader) {
+        if ("BARGAINING_ONLINE".equals(realRfxHeader.getBargainStatus())) {
+            Assert.isTrue((new Date()).compareTo(realRfxHeader.getBargainEndDate()) < 0, "error.round_quotation_end_date");
+            RfxHeader rfxHeader = (RfxHeader)this.rfxHeaderRepository.selectByPrimaryKey(realRfxHeader.getRfxHeaderId());
+            rfxHeader.setBargainEndDate(realRfxHeader.getBargainEndDate());
+            CustomizeHelper.ignore(() -> {
+                return this.rfxHeaderRepository.updateOptional(rfxHeader, new String[]{"bargainEndDate"});
+            });
+            RfxQuotationHeader temp = new RfxQuotationHeader(realRfxHeader.getTenantId(), realRfxHeader.getRfxHeaderId());
+            temp.setBargainFlag(BaseConstants.Flag.YES);
+            List<RfxQuotationHeader> rfxQuotationHeaders = this.rfxQuotationHeaderRepository.select(temp);
+            rfxQuotationHeaders.forEach((e) -> {
+                e.setBargainEndDate(realRfxHeader.getBargainEndDate());
+            });
+            this.rfxQuotationHeaderRepository.batchUpdateOptional(rfxQuotationHeaders, new String[]{"bargainEndDate"});
         }
     }
 }
