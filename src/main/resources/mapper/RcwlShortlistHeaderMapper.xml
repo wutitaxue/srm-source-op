@@ -741,7 +741,7 @@
                h.attribute_varchar5                                                                              investigate,
                h.attribute_varchar6                                                                              investigatereasons,
                (CASE h.enroll WHEN 1 THEN '是' ELSE '否' END)                                                      enroll,
-               h.enroll_date,
+               date_format(h.enroll_date, '%Y-%m-%d %H:%i:%s') enroll_date,
                h.contacts,
                h.phone,
                (SELECT slcs.stage_description FROM sslm_life_cycle_stages slcs WHERE slcs.stage_id = h.stage_id) period,
