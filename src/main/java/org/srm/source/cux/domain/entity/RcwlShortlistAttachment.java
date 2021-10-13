@@ -23,7 +23,6 @@ import org.srm.common.mybatis.domain.ExpandDomain;
 @ApiModel("入围单附件模版")
 @VersionAudit
 @ModifyAudit
-@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Table(name = "scux_rcwl_shortlist_attachment")
 public class RcwlShortlistAttachment extends ExpandDomain {
