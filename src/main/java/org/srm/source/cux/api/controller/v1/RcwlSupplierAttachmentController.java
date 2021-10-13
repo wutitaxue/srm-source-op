@@ -57,8 +57,11 @@ public class RcwlSupplierAttachmentController extends BaseController {
         Long totoalCount = rcwlSupplierAttachmentRepository.rcwlSupplierAttachmentCount(rcwlSupplierAttachment);
         if (totoalCount == 0) {
             //若采购方未上传附件，添加默认数据，使供应商可上传附加
-            RcwlShortlistAttachment rcwlShortlistAttachment = RcwlShortlistAttachment.builder()
-                    .shortlistId(shortlistId).attachmentName("默认附件").uploadUserId(2L).tenantId(BaseConstants.DEFAULT_TENANT_ID).build();
+            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
+            rcwlShortlistAttachment.setShortlistId(shortlistId);
+            rcwlShortlistAttachment.setAttachmentName("默认附件");
+            rcwlShortlistAttachment.setUploadUserId(2L);
+            rcwlShortlistAttachment.setTenantId(BaseConstants.DEFAULT_TENANT_ID);
             rcwlShortlistAttachmentRepository.insertSelective(rcwlShortlistAttachment);
         }
         Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSortByRcwlSupplierAttachment(pageRequest, rcwlSupplierAttachment);
