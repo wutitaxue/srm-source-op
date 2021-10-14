@@ -2,11 +2,15 @@ package org.srm.source.cux.api.controller.v1;
 
 import io.choerodon.core.oauth.DetailsHelper;
 import io.swagger.annotations.Api;
+import org.apache.commons.collections4.CollectionUtils;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.srm.source.cux.app.service.RcwlSupplierAttachmentService;
 import org.srm.source.cux.config.ShortlistSourceSwaggerApiConfig;
+import org.srm.source.cux.domain.entity.RcwlShortlistAttachment;
 import org.srm.source.cux.domain.entity.RcwlSupplierAttachment;
+import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
 import org.srm.source.cux.domain.repository.RcwlSupplierAttachmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +43,9 @@ public class RcwlSupplierAttachmentController extends BaseController {
     private RcwlSupplierAttachmentRepository rcwlSupplierAttachmentRepository;
 
     @Autowired
+    private RcwlShortlistAttachmentRepository rcwlShortlistAttachmentRepository;
+
+    @Autowired
     private RcwlSupplierAttachmentService rcwlSupplierAttachmentService;
 
     @ApiOperation(value = "入围供应商单附件列表")
@@ -46,6 +54,16 @@ public class RcwlSupplierAttachmentController extends BaseController {
     public ResponseEntity<Page<RcwlSupplierAttachment>> list(RcwlSupplierAttachment rcwlSupplierAttachment, @RequestParam("shortlistId") Long shortlistId, @ApiIgnore @SortDefault(value = RcwlSupplierAttachment.FIELD_RCWL_SUPPLIER_ATTACHMENT_ID,
             direction = Sort.Direction.DESC) PageRequest pageRequest) {
         rcwlSupplierAttachment.setShortListId(shortlistId);
+        Long totoalCount = rcwlSupplierAttachmentRepository.rcwlSupplierAttachmentCount(rcwlSupplierAttachment);
+        if (totoalCount == 0) {
+            //若采购方未上传附件，添加默认数据，使供应商可上传附加
+            RcwlShortlistAttachment rcwlShortlistAttachment = new RcwlShortlistAttachment();
+            rcwlShortlistAttachment.setShortlistId(shortlistId);
+            rcwlShortlistAttachment.setAttachmentName("默认附件");
+            rcwlShortlistAttachment.setUploadUserId(2L);
+            rcwlShortlistAttachment.setTenantId(BaseConstants.DEFAULT_TENANT_ID);
+            rcwlShortlistAttachmentRepository.insertSelective(rcwlShortlistAttachment);
+        }
         Page<RcwlSupplierAttachment> list = rcwlSupplierAttachmentRepository.pageAndSortByRcwlSupplierAttachment(pageRequest, rcwlSupplierAttachment);
         return Results.success(list);
     }

@@ -15,6 +15,14 @@ import java.util.List;
 public interface RcwlSupplierAttachmentMapper extends BaseMapper<RcwlSupplierAttachment> {
 
     /**
+     * 查询供应商附件信息条数
+     *
+     * @param rcwlSupplierAttachment 查询条件
+     * @return Long
+     */
+    Long rcwlSupplierAttachmentCount(RcwlSupplierAttachment rcwlSupplierAttachment);
+
+    /**
      * 查询供应商附件信息
      *
      * @param rcwlSupplierAttachment 查询条件
