@@ -434,8 +434,8 @@
         iu.id = #{userId} limit 1
     </select>
     <select id="selectContactsByCompanyId" resultType="org.srm.source.cux.domain.vo.CompanyContactVO">
-        select ssc.name,
-               ssc.mobilephone
+        select ssc.name contact,
+               ssc.mobilephone phone
         from sslm_supplier_basic ssb,
              sslm_supplier_contact ssc
         where ssb.supplier_basic_id = ssc.supplier_basic_id
