@@ -15,7 +15,7 @@ public class SupplierVO {
 
     private String phone;
 
-    private String contact;
+    private String contacts;
 
     private Long companyId;
 
@@ -55,12 +55,12 @@ public class SupplierVO {
         this.phone = phone;
     }
 
-    public String getContact() {
-        return contact;
+    public String getContacts() {
+        return contacts;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setContacts(String contacts) {
+        this.contacts = contacts;
     }
 
     public Long getCompanyId() {
