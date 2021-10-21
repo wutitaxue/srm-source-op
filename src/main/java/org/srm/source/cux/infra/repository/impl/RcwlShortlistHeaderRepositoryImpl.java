@@ -342,7 +342,7 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
             Long companyId = supplierVO.getSupplierId();
             List<CompanyContactVO> companyContactVOS = rcwlShortlistHeaderMapper.selectContactsByCompanyId(companyId);
             if (CollectionUtils.isNotEmpty(companyContactVOS)) {
-                supplierVO.setContact(companyContactVOS.get(0).getContact());
+                supplierVO.setContacts(companyContactVOS.get(0).getContact());
                 supplierVO.setPhone(companyContactVOS.get(0).getPhone());
             }
         }
