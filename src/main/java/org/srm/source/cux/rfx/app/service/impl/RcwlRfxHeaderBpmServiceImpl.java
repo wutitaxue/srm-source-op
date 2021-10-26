@@ -136,9 +136,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 //            e.printStackTrace();
                 throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
             }
-
             return "http://" + URL2 + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID=" + rfxHeader.getRfxNum();
         } else {
+            rfxHeaderServiceV1.chooseReleaseApproveType(organizationId, rfxHeader.getRfxHeaderId(), sourceTemplate);
             return "";
         }
     }
