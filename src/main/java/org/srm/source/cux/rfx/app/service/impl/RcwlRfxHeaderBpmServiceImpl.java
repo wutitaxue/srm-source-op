@@ -64,6 +64,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
+        if(checkStatus(rfxFullHeader)){
+            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
+        }
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
@@ -138,5 +141,35 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         } else {
             return "";
         }
+    }
+
+
+    /**
+     * 招采工作台点击发布时增加校验
+     * @param rfxFullHeader
+     * @return
+     */
+    public Boolean checkStatus(RfxFullHeader rfxFullHeader){
+        boolean BusinessTechnologyFlag = true;
+        boolean BusinessFlag = true;
+        boolean TechnologyFlag = true;
+        //寻源类别为“招标”
+        if(StringUtils.equals(rfxFullHeader.getRfxHeader().getSourceCategory(), SourceBaseConstant.SourceCategory.RFQ)){
+            //评标方法为“综合评分法”
+            if(StringUtils.equals(rfxFullHeader.getRfxHeader().getAttributeVarchar17(), SourceBaseConstant.BidEvalMethod.COMPREHENSIVE_SCORE)){
+                //商务技术组、商务组、技术组都至少需要维护一位成员
+                List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
+                for(EvaluateExpert evaluateExpert : evaluateExperts){
+                    if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
+                        BusinessTechnologyFlag = false;
+                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
+                        BusinessFlag = false;
+                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
+                        TechnologyFlag = false;
+                    }
+                }
+            }
+        }
+        return BusinessTechnologyFlag || BusinessFlag ||TechnologyFlag;
     }
 }
