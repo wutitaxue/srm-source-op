@@ -401,7 +401,7 @@
                 and srsh.finish_date &lt;= #{finishDateTo}
             </if>
             <if test="companyName !=null">
-                and hc.name=#{companyName}
+                and hc.company_name=#{companyName}
             </if>
             <if test="createBy !=null">
             <bind name="createByLike" value="'%' + createBy +'%'"/>
