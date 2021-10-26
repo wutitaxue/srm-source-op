@@ -382,7 +382,8 @@
                 h.pr_header_id = spl.pr_header_id and h.pr_num like #{prNumLike} )
             </if>
             <if test="projectName != null and projectName != '' ">
-                and srsh.project_name = #{projectName}
+                <bind name="projectNameLike" value="'%' + projectName +'%'"/>
+                and srsh.project_name like  #{projectNameLike}
             </if>
             <if test="sourceCategory != null and sourceCategory != '' ">
                 and srsh.source_category = #{sourceCategory}
@@ -398,6 +399,13 @@
             </if>
             <if test="finishDateTo != null">
                 and srsh.finish_date &lt;= #{finishDateTo}
+            </if>
+            <if test="companyName !=null">
+                and hc.company_name=#{companyName}
+            </if>
+            <if test="createBy !=null">
+            <bind name="createByLike" value="'%' + createBy +'%'"/>
+                and iu.real_name like #{createByLike}
             </if>
         </where>
 
