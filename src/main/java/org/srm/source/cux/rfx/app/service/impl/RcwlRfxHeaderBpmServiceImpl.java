@@ -88,47 +88,50 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         if (!"SELF".equals(sourceTemplate.getReleaseApproveType())) {
             this.rfxEventUtil.eventSend("SSRC_RFX_RELEASE", "RELEASE", rfxHeader);
         }
+        if (!"SELF".equals(sourceTemplate.getReleaseApproveType())) {
+            //获取系统配置
+            String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
+            String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
 
-        //获取系统配置
-        String reSrcSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQSRCSYS");
-        String reqTarSys = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_REQTARSYS");
+            //发送系统标识
+            rcwlGxBpmStartDataDTO.setReSrcSys(reSrcSys);
+            //接收系统标识
+            rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
+            //子账户账号
+            rcwlGxBpmStartDataDTO.setUserId(DetailsHelper.getUserDetails().getUsername());
+            //业务单据ID（业务类型）
+            rcwlGxBpmStartDataDTO.setBtid("RCWLSRMZBLX");
+            //单据编号
+            rcwlGxBpmStartDataDTO.setBoid(rfxFullHeader.getRfxHeader().getRfxNum());
+            //流程id：默认0，如果是退回修改的流程，则需要将流程ID回传回来
+            rcwlGxBpmStartDataDTO.setProcinstId("0");
+            //业务数据
+            RcwlSendBpmData rcwlSendBpmData = rfxHeaderBpmMapper.prepareDate(organizationId, rfxHeader);
+            //设置头URL_MX
+            String URL = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SRM_URL");
+            String URL2 = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
+            String RCWL_SRM_URL = URL + "app/ssrc/new-inquiry-hall/rfx-detail/" + rfxFullHeader.getRfxHeader().getRfxHeaderId() + "?current=newInquiryHall";
+            rcwlSendBpmData.setUrlMx(RCWL_SRM_URL);
+            //设置行参数
+            rcwlSendBpmData.setRcwlScoringTeamDataList(rfxHeaderBpmMapper.prepareScoringTeamData(organizationId, rfxHeader));
+            rcwlSendBpmData.setRcwlDetailDataList(rfxHeaderBpmMapper.prepareDetailData(organizationId, rfxHeader));
+            rcwlSendBpmData.setRcwlSupplierDataList(rfxHeaderBpmMapper.prepareSupplierData(organizationId, rfxHeader));
+            rcwlSendBpmData.setRcwlAttachmentDataList(rfxHeaderBpmMapper.prepareAttachmentData(organizationId, rfxHeader));
 
-        //发送系统标识
-        rcwlGxBpmStartDataDTO.setReSrcSys(reSrcSys);
-        //接收系统标识
-        rcwlGxBpmStartDataDTO.setReqTarSys(reqTarSys);
-        //子账户账号
-        rcwlGxBpmStartDataDTO.setUserId(DetailsHelper.getUserDetails().getUsername());
-        //业务单据ID（业务类型）
-        rcwlGxBpmStartDataDTO.setBtid("RCWLSRMZBLX");
-        //单据编号
-        rcwlGxBpmStartDataDTO.setBoid(rfxFullHeader.getRfxHeader().getRfxNum());
-        //流程id：默认0，如果是退回修改的流程，则需要将流程ID回传回来
-        rcwlGxBpmStartDataDTO.setProcinstId("0");
-        //业务数据
-        RcwlSendBpmData rcwlSendBpmData = rfxHeaderBpmMapper.prepareDate(organizationId, rfxHeader);
-        //设置头URL_MX
-        String URL = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_SRM_URL");
-        String URL2 = profileClient.getProfileValueByOptions(DetailsHelper.getUserDetails().getTenantId(), DetailsHelper.getUserDetails().getUserId(), DetailsHelper.getUserDetails().getRoleId(), "RCWL_BPM_URLIP");
-        String RCWL_SRM_URL = URL + "app/ssrc/new-inquiry-hall/rfx-detail/"+ rfxFullHeader.getRfxHeader().getRfxHeaderId() +"?current=newInquiryHall";
-        rcwlSendBpmData.setUrlMx(RCWL_SRM_URL);
-        //设置行参数
-        rcwlSendBpmData.setRcwlScoringTeamDataList(rfxHeaderBpmMapper.prepareScoringTeamData(organizationId, rfxHeader));
-        rcwlSendBpmData.setRcwlDetailDataList(rfxHeaderBpmMapper.prepareDetailData(organizationId, rfxHeader));
-        rcwlSendBpmData.setRcwlSupplierDataList(rfxHeaderBpmMapper.prepareSupplierData(organizationId, rfxHeader));
-        rcwlSendBpmData.setRcwlAttachmentDataList(rfxHeaderBpmMapper.prepareAttachmentData(organizationId, rfxHeader));
+            String data = JSONObject.toJSONString(rcwlSendBpmData);
+            rcwlGxBpmStartDataDTO.setData(data);
 
-        String data = JSONObject.toJSONString(rcwlSendBpmData);
-        rcwlGxBpmStartDataDTO.setData(data);
-
-        //调用bpm接口
-        try {
-            rcwlGxBpmInterfaceService.RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
-        } catch (IOException e) {
+            //调用bpm接口
+            try {
+                rcwlGxBpmInterfaceService.RcwlGxBpmInterfaceRequestData(rcwlGxBpmStartDataDTO);
+            } catch (IOException e) {
 //            e.printStackTrace();
-            throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
-        }
+                throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
+            }
 
-        return "http://"+URL2+"/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
+            return "http://" + URL2 + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID=" + rfxHeader.getRfxNum();
+        } else {
+            return "";
+        }
     }
 }
