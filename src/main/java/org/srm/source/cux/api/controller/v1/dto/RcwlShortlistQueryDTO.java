@@ -15,8 +15,8 @@ public class RcwlShortlistQueryDTO {
 
     @ApiModelProperty(value = "租户ID,hpfm_tenant.tenant_id")
     private Long tenantId;
-    @ApiModelProperty(value = "公司ID")
-    private Long companyId;
+    @ApiModelProperty(value = "公司名称")
+    private String companyName;
     @ApiModelProperty(value = "入围单号")
     private String shortlistNum;
     @ApiModelProperty(value = "项目名称")
@@ -38,6 +38,9 @@ public class RcwlShortlistQueryDTO {
     @Transient
 
     private String prNum;
+
+    @ApiModelProperty("创建人")
+    private String createBy;
 
     public String getPrNum() {
         return prNum;
@@ -74,12 +77,12 @@ public class RcwlShortlistQueryDTO {
         this.tenantId = tenantId;
     }
 
-    public Long getCompanyId() {
-        return companyId;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getShortlistNum() {
@@ -136,5 +139,13 @@ public class RcwlShortlistQueryDTO {
 
     public void setFinishDateTo(Date finishDateTo) {
         this.finishDateTo = finishDateTo;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
     }
 }
