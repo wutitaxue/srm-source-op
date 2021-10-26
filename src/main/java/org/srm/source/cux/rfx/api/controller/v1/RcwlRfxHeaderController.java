@@ -85,6 +85,7 @@ public class RcwlRfxHeaderController {
     @PostMapping({"/bpmRelease"})
     @FilterSupplier
     public ResponseEntity<UrlDTO> rcwlReleaseRfx(@PathVariable Long organizationId, @Encrypt @RequestBody RfxFullHeader rfxFullHeader) {
+
         String s = rcwlRfxHeaderBpmService.rcwlReleaseRfx(organizationId, rfxFullHeader);
         UrlDTO urlDTO = new UrlDTO();
         urlDTO.setBackUrl(s);

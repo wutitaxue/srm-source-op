@@ -54,4 +54,27 @@ public interface SourceBaseConstant {
     interface RfxAction {
         String SUMMARY_PENDING = "SUMMARY_PENDING";
     }
+
+    /**
+     * 寻源类别
+     */
+    interface SourceCategory {
+        String RFQ = "RFQ";
+    }
+
+    /**
+     * 评标方法
+     */
+    interface BidEvalMethod {
+        String COMPREHENSIVE_SCORE = "综合评分法";
+    }
+
+    /**
+     * 专家组
+     */
+    interface TeamMeaning {
+        String BUSINESS_TECHNOLOGY_GROUP = "商务技术组";
+        String BUSINESS_GROUP = "商务组";
+        String TECHNOLOGY_GROUP = "技术组";
+    }
 }

@@ -5,16 +5,19 @@ import gxbpm.dto.RCWLGxBpmStartDataDTO;
 import gxbpm.service.RCWLGxBpmInterfaceService;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.hzero.boot.platform.profile.ProfileClient;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.srm.source.bid.api.dto.BiddingWorkDTO;
 import org.srm.source.cux.rfx.app.service.RcwlRfxHeaderBpmService;
 import org.srm.source.cux.rfx.domain.vo.RcwlSendBpmData;
 import org.srm.source.cux.rfx.infra.constant.RcwlMessageCode;
 import org.srm.source.cux.rfx.infra.mapper.RcwlRfxHeaderBpmMapper;
+import org.srm.source.cux.share.infra.constant.SourceBaseConstant;
 import org.srm.source.rfx.app.service.RfxHeaderService;
 import org.srm.source.rfx.app.service.v2.RfxHeaderServiceV2;
 import org.srm.source.rfx.domain.entity.RfxHeader;
@@ -22,12 +25,14 @@ import org.srm.source.rfx.domain.service.IRfxHeaderDomainService;
 import org.srm.source.rfx.domain.vo.RfxFullHeader;
 import org.srm.source.rfx.infra.util.RfxEventUtil;
 import org.srm.source.share.app.service.SourceTemplateService;
+import org.srm.source.share.domain.entity.EvaluateExpert;
 import org.srm.source.share.domain.entity.PrequalHeader;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.domain.service.IPrequelDomainService;
 import org.srm.web.annotation.Tenant;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -59,6 +64,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
+        if(checkStatus(rfxFullHeader)){
+            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
+        }
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
@@ -130,5 +138,35 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         }
 
         return "http://"+URL2+"/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID="+rfxHeader.getRfxNum();
+    }
+
+    /**
+     * 招采工作台点击发布时增加校验
+     * @param rfxFullHeader
+     * @return
+     */
+    public Boolean checkStatus(RfxFullHeader rfxFullHeader){
+        boolean BusinessTechnologyFlag = true;
+        boolean BusinessFlag = true;
+        boolean TechnologyFlag = true;
+        //寻源类别为“招标”
+        if(StringUtils.equals(rfxFullHeader.getRfxHeader().getSourceCategory(), SourceBaseConstant.SourceCategory.RFQ)){
+            //评标方法为“综合评分法”
+            if(StringUtils.equals(rfxFullHeader.getRfxHeader().getAttributeVarchar17(), SourceBaseConstant.BidEvalMethod.COMPREHENSIVE_SCORE)){
+                //商务技术组、商务组、技术组都至少需要维护一位成员
+                List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
+                for(EvaluateExpert evaluateExpert : evaluateExperts){
+                    if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
+                        BusinessTechnologyFlag = false;
+                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
+                        BusinessFlag = false;
+                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
+                        TechnologyFlag = false;
+                    }
+                }
+            }
+        }
+        return BusinessTechnologyFlag || BusinessFlag ||TechnologyFlag;
+
     }
 }
