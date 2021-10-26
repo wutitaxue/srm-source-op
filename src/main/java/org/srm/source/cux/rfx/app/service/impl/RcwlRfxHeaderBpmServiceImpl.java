@@ -150,6 +150,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
      * @return
      */
     public Boolean checkStatus(RfxFullHeader rfxFullHeader){
+        boolean flag = false;
         boolean BusinessTechnologyFlag = true;
         boolean BusinessFlag = true;
         boolean TechnologyFlag = true;
@@ -158,6 +159,7 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
             //评标方法为“综合评分法”
             if(StringUtils.equals(rfxFullHeader.getRfxHeader().getAttributeVarchar17(), SourceBaseConstant.BidEvalMethod.COMPREHENSIVE_SCORE)){
                 //商务技术组、商务组、技术组都至少需要维护一位成员
+                flag = true;
                 List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
                 for(EvaluateExpert evaluateExpert : evaluateExperts){
                     if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
@@ -170,6 +172,6 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
                 }
             }
         }
-        return BusinessTechnologyFlag || BusinessFlag ||TechnologyFlag;
+        return (BusinessTechnologyFlag || BusinessFlag || TechnologyFlag) && flag;
     }
 }
