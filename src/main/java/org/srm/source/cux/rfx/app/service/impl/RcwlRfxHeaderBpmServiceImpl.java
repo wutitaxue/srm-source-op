@@ -64,6 +64,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
+        if(checkStatus(rfxFullHeader)){
+            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
+        }
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
@@ -74,9 +77,6 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
         RfxFullHeader rtnFullHeader = rfxHeaderServiceV2.saveOrUpdateFullHeader(rfxFullHeader);
-        if(checkStatus(rtnFullHeader)){
-            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
-        }
         this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
@@ -162,11 +162,11 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
                 flag = true;
                 List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
                 for(EvaluateExpert evaluateExpert : evaluateExperts){
-                    if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
+                    if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
                         BusinessTechnologyFlag = false;
-                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
+                    } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
                         BusinessFlag = false;
-                    } else if(StringUtils.equals(evaluateExpert.getTeamMeaning(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
+                    } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
                         TechnologyFlag = false;
                     }
                 }
