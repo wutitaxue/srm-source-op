@@ -64,9 +64,6 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
-        if(checkStatus(rfxFullHeader)){
-            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
-        }
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
@@ -77,6 +74,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
         rfxHeader.setRfxStatus("NEW");
         rfxHeader.initTotalCoast(rfxFullHeader.getRfxLineItemList());
         RfxFullHeader rtnFullHeader = rfxHeaderServiceV2.saveOrUpdateFullHeader(rfxFullHeader);
+        if(checkStatus(rtnFullHeader)){
+            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
+        }
         this.rfxHeaderDomainService.validRfxHeaderBeforeSave(rfxHeader, sourceTemplate);
         this.rfxHeaderDomainService.validateLineItemTaxRate(rfxFullHeader.getRfxHeader());
         if (BaseConstants.Flag.NO.equals(sourceTemplate.getScoreIndicFlag())) {
