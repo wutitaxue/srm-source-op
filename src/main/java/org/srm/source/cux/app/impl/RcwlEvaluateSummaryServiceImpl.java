@@ -2,6 +2,7 @@ package org.srm.source.cux.app.impl;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections4.CollectionUtils;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.slf4j.Logger;
@@ -9,9 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.srm.source.bid.domain.entity.BidHeader;
 import org.srm.source.bid.infra.constant.BidConstants;
+import org.srm.source.bid.infra.mapper.BidHeaderMapper;
+import org.srm.source.rfx.domain.entity.RfxHeader;
+import org.srm.source.rfx.infra.constant.SourceConstants;
+import org.srm.source.rfx.infra.mapper.RfxHeaderMapper;
 import org.srm.source.share.api.dto.EvaluateSummaryDTO;
 import org.srm.source.share.api.dto.EvaluateSupplierDTO;
+import org.srm.source.share.api.dto.SectionSupplierDTO;
 import org.srm.source.share.app.service.impl.EvaluateSummaryServiceImpl;
 import org.srm.source.share.domain.entity.EvaluateScore;
 import org.srm.source.share.domain.entity.EvaluateScoreLine;
@@ -19,6 +26,7 @@ import org.srm.source.share.domain.entity.EvaluateScoreLineDtl;
 import org.srm.source.share.domain.entity.SourceTemplate;
 import org.srm.source.share.infra.constant.ShareConstants;
 import org.srm.source.share.infra.mapper.EvaluateSummaryMapper;
+import org.srm.source.share.infra.mapper.SourceTemplateMapper;
 import org.srm.web.annotation.Tenant;
 
 import java.math.BigDecimal;
@@ -36,6 +44,12 @@ import static org.srm.source.cux.share.infra.constant.Constant.TENANT_NUM;
 public class RcwlEvaluateSummaryServiceImpl extends EvaluateSummaryServiceImpl {
     @Autowired
     private EvaluateSummaryMapper evaluateSummaryMapper;
+    @Autowired
+    private BidHeaderMapper bidHeaderMapper;
+    @Autowired
+    private RfxHeaderMapper rfxHeaderMapper;
+    @Autowired
+    private SourceTemplateMapper sourceTemplateMapper;
     @Autowired
     private IEncryptionService iEncryptionService;
     private static final Logger LOGGER = LoggerFactory.getLogger(RcwlEvaluateSummaryServiceImpl.class);
@@ -166,5 +180,38 @@ public class RcwlEvaluateSummaryServiceImpl extends EvaluateSummaryServiceImpl {
         });
 
         return supplierList;
+    }
+
+    @Override
+    public List<SectionSupplierDTO> supplierInfo(Long organizationId, String sourceFrom, Long sourceHeaderId) {
+        Integer currentSequenceNum = null;
+        Long templateId = null;
+        List<SectionSupplierDTO> sectionSupplierDTOList = evaluateSummaryMapper.supplierInfo(organizationId, sourceFrom, sourceHeaderId);
+        if (ShareConstants.SourceCategory.BID.equals(sourceFrom)) {
+            BidHeader bidHeader = bidHeaderMapper.selectByPrimaryKey(sourceHeaderId);
+            currentSequenceNum = bidHeader.getCurrentSequenceNum();
+            templateId = bidHeader.getTemplateId();
+        } else {
+            RfxHeader rfxHeader = rfxHeaderMapper.selectByPrimaryKey(sourceHeaderId);
+            currentSequenceNum = rfxHeader.getCurrentSequenceNum();
+            templateId = rfxHeader.getTemplateId();
+        }
+        SourceTemplate sourceTemplate=sourceTemplateMapper.selectByPrimaryKey(templateId);
+        //屏蔽评标附件
+        if(SourceConstants.OpenBidOrder.SYNC.equals(sourceTemplate.getOpenBidOrder())){
+            //同时评标不屏蔽
+            return sectionSupplierDTOList;
+        }
+        if ((SourceConstants.OpenBidOrder.BUSINESS_FIRST.equals(sourceTemplate.getOpenBidOrder())
+                && BaseConstants.Digital.ONE == currentSequenceNum)
+                || (SourceConstants.OpenBidOrder.TECH_FIRST.equals(sourceTemplate.getOpenBidOrder())
+                && BaseConstants.Digital.TWO == currentSequenceNum)) {
+            // 商务状态
+          //  sectionSupplierDTOList.forEach(ss -> ss.getSupplierList().forEach(s -> s.setTechAttachmentUuid(null)));
+        } else {
+            // 技术状态
+            sectionSupplierDTOList.forEach(ss -> ss.getSupplierList().forEach(s -> s.setBusinessAttachmentUuid(null)));
+        }
+        return sectionSupplierDTOList;
     }
 }
