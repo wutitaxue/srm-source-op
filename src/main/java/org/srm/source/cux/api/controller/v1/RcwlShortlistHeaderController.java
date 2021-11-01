@@ -72,7 +72,7 @@ public class RcwlShortlistHeaderController extends BaseController {
 
 
     @ApiOperation(value = "创建入围单头表")
-    @Permission(level = ResourceLevel.ORGANIZATION,permissionPublic = true)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
     public ResponseEntity<RcwlShortlistHeader> create(@RequestBody RcwlShortlistHeader rcwlShortlistHeader) {
         //validObject(rcwlShortlistHeader);
