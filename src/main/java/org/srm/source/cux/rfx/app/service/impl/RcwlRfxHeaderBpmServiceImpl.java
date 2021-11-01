@@ -151,27 +151,36 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
      */
     public Boolean checkStatus(RfxFullHeader rfxFullHeader){
         boolean flag = false;
-        boolean BusinessTechnologyFlag = true;
-        boolean BusinessFlag = true;
-        boolean TechnologyFlag = true;
+        int BusinessTechnologyFlag = 0;
+        int BusinessFlag = 0;
+        int TechnologyFlag = 0;
         //寻源类别为“招标”
         if(StringUtils.equals(rfxFullHeader.getRfxHeader().getSourceCategory(), SourceBaseConstant.SourceCategory.RFQ)){
             //评标方法为“综合评分法”
             if(StringUtils.equals(rfxFullHeader.getRfxHeader().getAttributeVarchar17(), SourceBaseConstant.BidEvalMethod.COMPREHENSIVE_SCORE)){
-                //商务技术组、商务组、技术组都至少需要维护一位成员
+                //商务组至少有三人，技术组至少有三人，商务技术组有一人
                 flag = true;
                 List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
                 for(EvaluateExpert evaluateExpert : evaluateExperts){
                     if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
-                        BusinessTechnologyFlag = false;
+                        BusinessTechnologyFlag++;
                     } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
-                        BusinessFlag = false;
+                        BusinessFlag++;
                     } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
-                        TechnologyFlag = false;
+                        TechnologyFlag++;
                     }
                 }
             }
         }
-        return (BusinessTechnologyFlag || BusinessFlag || TechnologyFlag) && flag;
+
+        if(BusinessTechnologyFlag == 1 && BusinessFlag >= 3 && TechnologyFlag >= 3){
+            return false;
+        } else {
+            if (flag) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }
