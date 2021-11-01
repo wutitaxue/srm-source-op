@@ -6,6 +6,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.mybatis.base.BaseRepository;
 import org.srm.source.cux.api.controller.v1.dto.RcwlShortlistQueryDTO;
 import org.srm.source.cux.api.controller.v1.dto.StaticTextDTO;
+import org.srm.source.cux.api.dto.SupplierPoolDTO;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
 import org.srm.source.cux.domain.vo.SupplierVO;
@@ -165,4 +166,27 @@ public interface RcwlShortlistHeaderRepository extends BaseRepository<RcwlShortl
      * @return
      */
     UserDefaultDTO getPurchaseAgentByExpertInfo(Long organizationId, Long purchaserId);
+    /**
+     * 根据品类ID查询供应商（去重）
+     * @param tenantId 租户id
+     * @param categoryIds 品类ID
+     * @return
+     */
+    List<SupplierPoolDTO> getSuppliersInfo(Long tenantId,List<Long> categoryIds,List<Long> companyIds,List<Long> stageIds);
+    /**
+     * 查询供应商信息
+     * @param stageCodeList 生命周期类型
+     * @return List<Long>
+     */
+    List<Long> selectStageIdsByCodeList(Long tenantId,List<String> stageCodeList);
+
+    /**
+     * 根据入围单查询供应商信息
+     *
+     *
+     * @param tenantId    租户ID
+     * @param shortlistHeaderId 入围单ID
+     * @return List<RcwlSupplierHeader>
+     */
+    List<RcwlSupplierHeader> selectSupplierInfoByShortlistHeaderId(Long tenantId, Long shortlistHeaderId);
 }
