@@ -808,5 +808,172 @@
           and iu.is_locked = 0
           AND hpa.purchase_agent_id = #{purchaserId}
     </select>
+    <select id="getSuppliersInfo" resultType="org.srm.source.cux.api.dto.SupplierPoolDTO">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select * from ( SELECT
+        slc.tenant_id,
+        slc.company_id,
+        scblp.company_name AS company_name_meaning,
+        ifnull( ssb.company_num, hc.company_num ) AS supplier_company_num,
+        ifnull( ssbt.company_name, hc.company_name ) AS supplier_company_name,
+        ssb.short_name AS supplier_company_short_name,
+        ssb.taxpayer_type,
+        slc.life_cycle_id,
+        ssb.domestic_foreign_relation,
+        ssb.company_type,
+        ssb.organizing_institution_code,
+        ssb.unified_social_code,
+        ssb.duns_code,
+        slc.supplier_tenant_id,
+        slc.supplier_company_id,
+        scb.manufacturer_flag,
+        scb.trader_flag,
+        scb.servicer_flag AS service_flag,
+        scb.agent_flag,
+        slc.authorize_flag,
+        slc.blacklist_flag,
+        slcst.stage_description,
+        slc.stage_id,
+
+        hc2.source_key AS spfm_company_id,
+        hc.source_key AS spfm_supplier_company_id,
+        slc.forever_blacklist_flag,
+        slcr.creation_date,
+        ssb.company_english_name AS supplier_english_name,
+        ssb.registered_capital,
+        ssbt.address_detail,
+        ssb.build_date,
+        ssb.supplier_basic_id,
+        hc2.company_num,
+        ssb.legal_rep_name
+        FROM
+        sslm_life_cycle slc
+
+
+        LEFT JOIN ( SELECT max( requisition_id ) requisition_id, to_stage_id, tenant_id, supplier_company_id FROM
+        sslm_life_cycle_reqs WHERE process_status = 'APPROVED' GROUP BY to_stage_id, tenant_id, supplier_company_id )
+        slcr_max ON slcr_max.to_stage_id = slc.stage_id
+        AND slcr_max.tenant_id = slc.tenant_id
+        AND slcr_max.supplier_company_id = slc.supplier_company_id
+        LEFT JOIN sslm_life_cycle_reqs slcr ON slcr_max.requisition_id = slcr.requisition_id
+        AND slcr_max.to_stage_id = slc.stage_id
+        AND slcr_max.tenant_id = slc.tenant_id
+        AND slcr_max.supplier_company_id = slc.supplier_company_id
+
+        LEFT JOIN sslm_life_cycle_stages slcs ON slcs.stage_id = slc.stage_id
+        LEFT JOIN sslm_life_cycle_stages_tl slcst ON slcst.stage_id = slcs.stage_id AND slcst.lang = #{lang}
+        left join hpfm_company hc2 ON slc.tenant_id = hc2.tenant_id AND slc.company_id = hc2.company_id
+
+        left join hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id and slc.company_id =sp.company_id and
+        slc.supplier_tenant_id = sp.partner_tenant_id and slc.supplier_company_id = sp.partner_company_id
+
+        LEFT JOIN sslm_supplier_basic ssb on sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+
+        LEFT JOIN sslm_supplier_business scb ON scb.supplier_basic_id = ssb.supplier_basic_id
+
+        LEFT JOIN sslm_supply_ability ssa on ssa.supplier_company_id=slc.supplier_company_id AND ( ssa.company_id =
+        slc.company_id
+        OR ssa.company_id IS NULL)
+         left join sslm_supply_ability_line ssal on ssa.supply_ability_id=ssal.supply_ability_id
+
+
+        LEFT JOIN (SELECT MAX(version_number) version_number,company_id FROM spfm_company_basic WHERE process_status =
+        'COMPLETE' GROUP BY company_id) scba_maxp
+        on scba_maxp.company_id=hc2.source_key
+        LEFT JOIN spfm_company_basic scbp ON scbp.company_id = scba_maxp.company_id AND scba_maxp.version_number =
+        scbp.version_number
+        LEFT JOIN spfm_company_basic_tl scblp ON scbp.company_basic_id = scblp.company_basic_id
+        AND scblp.lang = #{lang}
+        LEFT JOIN iam_user iamu ON iamu.id = ssb.purchase_agent_id
+
+        WHERE slc.tenant_id = #{tenantId}
+        <if test="categoryIds != null and categoryIds.size > 0">
+            AND ssal.item_category_id IN
+            <foreach collection="categoryIds" item="categoryId" index="index" separator="," open="(" close=")">
+                #{categoryId}
+            </foreach>
+        </if>
+        <if test="companyIds != null and companyIds.size > 0">
+            AND slc.company_id IN
+            <foreach collection="companyIds" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="stageIds != null and stageIds.size > 0">
+            AND slcs.stage_id IN
+            <foreach collection="stageIds" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        ) tab GROUP BY tab.supplier_company_num
+    </select>
+
+    <select id="selectStageIdsByCodeList" resultType="java.lang.Long">
+        <bind name="userDetails" value="@io.choerodon.core.oauth.DetailsHelper@getUserDetails()"/>
+        SELECT
+        slcs.stage_id
+        FROM
+        sslm_life_cycle_stages slcs
+        WHERE
+        slcs.tenant_id = #{tenantId}
+        AND slcs.stage_code IN
+        <foreach collection="stageCodeList" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectSupplierInfoByShortlistHeaderId"
+            resultType="org.srm.source.cux.domain.entity.RcwlSupplierHeader">
+        <bind name="lang" value="@io.choerodon.mybatis.helper.LanguageHelper@language()"/>
+        select
+        srsh2.supplier_header_id,
+        srsh2.supplier_id,
+        srsh2.tenant_id,
+        srsh2.company_id,
+        srsh.sample_id,
+        ifnull(ssbt.company_name,hc.company_name) AS supplier_name,
+        ifnull(ssb.company_num,hc.company_num) AS supplier_num,
+        srsh2.contacts,
+        srsh2.phone,
+        srsh2.status supplier_status,
+        slcs.stage_description,
+        srsh2.object_version_number,
+        srsh2.selected,
+        srsh2.enroll,
+        srsh2.enroll_date,
+        srsh2.status,
+        srsh2.created_by,
+        srsh2.capital,
+        srsh2.years,
+        srsh2.attribute_bigint1,
+        srsh2.attribute_bigint2,
+        srsh2.attribute_bigint3,
+        srsh2.attribute_bigint4,
+        srsh2.attribute_bigint5,
+        srsh2.one_profit,
+        srsh2.two_profit,
+        srsh2.creation_date
+        from scux_rcwl_supplier_header srsh2
+        left join scux_rcwl_shortlist_header srsh on srsh2.shortlist_header_id = srsh.shortlist_header_id
+        left join iam_user iu on iu.id = srsh2.created_by
+        left join sslm_life_cycle_stages slcs on slcs.stage_id = srsh2.stage_id and slcs.tenant_id = srsh2.tenant_id
+        LEFT JOIN sslm_life_cycle slc ON srsh2.supplier_id = slc.supplier_company_id and slc.company_id =
+        srsh.company_id
+        LEFT JOIN hpfm_company hc ON slc.supplier_tenant_id = hc.tenant_id
+        AND slc.supplier_company_id = hc.company_id
+        LEFT JOIN spfm_partner sp ON slc.tenant_id = sp.tenant_id
+        AND slc.company_id = sp.company_id
+        AND slc.supplier_tenant_id = sp.partner_tenant_id
+        AND slc.supplier_company_id = sp.partner_company_id
+        LEFT JOIN sslm_supplier_basic ssb ON sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
+        where
+        srsh2.tenant_id = #{tenantId}
+        and srsh2.shortlist_header_id = #{shortlistHeaderId}
+    </select>
+
+
 
 </mapper>
