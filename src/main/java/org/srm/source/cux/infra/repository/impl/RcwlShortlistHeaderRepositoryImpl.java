@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.srm.source.cux.api.controller.v1.dto.*;
+import org.srm.source.cux.api.dto.SupplierPoolDTO;
 import org.srm.source.cux.app.service.RcwlSupplierHeaderService;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
@@ -385,5 +386,20 @@ public class RcwlShortlistHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSh
     @Override
     public UserDefaultDTO getPurchaseAgentByExpertInfo(Long organizationId, Long purchaserId) {
         return this.rcwlShortlistHeaderMapper.getPurchaseAgentByExpertInfo(organizationId, purchaserId);
+    }
+
+    @Override
+    public List<SupplierPoolDTO> getSuppliersInfo(Long tenantId,List<Long> categoryIds,List<Long> companyIds,List<Long> stageIds) {
+        return rcwlShortlistHeaderMapper.getSuppliersInfo(tenantId,categoryIds,companyIds,stageIds);
+    }
+
+    @Override
+    public List<Long> selectStageIdsByCodeList(Long tenantId,List<String> stageCodeList) {
+        return rcwlShortlistHeaderMapper.selectStageIdsByCodeList(tenantId,stageCodeList);
+    }
+
+    @Override
+    public List<RcwlSupplierHeader> selectSupplierInfoByShortlistHeaderId(Long tenantId, Long shortlistHeaderId) {
+        return rcwlShortlistHeaderMapper.selectSupplierInfoByShortlistHeaderId(tenantId, shortlistHeaderId);
     }
 }

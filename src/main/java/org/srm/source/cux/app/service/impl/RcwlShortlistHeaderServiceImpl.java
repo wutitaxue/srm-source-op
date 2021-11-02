@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.srm.source.cux.api.dto.RcwlAbilityHeadDTO;
 import org.srm.source.cux.api.dto.RcwlAbilityLineDTO;
+import org.srm.source.cux.api.dto.SupplierPoolDTO;
 import org.srm.source.cux.app.service.RcwlShortlistAttachmentService;
 import org.srm.source.cux.app.service.RcwlShortlistHeaderService;
 import org.springframework.stereotype.Service;
 import org.srm.source.cux.domain.entity.RcwlShortlistHeader;
 import org.srm.source.cux.domain.entity.RcwlSupplierHeader;
+import org.srm.source.cux.domain.repository.RCWLPrLineRepository;
 import org.srm.source.cux.domain.repository.RcwlShortlistAttachmentRepository;
 import org.srm.source.cux.domain.repository.RcwlShortlistHeaderRepository;
 import org.srm.source.cux.domain.repository.RcwlSupplierHeaderRepository;
@@ -31,6 +33,7 @@ import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.CodeRule.SCUX_RCWL_SHORT_HEADER_NUM;
 import static org.srm.source.cux.infra.constant.RcwlShortlistContants.LovCode.*;
@@ -67,6 +70,9 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
     @Autowired
     private RcwlShortListSelectMapper rcwlShortListSelectMapper;
 
+    @Autowired
+    private RCWLPrLineRepository  rcwlPrLineRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(RcwlShortlistHeaderServiceImpl.class);
 
     @Override
@@ -75,6 +81,7 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
         //获取用户信息
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Long tenantId = userDetails.getTenantId();
+       // Long tenantId = 16L;
         rcwlShortlistHeader.setTenantId(tenantId);
 
         //校验
@@ -103,6 +110,77 @@ public class RcwlShortlistHeaderServiceImpl implements RcwlShortlistHeaderServic
                 rcwlShortlistHeaderRepository.updatePrLineByShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId(), rcwlShortlistHeader.getPrLineIds());
             }
         } else {
+            //add by 21420 融创二期二开，保存时根据采购申请行信息自动带出供应商信息
+            //只有第一次保存的时候才跑自动带出的逻辑，根据必输项是否已经存在表里来判断，如果前台的必输项在后台表里没有值则说明是第一次保存
+            RcwlShortlistHeader header = rcwlShortlistHeaderRepository.selectShortlistHeaderById(tenantId,rcwlShortlistHeader.getShortlistHeaderId());
+            //判断公司和入围方式是否为空
+            if(header.getCompanyId() == null && header.getShortlistCategory() == null){
+                logger.info("第一次保存，进入自动带入供应商逻辑");
+                //获取入围单关联的采购申请的品类集合
+                List<Long> categoryIds =new ArrayList<>();
+                List<Long> companyIds =new ArrayList<>();
+                List<PrLineVO> prInfos = rcwlShortlistHeaderRepository.pageAssignList(rcwlShortlistHeader.getShortlistHeaderId());
+                for(PrLineVO prInfo : prInfos){
+                    long categoryId = prInfo.getCategoryId();
+                    long companyId = prInfo.getCompanyId();
+                    categoryIds.add(categoryId);
+                    companyIds.add(companyId);
+                }
+                //去重
+                List<Long> newCategoryIds = categoryIds.stream().distinct().collect(Collectors.toList());
+                List<Long> newCompanyIds = companyIds.stream().distinct().collect(Collectors.toList());
+
+                logger.info("去重之后的品类ID：{}",newCategoryIds);
+                logger.info("去重之后的公司ID：{}",newCompanyIds);
+                //判断入围方式
+                String shortlistCategoryType = rcwlShortlistHeader.getShortlistCategory();
+                List<String> params = new ArrayList<>();
+                if(SHORTLIST_CATEGEORY_SOLICITATION.equals(shortlistCategoryType)){
+                    params.add("REGISTER");
+                    params.add("POTENTIAL");
+                    params.add("QUALIFIED");
+                }else if(SHORTLIST_CATEGEORY_INVITATION.equals(shortlistCategoryType)){
+                    params.add("POTENTIAL");
+                    params.add("QUALIFIED");
+                }
+                List<Long> stageIds = rcwlShortlistHeaderRepository.selectStageIdsByCodeList(tenantId,params);
+                //查询供货能力清单中符合条件的供应商(去重)
+                List<SupplierPoolDTO> supplierInfos = rcwlShortlistHeaderRepository.getSuppliersInfo(tenantId,newCategoryIds,newCompanyIds,stageIds);
+                //获取已存在的供应商
+                List<RcwlSupplierHeader> existsSuppliers = rcwlShortlistHeaderRepository.selectSupplierInfoByShortlistHeaderId(tenantId,rcwlShortlistHeader.getShortlistHeaderId());
+                List<Long> existsSuppliersIds = new ArrayList<>();
+                existsSuppliers.forEach(existsSupplier->{
+                    existsSuppliersIds.add(existsSupplier.getSupplierId());
+                });
+                //移除已存在的供应商
+                supplierInfos.removeIf(s->
+                        existsSuppliersIds.contains(s.getSupplierCompanyId())
+                );
+                logger.info("剩余的供应商：{}",supplierInfos);
+                //如果有剩余的供应商则新增
+                if(CollectionUtils.isNotEmpty(supplierInfos)){
+                    //设置传递参数
+                    supplierInfos.forEach(supplierInfo->{
+                        RcwlSupplierHeader supplierHeader = new RcwlSupplierHeader();
+                        supplierHeader.setTenantId(tenantId);
+                        supplierHeader.setSupplierId(supplierInfo.getSupplierCompanyId());
+                        supplierHeader.setSupplierNum(supplierInfo.getSupplierCompanyNum());
+                        supplierHeader.setStageId(supplierInfo.getStageId());
+                        supplierHeader.setShortlistHeaderId(rcwlShortlistHeader.getShortlistHeaderId());
+                        supplierHeader.setPhone(supplierInfo.getContactPhone());
+                        supplierHeader.setContacts(supplierInfo.getContactName());
+                        supplierHeader.setCompanyName(supplierInfo.getCompanyNameMeaning());
+                        supplierHeader.setCompanyNum(supplierInfo.getCompanyNum());
+                        supplierHeader.setCompanyId(supplierInfo.getCompanyId());
+                        supplierHeader.setAttributeBigint4(supplierInfo.getSupplierTenantId());
+                        supplierHeader.setAttributeBigint3(supplierInfo.getSpfmSupplierCompanyId());
+                        supplierHeader.setAttributeBigint2(supplierInfo.getSpfmCompanyId());
+                        supplierHeader.setAttributeBigint1(supplierInfo.getSupplierCompanyId());
+                        //调用方法
+                        rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(supplierHeader);
+                    });
+                }
+            }
             rcwlShortlistHeaderRepository.updateByPrimaryKeySelective(rcwlShortlistHeader);
         }
 

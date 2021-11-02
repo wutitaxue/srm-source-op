@@ -64,6 +64,9 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 
     @Override
     public String rcwlReleaseRfx(Long organizationId, RfxFullHeader rfxFullHeader) {
+        if(checkStatus(rfxFullHeader)){
+            throw new CommonException(RcwlMessageCode.RCWL_SUBMIT_ERROR);
+        }
         RfxHeader rfxHeader = rfxFullHeader.getRfxHeader();
         RCWLGxBpmStartDataDTO rcwlGxBpmStartDataDTO = new RCWLGxBpmStartDataDTO();
         Assert.notNull(rfxHeader.getRfxHeaderId(), "header.not.presence");
@@ -133,10 +136,51 @@ public class RcwlRfxHeaderBpmServiceImpl implements RcwlRfxHeaderBpmService {
 //            e.printStackTrace();
                 throw new CommonException(RcwlMessageCode.RCWL_BPM_ITF_ERROR);
             }
-
             return "http://" + URL2 + "/Workflow/MTStart2.aspx?BSID=WLCGGXPT&BTID=RCWLSRMZBLX&BOID=" + rfxHeader.getRfxNum();
         } else {
+            rfxHeaderServiceV1.chooseReleaseApproveType(organizationId, rfxHeader.getRfxHeaderId(), sourceTemplate);
             return "";
+        }
+    }
+
+
+    /**
+     * 招采工作台点击发布时增加校验
+     * @param rfxFullHeader
+     * @return
+     */
+    public Boolean checkStatus(RfxFullHeader rfxFullHeader){
+        boolean flag = false;
+        int BusinessTechnologyFlag = 0;
+        int BusinessFlag = 0;
+        int TechnologyFlag = 0;
+        //寻源类别为“招标”
+        if(StringUtils.equals(rfxFullHeader.getRfxHeader().getSourceCategory(), SourceBaseConstant.SourceCategory.RFQ)){
+            //评标方法为“综合评分法”
+            if(StringUtils.equals(rfxFullHeader.getRfxHeader().getAttributeVarchar17(), SourceBaseConstant.BidEvalMethod.COMPREHENSIVE_SCORE)){
+                //商务组至少有三人，技术组至少有三人，商务技术组有一人
+                flag = true;
+                List<EvaluateExpert> evaluateExperts = rfxFullHeader.getEvaluateExperts().getEvaluateExpertList();
+                for(EvaluateExpert evaluateExpert : evaluateExperts){
+                    if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_TECHNOLOGY_GROUP)){
+                        BusinessTechnologyFlag++;
+                    } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.BUSINESS_GROUP)){
+                        BusinessFlag++;
+                    } else if(StringUtils.equals(evaluateExpert.getTeam(), SourceBaseConstant.TeamMeaning.TECHNOLOGY_GROUP)){
+                        TechnologyFlag++;
+                    }
+                }
+            }
+        }
+
+        if(BusinessTechnologyFlag == 1 && BusinessFlag >= 3 && TechnologyFlag >= 3){
+            return false;
+        } else {
+            if (flag) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

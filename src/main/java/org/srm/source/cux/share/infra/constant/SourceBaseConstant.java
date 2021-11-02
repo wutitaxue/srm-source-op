@@ -73,8 +73,8 @@ public interface SourceBaseConstant {
      * 专家组
      */
     interface TeamMeaning {
-        String BUSINESS_TECHNOLOGY_GROUP = "商务技术组";
-        String BUSINESS_GROUP = "商务组";
-        String TECHNOLOGY_GROUP = "技术组";
+        String BUSINESS_TECHNOLOGY_GROUP = "BUSINESS_TECHNOLOGY";
+        String BUSINESS_GROUP = "BUSINESS";
+        String TECHNOLOGY_GROUP = "TECHNOLOGY";
     }
 }
