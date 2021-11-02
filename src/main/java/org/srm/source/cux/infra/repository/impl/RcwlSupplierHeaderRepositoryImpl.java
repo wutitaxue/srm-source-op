@@ -51,6 +51,8 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Autowired
     private RcwlShortlistHeaderRepository rcwlShortlistHeaderRepository;
+    @Autowired
+    private RcwlSupplierHeaderRepository rcwlSupplierHeaderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(Loader.class);
 
@@ -187,6 +189,7 @@ public class RcwlSupplierHeaderRepositoryImpl extends BaseRepositoryImpl<RcwlSup
 
     @Override
     public RcwlSupplierHeader submit(RcwlSupplierHeader rcwlSupplierHeader) {
+        rcwlSupplierHeaderRepository.createAndUpdateSupplierHeader(rcwlSupplierHeader);
         rcwlSupplierHeader.setStatus(RCWL_RWENROLL_STUTAS_SUBMITTED);
         this.self().updateOptional(rcwlSupplierHeader, "status");
         return rcwlSupplierHeader;
