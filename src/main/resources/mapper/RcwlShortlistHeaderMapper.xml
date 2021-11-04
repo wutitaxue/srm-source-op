@@ -845,7 +845,10 @@
         ssb.build_date,
         ssb.supplier_basic_id,
         hc2.company_num,
-        ssb.legal_rep_name
+        ssb.legal_rep_name,
+        ssc.NAME AS contactName,
+        ssc.mail AS contactMail,
+        ssc.mobilephone AS contactPhone
         FROM
         sslm_life_cycle slc
 
@@ -869,6 +872,7 @@
         slc.supplier_tenant_id = sp.partner_tenant_id and slc.supplier_company_id = sp.partner_company_id
 
         LEFT JOIN sslm_supplier_basic ssb on sp.supplier_basic_id = ssb.supplier_basic_id
+        LEFT JOIN sslm_supplier_contact ssc on  ssb.supplier_basic_id = ssc.supplier_basic_id
         LEFT JOIN sslm_supplier_basic_tl ssbt on ssbt.supplier_basic_id = ssb.supplier_basic_id AND ssbt.lang = #{lang}
 
         LEFT JOIN sslm_supplier_business scb ON scb.supplier_basic_id = ssb.supplier_basic_id
