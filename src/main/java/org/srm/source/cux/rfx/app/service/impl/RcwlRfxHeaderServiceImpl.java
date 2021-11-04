@@ -162,7 +162,7 @@ public class RcwlRfxHeaderServiceImpl extends RfxHeaderServiceImpl {
             if (BaseConstants.Flag.YES.equals(biddingWorkDTO.getSourceOpenFlag())) {
                 throw new CommonException("error.evaluate_leader_flag_repeat_open", new Object[0]);
             } else {
-                throw new CommonException("error.evaluate_leader_flag_repeat", new Object[0]);
+                throw new CommonException("error.evaluate_at_least_one_leader", new Object[0]);
             }
         }
     }
