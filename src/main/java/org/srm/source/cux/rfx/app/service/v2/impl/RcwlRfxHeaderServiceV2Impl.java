@@ -153,12 +153,17 @@ public class RcwlRfxHeaderServiceV2Impl extends RfxHeaderServiceV2Impl {
         if (StringUtils.isBlank(rfxHeader.getCurrencyCode())) {
             rfxHeader.setCurrencyCode(RfxBaseConstant.CurrencyCode.CNY);
         }
-        //发布即开始 时间校验
-        Assert.notNull(rfxHeader.getStartQuotationRunningDuration(), "error.no.start_quotation_running_duration");
-        //发布即开始小于三天则报错
-        BigDecimal threeDays = new BigDecimal(3 * 24 * 60);
-        if (threeDays.compareTo(rfxHeader.getStartQuotationRunningDuration()) == 1) {
-            throw new CommonException("error.start_quotation_running_duration.less.then.three_days");
+        //add by 21420 多轮报价规则存在自动时，不校验发布时间
+        String roundQuotationRule = rfxHeader.getRoundQuotationRule();
+        //判断当前询价单是否选择了自动报价的值集编码，如果没有选择，则需要校验运行日期是否存在和小于三天的报错
+        if(!Constants.autoQuotationRule.contains(roundQuotationRule)){
+            //发布即开始 时间校验
+            Assert.notNull(rfxHeader.getStartQuotationRunningDuration(), "error.no.start_quotation_running_duration");
+            //发布即开始小于三天则报错
+            BigDecimal threeDays = new BigDecimal(3 * 24 * 60);
+            if (threeDays.compareTo(rfxHeader.getStartQuotationRunningDuration()) == 1) {
+                throw new CommonException("error.start_quotation_running_duration.less.then.three_days");
+            }
         }
         Assert.notNull(rfxHeader.getTemplateId(), "error.source_template_not_selected");
         SourceTemplate sourceTemplate = this.sourceTemplateService.selectByPrimaryKey(rfxHeader.getTemplateId());
