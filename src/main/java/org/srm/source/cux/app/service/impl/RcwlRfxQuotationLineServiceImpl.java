@@ -176,6 +176,8 @@ public class RcwlRfxQuotationLineServiceImpl extends RfxQuotationLineServiceImpl
                     && !RcwlShareConstants.CategoryType.RCZW.equals(rfxHeader.getSourceCategory())) {
                 this.iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLineList);
                 this.rfxQuotationRecordService.sendMessageByUpdateQuotations(rfxHeader.getTenantId(), rfxQuotationHeader.getQuotationHeaderId(), sourceTemplate, rfxQuotationLineList, rfxLineItems);
+            } else {
+                this.iRfxQuotationRecordDomainService.generateQuotationRecords(rfxHeader, rfxQuotationLineList);
             }
 
             if (null != rfxHeader.getCurrentQuotationRound()) {
