@@ -106,7 +106,7 @@ public class RcwlClarifyServiceImpl implements RcwlClarifyService {
         StringBuilder sb = new StringBuilder();
         sb.append(URL_MX_HEADER).append(clarify.getSourceId()).append("/").append(dataBySourceId == "" ? "":dataBySourceId.split("\\+")[1])
                 .append("/1/").append("1?").append("current=newInquiryHall&createFlag=1");
-        rcwlDataForBPM.setURL_MX(URL_MX_HEADER+sb.toString());//甄云链接-澄清函详情URL（路径招采工作台-进行中-操作-更多-澄清答疑-澄清函维护-澄清单号）
+        rcwlDataForBPM.setURL_MX(sb.toString());//甄云链接-澄清函详情URL（路径招采工作台-进行中-操作-更多-澄清答疑-澄清函维护-澄清单号）
         //data数据填充附件信息
         List<RcwlAttachmentListDataForBPM> dataList = new ArrayList<RcwlAttachmentListDataForBPM>();
         if(!CollectionUtils.isEmpty(attachmentList)){
