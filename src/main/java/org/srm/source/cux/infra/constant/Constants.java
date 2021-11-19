@@ -1,5 +1,8 @@
 package org.srm.source.cux.infra.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author 15640
  */
@@ -254,4 +257,5 @@ public class Constants {
         private ErrorCode() {
         }
     }
+    public static final List<String> autoQuotationRule = Arrays.asList(new String[]{"AUTO", "AUTO_CHECK", "AUTO_SCORE"});
 }
